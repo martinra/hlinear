@@ -18,13 +18,19 @@ import HLinear.VVMatrix
 vvMatrixTestGroup :: TestTree
 vvMatrixTestGroup = testGroup "VVMatrix Tests" [properties, unitTests]
 
+testProperty s p = testGroup ("s " ++ "(QuickCheck & SmallCheck)")
+  [ QC.testProperty s p
+  , SC.testProperty s p
+  ]
 
+f :: VVMatrix a -> Bool
+f x = x == fromLists (toLists x)
+
+properties :: TestTree
+properties = testGroup "Properties"
+  [
+    testProperty "fromLists . toLists == id" f
+  ]
 
 unitTests = testGroup "Unit tests" []
---   [ testCase "List comparison (different length)" $
---       [1, 2, 3] `compare` [1,2] @?= GT
---
---   -- the following test does not hold
---   , testCase "List comparison (same length)" $
---       [1, 2, 3] `compare` [1,2,2] @?= LT
---   ]
+

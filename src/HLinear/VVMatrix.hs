@@ -1,4 +1,8 @@
 module HLinear.VVMatrix
+  ( VVMatrix
+  , toLists
+  , fromLists
+  )
 
 where
 
