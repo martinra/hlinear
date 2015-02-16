@@ -11,3 +11,6 @@ import HLinear.VVMatrix.Basic ( toLists
 
 import HLinear.VVMatrix.Definition ( VVMatrix(..) )
 
+import HLinear.VVMatrix.QuickCheck
+import HLinear.VVMatrix.SmallCheck
+
