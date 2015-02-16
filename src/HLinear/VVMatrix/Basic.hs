@@ -2,8 +2,7 @@ module HLinear.VVMatrix.Basic
 where
 
 import qualified Data.Vector as V
-import qualified Data.Vector.Generic as VG
-import HLinear.VVMatrix.Definition (VVMatrix(..))
+import HLinear.VVMatrix.Definition ( VVMatrix(..) )
 
 toLists :: VVMatrix a -> [[a]]
 toLists (VVMatrix _ _ vss) = V.toList $ V.map V.toList vss
@@ -17,5 +16,6 @@ fromLists rs | nrs == 0  = VVMatrix 0 0 V.empty
     nrs = length rs
     ncs = length $ head rs
 
-instance Eq (VVMatrix a) where
-  (==) = VG.eq
+instance Eq a => Eq (VVMatrix a) where
+  (VVMatrix nrs ncs rs) == (VVMatrix nrs' ncs' rs') =
+    nrs == nrs' && ncs == ncs' && rs == rs'
