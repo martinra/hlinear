@@ -18,18 +18,28 @@ import HLinear.VVMatrix
 vvMatrixTestGroup :: TestTree
 vvMatrixTestGroup = testGroup "VVMatrix Tests" [properties, unitTests]
 
-testProperty s p = testGroup ("s " ++ "(QuickCheck & SmallCheck)")
+
+equals :: Eq r
+       => (VVMatrix a -> r)
+       -> (VVMatrix a -> r)
+       -> VVMatrix a -> Bool
+equals f g m = f m == g m
+
+equalsQQ :: Eq r
+       => (VVMatrix Rational -> r) -> (VVMatrix Rational -> r)
+       -> VVMatrix Rational -> Bool
+equalsQQ = equals
+
+
+testProperty s p = testGroup "(QuickCheck & SmallCheck)"
   [ QC.testProperty s p
   , SC.testProperty s p
   ]
 
-f :: VVMatrix a -> Bool
-f x = x == fromLists (toLists x)
-
 properties :: TestTree
 properties = testGroup "Properties"
-  [
-    testProperty "fromLists . toLists == id" f
+  [ testProperty "fromLists . toLists == id" $
+      equalsQQ id (fromLists . toLists)
   ]
 
 unitTests = testGroup "Unit tests" []
