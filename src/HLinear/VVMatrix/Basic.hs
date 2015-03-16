@@ -2,19 +2,42 @@ module HLinear.VVMatrix.Basic
 where
 
 import qualified Data.Vector as V
+import Data.Vector ( Vector )
 import HLinear.VVMatrix.Definition ( VVMatrix(..) )
 
+
+nrows :: VVMatrix a -> Int
+nrows (VVMatrix nrs _ _) = nrs
+
+ncols :: VVMatrix a -> Int
+ncols (VVMatrix _ ncs _) = ncs
+
+
+toVectors :: VVMatrix a -> Vector (Vector a)
+toVectors (VVMatrix _ _ rs) = rs
+
+fromVectors :: Vector (Vector a) -> VVMatrix a
+fromVectors rs =
+  fromVectors' nrs (if nrs == 0 then 0 else V.length (V.head rs)) rs
+  where
+  nrs = V.length rs
+
+fromVectors' :: Int -> Int -> Vector (Vector a) -> VVMatrix a
+fromVectors' nrs ncs rs
+  | nrs /= V.length rs = error "number of rows incorrect"
+  | any ((/=ncs) . V.length) rs = error "rows must have the same length"
+  | otherwise =  VVMatrix nrs ncs rs
+
+
 toLists :: VVMatrix a -> [[a]]
-toLists (VVMatrix _ _ vss) = V.toList $ V.map V.toList vss
+toLists (VVMatrix _ _ rs) = V.toList $ V.map V.toList rs
 
 fromLists :: [[a]] -> VVMatrix a
-fromLists rs | nrs == 0  = VVMatrix 0 0 V.empty
-             | otherwise = if any ((/=ncs) . length) $ tail rs
-                           then error "rows must have the same length"
-                           else VVMatrix nrs ncs $ V.fromList (map V.fromList rs)
-  where
-    nrs = length rs
-    ncs = length $ head rs
+fromLists rs = fromVectors $ V.map V.fromList $ V.fromList rs
+
+fromLists' :: Int -> Int -> [[a]] -> VVMatrix a
+fromLists' nrs ncs rs = fromVectors' nrs ncs $ V.map V.fromList $ V.fromList rs
+
 
 instance Eq a => Eq (VVMatrix a) where
   (VVMatrix nrs ncs rs) == (VVMatrix nrs' ncs' rs') =
