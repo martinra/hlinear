@@ -29,7 +29,7 @@ library
     HLinear.PLE.VVMatrixField
     HLinear.PLE.VVMatrixField.EchelonForm
     HLinear.PLE.VVMatrixField.LeftTransformation
-  -- other-extensions:
+
   build-depends:
       base >=4.7 && <4.9
     , algebra == 4.2
@@ -45,7 +45,11 @@ library
   default-language:    Haskell2010
 
 test-suite test-hlinear
-  default-language: Haskell2010
+  main-is:        TestHLinear.hs
+  other-modules:
+      TestHLinear.Utils
+      VVMatrixTests
+      VVMatrixTests.Utils
   build-depends:
       base
     , smallcheck
@@ -57,5 +61,5 @@ test-suite test-hlinear
     , hlinear == 0.0.1
 
   type:           exitcode-stdio-1.0
-  main-is:        TestHLinear.hs
   hs-source-dirs: test
+  default-language: Haskell2010

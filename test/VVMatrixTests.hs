@@ -5,7 +5,6 @@
 module VVMatrixTests
 where
 
-import Debug.Trace ( trace )
 import qualified Data.Vector as V
 import Test.Tasty ( testGroup,
                     TestTree
@@ -18,34 +17,21 @@ import Test.Tasty.HUnit ( (@?=) )
 
 import HLinear.VVMatrix
 
+import qualified TestHLinear.Utils as U
+import TestHLinear.Utils ( testProperty )
+import VVMatrixTests.Utils
+
 
 vvMatrixTestGroup :: TestTree
 vvMatrixTestGroup = testGroup "VVMatrix Tests"
-                    [ properties, unitTests ]
+                    [ properties
+                    , unitTests ]
 
 
-equals :: Eq r
-       => (VVMatrix a -> r)
-       -> (VVMatrix a -> r)
-       -> VVMatrix a -> Bool
-equals f g m = f m == g m
-
-equalsQQ :: Eq r
-       => (VVMatrix Rational -> r) -> (VVMatrix Rational -> r)
-       -> VVMatrix Rational -> Bool
-equalsQQ = equals
-
-
-testProperty s p = testGroup "(QuickCheck & SmallCheck)"
-  [ QC.testProperty s p
 --  smallcheck-depth=2 is the only option that lets this run in reasonable time
---  , SC.testProperty s p
-  ]
-
 properties :: TestTree
 properties = testGroup "Properties"
-  [ testProperty "fromVectors' . toVectors == id" $ \m ->
-      trace ("testing " ++ show (nrows m) ++ ", " ++ show (ncols m)) $
+  [ QC.testProperty "fromVectors' . toVectors == id" $ \m ->
       (m :: VVMatrix Int)
          == (let nrs = nrows m
                  ncs = ncols m
