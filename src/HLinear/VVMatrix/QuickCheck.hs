@@ -9,17 +9,27 @@ import Test.QuickCheck.Arbitrary ( Arbitrary
                                  , arbitrary
                                  , shrink
                                  )
+import Test.QuickCheck.Gen ( frequency
+                           , elements )
+import Test.QuickCheck.Modifiers ( NonNegative(..)
+                                 , Small(..)
+                                 )
 
 import HLinear.VVMatrix.Definition ( VVMatrix(..) )
 
 
 instance Arbitrary a => Arbitrary (VVMatrix a) where
-  arbitrary = do
-    nrs <- arbitrary `suchThat` (>=0)
-    ncs <- arbitrary `suchThat` (>=0)
-    rs <- V.replicateM nrs $ V.replicateM ncs arbitrary
-    return $ VVMatrix nrs ncs rs
+  arbitrary = frequency [(1,arbZeroOne),(100,arbVV)]
+    where
+      arbZeroOne = elements [Zero, One]
+      arbVV = do
+        NonNegative (Small nrs) <- arbitrary
+        NonNegative (Small ncs) <- arbitrary
+        rs <- V.replicateM nrs $ V.replicateM ncs arbitrary
+        return $ VVMatrix nrs ncs rs
 
+  shrink Zero = []
+  shrink One = []
   shrink (VVMatrix nrs ncs rs) =
       map (VVMatrix (nrs-1) ncs) (shrinkVec rs)
     ++ map (VVMatrix nrs (ncs-1)) (V.mapM shrinkVec rs)
