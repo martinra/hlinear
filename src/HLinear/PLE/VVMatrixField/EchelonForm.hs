@@ -1,13 +1,15 @@
 module HLinear.PLE.VVMatrixField.EchelonForm
 where
 
-import Prelude hiding ( fromInteger )
-
+import Prelude hiding ( (+), (-), negate, subtract
+                      , (*), (/), recip, (^), (^^)
+                      , gcd
+                      , quotRem, quot, rem
+                      )
 import Control.Arrow ( first )
 import qualified Data.Vector as V
 import Data.Vector ( Vector(..) )
-import Numeric.Field.Class ( Field )
-import Numeric.Ring.Class ( fromInteger )
+import Math.Structure
 
 import HLinear.VVMatrix.Definition ( VVMatrix(..) )
 
@@ -22,7 +24,7 @@ toVVMatrix :: Field a
                       => EchelonForm a -> VVMatrix a
 toVVMatrix (EchelonForm nrs ncs rs) = VVMatrix nrs ncs rows 
   where
-  rows = V.map (\(o, r) -> V.replicate o (fromInteger 0) V.++ r) rs
+  rows = V.map (\(o, r) -> V.replicate o zero V.++ r) rs
 
 nmbRows :: EchelonForm a -> Int
 nmbRows (EchelonForm nrs _ _) = nrs

@@ -32,7 +32,7 @@ library
 
   build-depends:
       base >=4.7 && <4.9
-    , algebra == 4.2
+    , algebra-structures >= 0.1 && < 0.2
     , composition >= 1.0 && < 1.1
     , permutation == 0.5.0.5
     , mtl >= 2.2 && < 2.3

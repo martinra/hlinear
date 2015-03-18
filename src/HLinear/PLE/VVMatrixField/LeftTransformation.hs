@@ -1,19 +1,19 @@
+{-# LANGUAGE
+    ScopedTypeVariables
+  #-}
+
 module HLinear.PLE.VVMatrixField.LeftTransformation
 where
 
-import Prelude hiding ( fromInteger
-                      , (+), (*)
-                      , recip, negate
+import Prelude hiding ( (+), (-), negate, subtract
+                      , (*), (/), recip, (^), (^^)
+                      , gcd
+                      , quotRem, quot, rem
                       )
 
 import Data.Vector ( Vector(..), (!) )
 import qualified Data.Vector as V
-import Numeric.Algebra ( fromInteger
-                       , (+), (*)
-                       , recip
-                       )
-import Numeric.Additive.Group ( negate )
-import Numeric.Field.Class ( Field )
+import Math.Structure
 
 import HLinear.VVMatrix.Definition ( VVMatrix(..) )
 
@@ -27,17 +27,18 @@ import HLinear.VVMatrix.Definition ( VVMatrix(..) )
  --   -v   -v   -v   a^-1
  --   . . . .
 data LeftTransformation a =
-  LeftTransformation Int Int (Vector (a, Vector a))
+  LeftTransformation Int Int (Vector (NonZero a, Vector a))
 
-toVVMatrix :: Field a
+toVVMatrix :: forall a . Field a
            => LeftTransformation a -> VVMatrix a
-toVVMatrix l@(LeftTransformation nrs ncs cs) = 
+toVVMatrix (LeftTransformation nrs ncs cs) = 
   VVMatrix nrs ncs $ V.generate nrs row
   where
+  row :: Field a => Int -> Vector a
   row i = V.generate ncs $ \j -> case compare i j of
-            LT -> fromInteger 0
-            EQ -> recip $ fst $ cs ! j
-            GT -> negate $  (snd $ cs ! j) ! (i-j-1)
+            LT -> zero
+            EQ -> fromNonZero $ recip  $ fst $ cs ! j
+            GT -> negate $ (snd $ cs ! j) ! (i-j-1)
 
 
 nmbRows :: LeftTransformation a -> Int
@@ -58,7 +59,8 @@ apply :: Field a
 apply (LeftTransformation _ ncs cs) (VVMatrix nrs ncs' rs) =
   VVMatrix nrs ncs' rsL
   where
-  rsPivotRecip = V.zipWith (\(pivotRecip,_) r -> V.map (*pivotRecip) r)
+  rsPivotRecip = V.zipWith ( \(pivotRecip,_) r
+                             -> V.map (* (fromNonZero pivotRecip)) r )
                            cs rs
   rsL = V.generate nrs $ \i ->
         V.foldl' (V.zipWith (+))

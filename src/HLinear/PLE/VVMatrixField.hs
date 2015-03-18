@@ -8,9 +8,10 @@
 module HLinear.PLE.VVMatrixField
 where
 
-import Prelude hiding ( fromInteger
-                      , (+), (*)
-                      , recip, negate
+import Prelude hiding ( (+), (-), negate, subtract
+                      , (*), (/), recip, (^), (^^)
+                      , gcd
+                      , quotRem, quot, rem
                       )
 
 import qualified Data.Vector as V
@@ -25,12 +26,7 @@ import Data.Permute ( permute
                     , swaps
                     , swapsPermute
                     )
-import Numeric.Field.Class ( Field )
-import Numeric.Algebra ( fromInteger
-                       , (+), (*)
-                       , recip
-                       )
-import Numeric.Additive.Group ( negate )
+import Math.Structure
 
 import HLinear.PLE.PLE
 import qualified HLinear.PLE.ReversePermute as RP
@@ -44,7 +40,7 @@ import HLinear.PLE.VVMatrixField.LeftTransformation ( LeftTransformation(..) )
 import HLinear.VVMatrix.Definition ( VVMatrix(..) )
 
 
-instance (Eq a, Field a) => HasPLE (VVMatrix a) where
+instance (DecidableZero a, Field a) => HasPLE (VVMatrix a) where
   type PLELeft (VVMatrix a) = LeftTransformation a
   type PLEEchelon (VVMatrix a) = EchelonForm a
 
@@ -55,7 +51,7 @@ instance (Eq a, Field a) => HasPLE (VVMatrix a) where
   echelon' = EF.toVVMatrix
 
 
-pleColumn :: (Eq a, Field a) 
+pleColumn :: (DecidableZero a, Field a) 
           => VVMatrix a
           -> PLEDecomposition (VVMatrix a)
 pleColumn m@(VVMatrix nrs ncs rs)
@@ -66,14 +62,14 @@ pleColumn m@(VVMatrix nrs ncs rs)
       (EchelonForm 0 ncs V.empty)
   | otherwise =
   let
-  pIx' = V.findIndex ((/= fromInteger 0) . V.head) rs
+  pIx' = V.findIndex ((not . isZero) . V.head) rs
   mTail = VVMatrix nrs (ncs-1) $ V.map V.tail rs
   in
   case pIx' of
     Nothing  -> shiftPLEDecomposition 1 $ pleColumn mTail
     Just pIx -> mergeHook hook $ pleColumn (reduceByHook hook mTail)
       where
-      pivotRecip = recip $ V.head (rs ! pIx)
+      pivotRecip = recip $ nonZero $ V.head (rs ! pIx)
       negCol = V.map negate $
                V.generate (nrs-1) $ \i ->
                  V.head $ rs ! (if i < pIx then i else i+1)
@@ -83,7 +79,7 @@ pleColumn m@(VVMatrix nrs ncs rs)
       l = LeftTransformation nrs 1 $ V.singleton (pivotRecip, negCol)
       e = EchelonForm 1 ncs $ V.singleton (0, erow)
         where
-        erow = fromInteger 1 `V.cons` V.map (*pivotRecip) (V.tail $ V.head rs)
+        erow = one `V.cons` V.map (*(fromNonZero pivotRecip)) (V.tail $ V.head rs)
 
  -- | shift PLE decomposition by a given number of columns
 shiftPLEDecomposition :: Int -> PLEDecomposition (VVMatrix a)
