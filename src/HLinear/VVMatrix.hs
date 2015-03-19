@@ -1,8 +1,8 @@
 module HLinear.VVMatrix
   ( VVMatrix
 
-  , nrows
-  , ncols
+  , nmbRows
+  , nmbCols
 
   , toVectors
   , fromVectors

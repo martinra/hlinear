@@ -19,6 +19,7 @@ library
   exposed-modules:
     HLinear.VVMatrix
   other-modules:
+    HLinear.VVMatrix.Algebra
     HLinear.VVMatrix.Basic
     HLinear.VVMatrix.Definition
     HLinear.VVMatrix.QuickCheck
