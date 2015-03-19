@@ -11,12 +11,16 @@ where
 import Control.Applicative ( empty )
 import Control.Monad ( when )
 import qualified Data.Vector as V
+import Numeric.Natural ()
+
 import Test.SmallCheck.Series ( Serial, Series(..), series
                               , generate
                               , (\/) 
                               )
+import Test.Natural ()
 
 import HLinear.VVMatrix.Definition ( VVMatrix(..) )
+
 
 instance (Monad m, Serial m a)
       => Serial m (VVMatrix a)
@@ -26,19 +30,16 @@ instance (Monad m, Serial m a)
     seriesZero = do
       nrs <- series
       ncs <- series
-      if maybe False (<0) nrs || maybe False (<0) ncs
-        then empty
-        else return $ Zero nrs ncs
+      return $ Zero nrs ncs
+
     seriesOne = do
       nrs <- series
-      if maybe False (<0) nrs
-        then empty
-        else return . One nrs =<< (series :: Series m a)
+      return . One nrs =<< (series :: Series m a)
    
-    seriesZeroOne = generate $ const [Zero, One]
     seriesVV = do
       nrs <- series
       ncs <- series
-      if nrs < 0 || ncs < 0 then empty
-      else return . VVMatrix nrs ncs =<<
-        return . V.replicate nrs . V.replicate ncs =<< series
+      return . VVMatrix nrs ncs =<<
+        return . V.replicate (fromIntegral nrs)
+               . V.replicate (fromIntegral ncs) =<<
+          series

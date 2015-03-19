@@ -5,6 +5,7 @@ import Control.Applicative ( (<$>) )
 import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as VM
 
+import Test.Natural ()
 import Test.QuickCheck ( suchThat )
 import Test.QuickCheck.Arbitrary ( Arbitrary
                                  , arbitrary
@@ -42,7 +43,8 @@ instance Arbitrary a => Arbitrary (VVMatrix a) where
     arbVV = do
       NonNegative (Small nrs) <- arbitrary
       NonNegative (Small ncs) <- arbitrary
-      rs <- V.replicateM nrs $ V.replicateM ncs arbitrary
+      rs <- V.replicateM (fromIntegral nrs) $
+            V.replicateM (fromIntegral ncs) arbitrary
       return $ VVMatrix nrs ncs rs
 
   shrink (Zero nrs ncs) = [ Zero nrs' ncs'

@@ -5,16 +5,20 @@
 module HLinear.PLE.VVMatrixField.LeftTransformation
 where
 
+import qualified Prelude as P
 import Prelude hiding ( (+), (-), negate, subtract
                       , (*), (/), recip, (^), (^^)
                       , gcd
                       , quotRem, quot, rem
                       )
 
+import Data.Maybe
 import Data.Vector ( Vector(..), (!) )
 import qualified Data.Vector as V
 import Math.Structure
+import Numeric.Natural ( Natural )
 
+import HLinear.VVMatrix.Basic ( cmbDim )
 import HLinear.VVMatrix.Definition ( VVMatrix(..) )
 
 
@@ -27,44 +31,56 @@ import HLinear.VVMatrix.Definition ( VVMatrix(..) )
  --   -v   -v   -v   a^-1
  --   . . . .
 data LeftTransformation a =
-  LeftTransformation Int Int (Vector (NonZero a, Vector a))
+  LeftTransformation Natural (Vector (NonZero a, Vector a))
 
 toVVMatrix :: forall a . Field a
            => LeftTransformation a -> VVMatrix a
-toVVMatrix (LeftTransformation nrs ncs cs) = 
-  VVMatrix nrs ncs $ V.generate nrs row
+toVVMatrix (LeftTransformation nrs cs) = 
+  VVMatrix nrs nrs $
+    V.generate (fromIntegral nrs) $ \ix ->
+    V.generate (fromIntegral nrs) $ \jx ->
+      case compare ix jx of
+        LT -> zero
+        EQ -> if jx < ncs
+              then fromNonZero $ recip $ fst $ cs ! jx
+              else one
+        GT -> if jx < ncs
+              then negate $ (snd $ cs ! jx) ! (ix-jx-1)
+              else zero
   where
-  row :: Field a => Int -> Vector a
-  row i = V.generate ncs $ \j -> case compare i j of
-            LT -> zero
-            EQ -> fromNonZero $ recip  $ fst $ cs ! j
-            GT -> negate $ (snd $ cs ! j) ! (i-j-1)
+  ncs = V.length cs
 
 
-nmbRows :: LeftTransformation a -> Int
-nmbRows (LeftTransformation nrs _ _) = nrs
+nmbRows :: LeftTransformation a -> Natural
+nmbRows (LeftTransformation nrs _) = nrs
 
-nmbCols :: LeftTransformation a -> Int
-nmbCols (LeftTransformation _ ncs _) = ncs
+nmbCols :: LeftTransformation a -> Natural
+nmbCols (LeftTransformation nrs _) = nrs
+
 
 concat :: LeftTransformation a -> LeftTransformation a
        -> LeftTransformation a
-concat (LeftTransformation nrs ncs cs)
-       (LeftTransformation nrs' ncs' cs') =
-  LeftTransformation nrs (ncs+ncs') $ cs V.++ cs'
+concat (LeftTransformation nrs cs) (LeftTransformation nrs' cs') =
+  fromJust $ cmbDim nrs (nrs' P.+ fromIntegral (V.length cs)) >>
+  return ( LeftTransformation nrs $ cs V.++ cs' )
+
 
 apply :: Field a
       => LeftTransformation a -> VVMatrix a
       -> VVMatrix a
-apply (LeftTransformation _ ncs cs) (VVMatrix nrs ncs' rs) =
-  VVMatrix nrs ncs' rsL
+apply (LeftTransformation nrs cs) (VVMatrix nrs' ncs' rs) =
+  fromJust $ cmbDim nrs' nrs >>
+  return ( VVMatrix nrs' ncs' rsL )
   where
-  rsPivotRecip = V.zipWith ( \(pivotRecip,_) r
-                             -> V.map (* (fromNonZero pivotRecip)) r )
-                           cs rs
-  rsL = V.generate nrs $ \i ->
-        V.foldl' (V.zipWith (+))
-        (if i < ncs then rsPivotRecip ! i else rs ! i) $
-        V.zipWith (\c r -> V.map ((*) $ snd c ! (i-1)) r)
-                  (V.take (i-1) cs) rsPivotRecip
+  ncs = V.length cs
 
+  rsPivotRecip = V.zipWith ( \(pivotRecip,_) r ->
+                             V.map (fromNonZero pivotRecip *) r )
+                           cs rs
+  rsL = V.generate (fromIntegral nrs) $ \ix ->
+          V.foldl' (V.zipWith (+))
+            ( if ix < ncs
+              then rsPivotRecip ! ix
+              else rs ! ix ) $
+            V.zipWith (\(_,c) r -> V.map ((c ! (ix P.- 1)) *) r)
+                      (V.take (ix P.- 1) cs) rsPivotRecip

@@ -12,68 +12,70 @@ import Math.Structure ( DecidableZero, isZero
                       , AdditiveMonoid, zero
                       , MultiplicativeMonoid, one
                       )
+import Numeric.Natural ( Natural )
 
 import HLinear.VVMatrix.Definition ( VVMatrix(..) )
 
 
-nmbRows :: VVMatrix a -> Maybe Int
+nmbRows :: VVMatrix a -> Maybe Natural
 nmbRows (Zero nrs _) = nrs
 nmbRows (One nrs _)  = nrs
 nmbRows (VVMatrix nrs _ _) = Just nrs
 
-nmbCols :: VVMatrix a -> Maybe Int
+nmbCols :: VVMatrix a -> Maybe Natural
 nmbCols (Zero _ ncs) = ncs
 nmbCols (One ncs _)  = ncs
 nmbCols (VVMatrix _ ncs _) = Just ncs
 
 
-cmbDim :: Int -> Int -> Maybe Int
+cmbDim :: Natural -> Natural -> Maybe Natural
 cmbDim d d' | d == d' = Just d
             | otherwise = Nothing
 
-cmbDim' :: Int -> Int -> Int
+cmbDim' :: Natural -> Natural -> Natural
 cmbDim' = fromJust .: cmbDim
 
-cmbDimMay :: Int -> Maybe Int -> Maybe Int
+cmbDimMay :: Natural -> Maybe Natural -> Maybe Natural
 cmbDimMay d (Just d') | d == d'   = Just d
                       | otherwise = Nothing
 cmbDimMay d Nothing   = Just d
 
-cmbDimMay' :: Int -> Maybe Int -> Int
+cmbDimMay' :: Natural -> Maybe Natural -> Natural
 cmbDimMay' = fromJust .: cmbDimMay
 
-cmbDimMMayGeneral :: Maybe Int
-                  -> Maybe Int -> Maybe Int -> Maybe Int
+cmbDimMMayGeneral :: Maybe Natural
+                  -> Maybe Natural -> Maybe Natural -> Maybe Natural
 cmbDimMMayGeneral def (Just d) (Just d') | d == d'   = Just d
                                          | otherwise = def 
 cmbDimMMayGeneral _ (Just d) Nothing  = Just d
 cmbDimMMayGeneral _ Nothing (Just d') = Just d'
 cmbDimMMayGeneral _ Nothing Nothing = Nothing
 
-cmbDimMMay :: Maybe Int -> Maybe Int -> Maybe Int
+cmbDimMMay :: Maybe Natural -> Maybe Natural -> Maybe Natural
 cmbDimMMay = cmbDimMMayGeneral Nothing
 
-cmbDimMMay' :: Maybe Int -> Maybe Int -> Maybe Int
+cmbDimMMay' :: Maybe Natural -> Maybe Natural -> Maybe Natural
 cmbDimMMay' = cmbDimMMayGeneral $ error "incompatible dimensions"
 
 
--- fixme: we already assume Natural instead of Int as a type
 zeroMatrix :: AdditiveMonoid a
-           => Int -> Int -> VVMatrix a
-zeroMatrix nrs ncs = VVMatrix nrs ncs $ V.replicate nrs $
-                                        V.replicate ncs zero
+           => Natural -> Natural -> VVMatrix a
+zeroMatrix nrs ncs = VVMatrix nrs ncs $
+                       V.replicate (fromIntegral nrs) $
+                       V.replicate (fromIntegral ncs) zero
 
 diagonalMatrix :: AdditiveMonoid a
                => Vector a -> VVMatrix a
-diagonalMatrix ds = VVMatrix nrs nrs $ (`V.imap` ds) $ \ix d ->
-                                       V.generate nrs $ \jx ->
-                                         if ix==jx then d else zero
+diagonalMatrix ds = VVMatrix (fromIntegral nrs) (fromIntegral nrs) $
+                      (`V.imap` ds) $ \ix d ->
+                      V.generate nrs $ \jx ->
+                        if ix==jx then d else zero
   where
   nrs = V.length ds
 
 identityMatrix :: ( AdditiveMonoid a, MultiplicativeMonoid a )
-               => Int -> VVMatrix a
-identityMatrix = diagonalMatrix . (`V.replicate` one)
+               => Natural -> VVMatrix a
+identityMatrix = diagonalMatrix . (`V.replicate` one) . fromIntegral
 
 
 forceVVMay :: AdditiveMonoid a
@@ -81,59 +83,59 @@ forceVVMay :: AdditiveMonoid a
 forceVVMay m@(VVMatrix _ _ _)           = Just m
 forceVVMay (Zero (Just nrs) (Just ncs)) = Just $ zeroMatrix nrs ncs
 forceVVMay (One (Just nrs) a )          = Just $ diagonalMatrix $
-                                               V.replicate nrs a
+                                               V.replicate (fromIntegral nrs) a
 forceVVMay _ = Nothing
 
 
 forceSize :: AdditiveMonoid a
-          => Int -> Int -> VVMatrix a -> VVMatrix a
+          => Natural -> Natural -> VVMatrix a -> VVMatrix a
 forceSize = fromJust .:. forceSizeMay
 
 forceSizeMay :: AdditiveMonoid a
-             => Int -> Int -> VVMatrix a -> Maybe (VVMatrix a)
+             => Natural -> Natural -> VVMatrix a -> Maybe (VVMatrix a)
 forceSizeMay nrs ncs (Zero nrs' ncs') =
   zeroMatrix <$> cmbDimMay nrs nrs' <*> cmbDimMay ncs ncs'
 forceSizeMay nrs ncs (One nrs' a) =
   cmbDimMay ncs nrs' >>
-  diagonalMatrix . (`V.replicate` a) <$> cmbDimMay nrs nrs'
+  diagonalMatrix . (`V.replicate` a) <$>
+    fromIntegral <$> cmbDimMay nrs nrs'
 forceSizeMay nrs ncs m@(VVMatrix nrs' ncs' _) =
   cmbDim nrs nrs' >> cmbDim ncs ncs' >>
   return m
 
 
-toVectors :: VVMatrix a -> Maybe ( Vector (Vector a) )
-toVector (Zero nrs ncs) = do
-  nrs' <- nrs
-  ncs' <- ncs
-  return $ V.replicate nrs' $ V.replicate ncs' zero
-toVector (One nrs a) = do
-  nrs' <- nrs
-  return $ V.replicate nrs' $ V.replicate nrs' a
+toVectors :: AdditiveMonoid a
+          => VVMatrix a -> Maybe ( Vector (Vector a) )
 toVectors (VVMatrix _ _ rs) = Just rs
+toVectors m = forceVVMay >=> toVectors $ m
 
 fromVectors :: Vector (Vector a) -> VVMatrix a
 fromVectors rs =
   -- todo: introduce unsafe version of fromVectors'
-  fromVectors' nrs (if nrs == 0 then 0 else V.length (V.head rs)) rs
+  fromVectors' nrs ncs rs
   where
-  nrs = V.length rs
+  nrs = fromIntegral $ V.length rs
+  ncs = if nrs == 0 then 0 else fromIntegral $ V.length (V.head rs)
 
-fromVectors' :: Int -> Int -> Vector (Vector a) -> VVMatrix a
+fromVectors' :: Natural -> Natural -> Vector (Vector a) -> VVMatrix a
 fromVectors' nrs ncs rs
-  | nrs /= V.length rs = error $ "HLinear.VVMatrix fromVectors': " ++
-                                "number of rows incorrect"
-  | any ((/=ncs) . V.length) rs = error $ "HLinear.VVMatrix fromVectors': " ++
-                                          "rows must have the same length"
-  | otherwise =  VVMatrix nrs ncs rs
+  | nrs /= fromIntegral (V.length rs) =
+      error $ "HLinear.VVMatrix fromVectors': " ++
+              "number of rows incorrect"
+  | any ((/=ncs) . fromIntegral . V.length) rs =
+      error $ "HLinear.VVMatrix fromVectors': " ++
+              "rows must have the same length"
+  | otherwise = VVMatrix nrs ncs rs
 
 
-toLists :: VVMatrix a -> Maybe [[a]]
+toLists :: AdditiveMonoid a
+        => VVMatrix a -> Maybe [[a]]
 toLists = toVectors >=> return . V.toList . V.map V.toList
 
 fromLists :: [[a]] -> VVMatrix a
 fromLists = fromVectors . V.map V.fromList . V.fromList
 
-fromLists' :: Int -> Int -> [[a]] -> VVMatrix a
+fromLists' :: Natural -> Natural -> [[a]] -> VVMatrix a
 fromLists' nrs ncs = fromVectors' nrs ncs . V.map V.fromList . V.fromList
 
 

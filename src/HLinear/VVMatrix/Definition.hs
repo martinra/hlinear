@@ -9,6 +9,7 @@ where
 import Data.Vector ( Vector )
 import GHC.TypeLits ( Nat )
 import Math.Structure
+import Numeric.Natural ( Natural )
 
 
 -- | VVMatrix models the union of matrices of all sizes with entries in a
@@ -16,8 +17,8 @@ import Math.Structure
 --   constructurs
 data VVMatrix a =
 -- todo: Int should be Natural
-    Zero !(Maybe Int) !(Maybe Int)
-  | One !(Maybe Int) a
-  | VVMatrix !Int !Int (Vector (Vector a))
+    Zero !(Maybe Natural) !(Maybe Natural)
+  | One !(Maybe Natural) a
+  | VVMatrix !Natural !Natural (Vector (Vector a))
 
 newtype SizedVVMatrix (m :: Nat) (n :: Nat) a = SizedVVMatrix (VVMatrix a)

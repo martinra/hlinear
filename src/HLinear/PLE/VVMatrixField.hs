@@ -8,6 +8,7 @@
 module HLinear.PLE.VVMatrixField
 where
 
+import qualified Prelude as P
 import Prelude hiding ( (+), (-), negate, subtract
                       , (*), (/), recip, (^), (^^)
                       , gcd
@@ -27,6 +28,7 @@ import Data.Permute ( permute
                     , swapsPermute
                     )
 import Math.Structure
+import Numeric.Natural ( Natural )
 
 import HLinear.PLE.PLE
 import qualified HLinear.PLE.ReversePermute as RP
@@ -57,13 +59,13 @@ pleColumn :: (DecidableZero a, Field a)
 pleColumn m@(VVMatrix nrs ncs rs)
   | nrs == 0 || ncs == 0
     = PLEDecomposition $ PLEHook
-      (RP.reversePermute nrs)
-      (LeftTransformation nrs 0 V.empty)
+      (RP.reversePermute $ fromIntegral nrs)
+      (LeftTransformation nrs V.empty)
       (EchelonForm 0 ncs V.empty)
   | otherwise =
   let
   pIx' = V.findIndex ((not . isZero) . V.head) rs
-  mTail = VVMatrix nrs (ncs-1) $ V.map V.tail rs
+  mTail = VVMatrix nrs (ncs P.- 1) $ V.map V.tail rs
   in
   case pIx' of
     Nothing  -> shiftPLEDecomposition 1 $ pleColumn mTail
@@ -71,18 +73,19 @@ pleColumn m@(VVMatrix nrs ncs rs)
       where
       pivotRecip = recip $ nonZero $ V.head (rs ! pIx)
       negCol = V.map negate $
-               V.generate (nrs-1) $ \i ->
-                 V.head $ rs ! (if i < pIx then i else i+1)
+               V.generate (fromIntegral nrs - 1) $ \ix ->
+                 V.head $ rs ! (if ix < pIx then ix else ix+1)
 
       hook = PLEHook p l e
-      p = swapReversePermute nrs (0,pIx)
-      l = LeftTransformation nrs 1 $ V.singleton (pivotRecip, negCol)
+      p = swapReversePermute (fromIntegral nrs) (0,pIx)
+      l = LeftTransformation nrs $ V.singleton (pivotRecip, negCol)
       e = EchelonForm 1 ncs $ V.singleton (0, erow)
         where
-        erow = one `V.cons` V.map (*(fromNonZero pivotRecip)) (V.tail $ V.head rs)
+        erow = one `V.cons` V.map (fromNonZero pivotRecip *)
+                                  (V.tail $ V.head rs)
 
  -- | shift PLE decomposition by a given number of columns
-shiftPLEDecomposition :: Int -> PLEDecomposition (VVMatrix a)
+shiftPLEDecomposition :: Natural -> PLEDecomposition (VVMatrix a)
                       -> PLEDecomposition (VVMatrix a)
 shiftPLEDecomposition s (PLEDecomposition (PLEHook p l e)) =
   PLEDecomposition $ PLEHook p l $ EF.shift s e
@@ -103,10 +106,10 @@ reduceByHook :: (Field a)
              -> VVMatrix a
 reduceByHook (PLEHook p l e) (VVMatrix nrs ncs rs) =
   LT.apply l $ VVMatrix nrs' ncs $
-               V.slice (EF.nmbRows e) nrs' rsP
+               V.slice (fromIntegral $ EF.nmbRows e) (fromIntegral nrs') rsP
   where
-  nrs' = nrs - EF.nmbRows e
-  rsP = RP.apply p nrs rs 
+  nrs' = nrs P.- EF.nmbRows e
+  rsP = RP.apply p (fromIntegral nrs) rs 
 
 
 -- type PLEParametrizedFunction a =
