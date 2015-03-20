@@ -19,7 +19,8 @@ import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural ( Natural )
 
-import HLinear.VVMatrix.Basic ( cmbDim )
+import HLinear.VVMatrix
+import HLinear.VVMatrix.Utils
 import HLinear.VVMatrix.Definition ( VVMatrix(..) )
 
 

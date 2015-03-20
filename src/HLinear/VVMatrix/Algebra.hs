@@ -17,7 +17,9 @@ import qualified Data.Vector as V
 import Math.Structure
 
 import HLinear.VVMatrix.Definition
-import HLinear.VVMatrix.Basic 
+import HLinear.VVMatrix.Basic
+import HLinear.VVMatrix.Creation
+import HLinear.VVMatrix.Utils
 
 
 instance AdditiveMonoid a => AdditiveMagma (VVMatrix a) where

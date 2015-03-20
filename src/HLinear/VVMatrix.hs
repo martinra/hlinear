@@ -4,6 +4,8 @@ module HLinear.VVMatrix
   , nmbRows
   , nmbCols
 
+  , transpose
+
   , toVectors
   , fromVectors
   , fromVectors'
@@ -11,11 +13,22 @@ module HLinear.VVMatrix
   , toLists
   , fromLists
   , fromLists'
+
+  , zeroMatrix
+  , diagonalMatrix
+  , identityMatrix
+
+  , forceVV
+  , forceVVMay
+  , forceSize
+  , forceSizeMay
   )
 
 where
 
+import HLinear.VVMatrix.Algebra
 import HLinear.VVMatrix.Basic
+import HLinear.VVMatrix.Creation
 import HLinear.VVMatrix.Definition
 
 import HLinear.VVMatrix.QuickCheck

@@ -21,9 +21,11 @@ library
   other-modules:
     HLinear.VVMatrix.Algebra
     HLinear.VVMatrix.Basic
+    HLinear.VVMatrix.Creation
     HLinear.VVMatrix.Definition
     HLinear.VVMatrix.QuickCheck
     HLinear.VVMatrix.SmallCheck
+    HLinear.VVMatrix.Utils
 
     HLinear.PLE.PLE
     HLinear.PLE.ReversePermute
