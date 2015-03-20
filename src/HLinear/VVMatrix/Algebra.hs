@@ -1,5 +1,6 @@
 {-# LANGUAGE
-    MultiParamTypeClasses
+    FlexibleInstances
+  , MultiParamTypeClasses
   #-}
 
 module HLinear.VVMatrix.Algebra
@@ -147,3 +148,23 @@ instance Rng a => LinearSemiringRightAction (VVMatrix a) (VVMatrix a)
 
 instance Ring a => LeftModule (VVMatrix a) (VVMatrix a)
 instance Ring a => RightModule (VVMatrix a) (VVMatrix a)
+
+
+instance Semiring a => MultiplicativeSemigroupLeftAction a (VVMatrix a) where
+  a *. (Zero nrs ncs) = Zero nrs ncs
+  a *. (One nrs a') = One nrs (a * a')
+  a *. (VVMatrix nrs ncs rs) = VVMatrix nrs ncs $ V.map (V.map (a*)) rs
+
+instance Rng a => LinearSemiringLeftAction a (VVMatrix a)
+instance Ring a => MultiplicativeLeftAction a (VVMatrix a)
+instance Ring a => LeftModule a (VVMatrix a)
+
+
+instance Semiring a => MultiplicativeSemigroupRightAction a (VVMatrix a) where
+  (Zero nrs ncs) .* a' = Zero nrs ncs
+  (One nrs a) .* a' = One nrs (a * a')
+  (VVMatrix nrs ncs rs) .* a' = VVMatrix nrs ncs $ V.map (V.map (*a')) rs
+
+instance Rng a => LinearSemiringRightAction a (VVMatrix a)
+instance Ring a => MultiplicativeRightAction a (VVMatrix a)
+instance Ring a => RightModule a (VVMatrix a)
