@@ -40,7 +40,7 @@ instance AdditiveMonoid a => AdditiveMagma (VVMatrix a) where
     (forceSize nrs' ncs' m) + m'
   m + m'@(One _ _)             = m' + m
 
-instance ( AdditiveMonoid a, Abelean a ) => Abelean (VVMatrix a)
+instance ( AdditiveMonoid a, Abelian a ) => Abelian (VVMatrix a)
 instance AdditiveMonoid a => AdditiveSemigroup (VVMatrix a)
 
 instance AdditiveMonoid a => AdditiveMonoid (VVMatrix a) where
