@@ -12,6 +12,7 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       )
 
+import Control.Applicative ( (<$>) )
 import Data.Maybe
 import Data.Vector ( Vector(..), (!) )
 import qualified Data.Vector as V
@@ -61,7 +62,7 @@ nmbCols (LeftTransformation nrs _) = nrs
 concat :: LeftTransformation a -> LeftTransformation a
        -> LeftTransformation a
 concat (LeftTransformation nrs cs) (LeftTransformation nrs' cs') =
-  fromJust $ cmbDim nrs (nrs' P.+ fromIntegral (V.length cs)) >>
+  fromJust $ cmbDim nrs (nrs' + fromIntegral (V.length cs)) >>
   return ( LeftTransformation nrs $ cs V.++ cs' )
 
 
@@ -74,13 +75,11 @@ apply (LeftTransformation nrs cs) (VVMatrix nrs' ncs' rs) =
   where
   ncs = V.length cs
 
-  rsPivotRecip = V.zipWith ( \(pivotRecip,_) r ->
-                             V.map (fromNonZero pivotRecip *) r )
-                           cs rs
+  rsScaled = V.zipWith ( \(pivotRecip,_) r ->
+                         V.map (fromNonZero pivotRecip *) r )
+                       cs rs
   rsL = V.generate (fromIntegral nrs) $ \ix ->
           V.foldl' (V.zipWith (+))
-            ( if ix < ncs
-              then rsPivotRecip ! ix
-              else rs ! ix ) $
-            V.zipWith (\(_,c) r -> V.map ((c ! (ix P.- 1)) *) r)
-                      (V.take (ix P.- 1) cs) rsPivotRecip
+            ( if ix < ncs then rsScaled ! ix else rs ! ix )
+            ( V.zipWith (\(_,c) r -> V.map ((c ! (ix-1)) *) r)
+                (V.take (ix-1) cs) rsScaled )
