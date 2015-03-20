@@ -1,3 +1,7 @@
+{-# LANGUAGE
+    MultiParamTypeClasses
+  #-}
+
 module HLinear.VVMatrix.Algebra
 where
 
@@ -69,11 +73,42 @@ instance AdditiveGroup a => AdditiveGroup (VVMatrix a) where
   m - m'@(One _ _)             = m + negate m'
 
 
-instance    ( AdditiveMonoid a, MultiplicativeMagma a )
-         => MultiplicativeMagma (VVMatrix a) where
-  -- todo: assert these are square matrices and let everything else work by
-  -- module structures
-  (VVMatrix nrs ncs rs) * (VVMatrix nrs' ncs' rs')
+instance Rng a => MultiplicativeMagma (VVMatrix a) where
+  m@(VVMatrix nrs ncs _) * m'@(VVMatrix nrs' ncs' _) =
+    seq (cmbDim' nrs ncs) $ seq (cmbDim' nrs' ncs') $ m *. m'
+
+  m@(Zero nrs ncs) * m'@(Zero nrs' ncs') =
+    seq (cmbDimMMay' nrs ncs) $ seq (cmbDimMMay' nrs' ncs') $ m *. m'
+  m@(Zero nrs ncs) * m'@(One _ _) =
+    seq (cmbDimMMay' nrs ncs) $ m *. m'
+  m@(One _ _) * m'@(Zero nrs' ncs') =
+    seq (cmbDimMMay' nrs' ncs') $ m *. m'
+  m@(Zero nrs ncs) * m'@(VVMatrix nrs' ncs' _) =
+    seq (cmbDimMMay' nrs ncs) $ seq (cmbDim' nrs' ncs') $ m *. m'
+  m@(VVMatrix nrs ncs _) * m'@(Zero nrs' ncs') =
+    seq (cmbDim' nrs ncs) $ seq (cmbDimMMay' nrs' ncs') $ m *. m'
+
+  m@(One _ _) * m'@(One _ _) = m *. m'
+  m@(One _ _) * m'@(VVMatrix nrs' ncs' _) =
+    seq (cmbDim' nrs' ncs') $ m *. m'
+  m@(VVMatrix nrs ncs _) * m'@(One _ _) =
+    seq (cmbDim' nrs ncs) $ m *. m'
+
+instance Rng a => MultiplicativeSemigroup (VVMatrix a)
+
+instance Ring a => MultiplicativeMonoid (VVMatrix a) where
+  one = One Nothing one
+
+
+instance Rng a => Distributive (VVMatrix a)
+instance Rng a => Semiring (VVMatrix a)
+instance Rng a => Rng (VVMatrix a)
+instance Ring a => Rig (VVMatrix a)
+instance Ring a => Ring (VVMatrix a)
+
+
+instance Rng a => MultiplicativeSemigroupLeftAction (VVMatrix a) (VVMatrix a) where
+  (VVMatrix nrs ncs rs) *. (VVMatrix nrs' ncs' rs')
     = case cmbDim ncs nrs' of
         Nothing -> error "incompatible dimensions"
         Just 0  -> Zero (Just nrs) (Just ncs')
@@ -82,35 +117,33 @@ instance    ( AdditiveMonoid a, MultiplicativeMagma a )
                        V.foldr1' (V.zipWith (+)) $
                        V.zipWith (\a -> V.map (a*)) r rs'
 
-  (Zero nrs ncs) * (Zero nrs' ncs') =
-    fromJust $ cmbDimMMay ncs nrs' >> Just ( Zero nrs ncs' )
-  (Zero nrs ncs) * (One nrs' _) =
-    fromJust $ cmbDimMMay ncs nrs' >> Just ( Zero nrs nrs' )
-  (One nrs _) * (Zero nrs' ncs') =
-    fromJust $ cmbDimMMay nrs nrs' >> Just ( Zero nrs ncs' )
-  (Zero nrs ncs) * (VVMatrix nrs' ncs' _) =
-    fromJust $ cmbDimMay nrs' ncs >> Just ( Zero nrs (Just ncs') )
-  (VVMatrix nrs ncs _) * (Zero nrs' ncs') =
-    fromJust $ cmbDimMay ncs nrs' >> Just ( Zero (Just nrs) ncs' )
+  (Zero nrs ncs) *. (Zero nrs' ncs') =
+    seq (cmbDimMMay' ncs nrs') $ Zero nrs ncs'
+  (Zero nrs ncs) *. (One nrs' _) =
+    seq (cmbDimMMay' ncs nrs') $ Zero nrs nrs'
+  (One nrs _) *. (Zero nrs' ncs') =
+    seq (cmbDimMMay' nrs nrs') $ Zero nrs ncs'
+  (Zero nrs ncs) *. (VVMatrix nrs' ncs' _) =
+    seq (cmbDimMay' nrs' ncs) $ Zero nrs (Just ncs')
+  (VVMatrix nrs ncs _) *. (Zero nrs' ncs') =
+    seq (cmbDimMay' ncs nrs') $ Zero (Just nrs) ncs'
 
-  (One nrs a) * (VVMatrix nrs' ncs' rs') =
-    fromJust $ cmbDimMay nrs' nrs >>
-    Just ( VVMatrix nrs' ncs' $ V.map (V.map (a*)) rs' )
+  (One nrs a) *. (VVMatrix nrs' ncs' rs') =
+    seq (cmbDimMay' nrs' nrs) $
+    VVMatrix nrs' ncs' $ V.map (V.map (a*)) rs'
   
-  (VVMatrix nrs ncs rs) * (One nrs' a') =
-    fromJust $ cmbDimMay ncs nrs' >>
-    Just ( VVMatrix nrs ncs $ V.map (V.map (*a')) rs )
+  (VVMatrix nrs ncs rs) *. (One nrs' a') =
+    seq (cmbDimMay' ncs nrs') $
+    VVMatrix nrs ncs $ V.map (V.map (*a')) rs
 
-instance    ( AdditiveMonoid a, MultiplicativeSemigroup a )
-         => MultiplicativeSemigroup (VVMatrix a)
+instance Rng a => MultiplicativeSemigroupRightAction (VVMatrix a) (VVMatrix a) where
+  m .* m' = m *. m'
 
-instance    ( AdditiveMonoid a, MultiplicativeMonoid a )
-         => MultiplicativeMonoid (VVMatrix a) where
-  one = One Nothing one
+instance Ring a => MultiplicativeLeftAction (VVMatrix a) (VVMatrix a)
+instance Ring a => MultiplicativeRightAction (VVMatrix a) (VVMatrix a)
 
+instance Rng a => LinearSemiringLeftAction (VVMatrix a) (VVMatrix a)
+instance Rng a => LinearSemiringRightAction (VVMatrix a) (VVMatrix a)
 
-instance ( AdditiveMonoid a, Distributive a ) => Distributive (VVMatrix a)
-instance ( AdditiveMonoid a, Semiring a ) => Semiring (VVMatrix a)
-instance ( AdditiveMonoid a, Rig a ) => Rig (VVMatrix a)
-instance ( AdditiveMonoid a, Rng a ) => Rng (VVMatrix a)
-instance ( AdditiveMonoid a, Ring a ) => Ring (VVMatrix a)
+instance Ring a => LeftModule (VVMatrix a) (VVMatrix a)
+instance Ring a => RightModule (VVMatrix a) (VVMatrix a)
