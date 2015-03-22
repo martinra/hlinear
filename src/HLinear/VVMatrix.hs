@@ -4,6 +4,9 @@ module HLinear.VVMatrix
   , nmbRows
   , nmbCols
 
+  , (!)
+  , (!?)
+
   , transpose
 
   , toVectors
@@ -17,6 +20,9 @@ module HLinear.VVMatrix
   , zeroMatrix
   , diagonalMatrix
   , identityMatrix
+
+  , zeroMatrix'
+  , oneMatrix'
 
   , forceVV
   , forceVVMay

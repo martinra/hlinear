@@ -69,6 +69,13 @@ identityMatrix :: ( AdditiveMonoid a, MultiplicativeMonoid a )
 identityMatrix = diagonalMatrix . (`V.replicate` one) . fromIntegral
 
 
+zeroMatrix' :: Maybe Natural -> Maybe Natural -> VVMatrix a
+zeroMatrix' = Zero
+
+oneMatrix' :: Maybe Natural -> a -> VVMatrix a
+oneMatrix' = One
+
+
 forceVV :: AdditiveMonoid a
         => VVMatrix a -> VVMatrix a
 forceVV = fromJust . forceVVMay

@@ -28,24 +28,24 @@ instance Arbitrary a => Arbitrary (VVMatrix a) where
       NonNegative (Small nrs) <- arbitrary
       NonNegative (Small ncs) <- arbitrary
       nrs' <- frequency [ (1,elements [Nothing])
-                        , (100, elements [Just nrs]) ]
+                        , (100, elements [Just $ fromIntegral nrs]) ]
       ncs' <- frequency [ (1,elements [Nothing])
-                        , (100, elements [Just ncs]) ]
+                        , (100, elements [Just $ fromIntegral ncs]) ]
       return $ Zero nrs' ncs'
 
     arbOne = do
       NonNegative (Small nrs) <- arbitrary
       nrs' <- frequency [ (1,elements [Nothing])
-                        , (100, elements [Just nrs]) ]
+                        , (100, elements [Just $ fromIntegral nrs]) ]
       a <- arbitrary
       return $ One nrs' a
 
     arbVV = do
       NonNegative (Small nrs) <- arbitrary
       NonNegative (Small ncs) <- arbitrary
-      rs <- V.replicateM (fromIntegral nrs) $
-            V.replicateM (fromIntegral ncs) arbitrary
-      return $ VVMatrix nrs ncs rs
+      rs <- V.replicateM nrs $
+            V.replicateM ncs arbitrary
+      return $ VVMatrix (fromIntegral nrs) (fromIntegral ncs) rs
 
   shrink (Zero nrs ncs) = [ Zero nrs' ncs'
                           | nrs' <- shrink nrs, maybe True (>=0) nrs'

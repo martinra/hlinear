@@ -52,9 +52,13 @@ test-suite test-hlinear
   other-modules:
       TestHLinear.Utils
       VVMatrixTests
-      VVMatrixTests.Utils
+      VVMatrixTests.Creation
+      VVMatrixTests.QSTests
+--      SizedVVMatrixTests.Algebra
+--      SizedVVMatrixTests.Utils
   build-depends:
       base
+    , algebra-structures
     , smallcheck
     , tasty
     , tasty-smallcheck
