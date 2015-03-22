@@ -1,10 +1,12 @@
 module VVMatrixTests.Basic
 where
 
+import Prelude hiding ( (+) )
 import Control.Applicative ( (<$>), (<*>), (<|>) )
-import Math.Structure
 import Data.Maybe
 import qualified Data.Vector as V
+import Math.Structure
+import Numeric.Natural ()
 import qualified Test.Tasty.SmallCheck as SC
 import qualified Test.Tasty.QuickCheck as QC
 import Test.Tasty
@@ -16,7 +18,21 @@ import HLinear.VVMatrix
 
 properties :: TestTree
 properties = testGroup "Basic properties"
-  [ testProperty "m == m" $ \m -> (m :: VVMatrix Int) == m
+  [ testProperty "zeroMatrix' ! ix ! jx == 0" $
+      \ix jx nrs ncs->
+        0 ==
+        (zeroMatrix' (Just $ ix+1+nrs) (Just $ jx+1+ncs) :: VVMatrix Int)
+        ! fromIntegral ix V.! fromIntegral jx
+
+  , testProperty "zeroMatrix' !? ix == Nothing" $
+      \ix -> isNothing
+             ( (zeroMatrix' Nothing Nothing :: VVMatrix Int) !? ix )
+  , testProperty "zeroMatrix' !? ix == Nothing" $
+      \ix -> isNothing
+             ( (zeroMatrix' (Just ix) Nothing :: VVMatrix Int)
+               !? fromIntegral ix )
+
+  , testProperty "m == m" $ \m -> (m :: VVMatrix Int) == m
   , testProperty "m == forceVV m" $
       \m -> (m :: VVMatrix Int) == fromMaybe m (forceVVMay m)
 
