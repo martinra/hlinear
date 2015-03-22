@@ -15,6 +15,7 @@ import HLinear.VVMatrix
 import qualified TestHLinear.Utils as U
 import TestHLinear.Utils ( testProperty )
 
+import qualified VVMatrixTests.Basic as Basic 
 import qualified VVMatrixTests.Creation as Creation
 import qualified VVMatrixTests.QSTests as QSTests
 
@@ -23,5 +24,6 @@ vvMatrixTestGroup :: TestTree
 vvMatrixTestGroup =
   testGroup "VVMatrix Tests"
   [ QSTests.unitTests
+  , Basic.properties
   , Creation.properties
   ]

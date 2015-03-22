@@ -52,6 +52,7 @@ test-suite test-hlinear
   other-modules:
       TestHLinear.Utils
       VVMatrixTests
+      VVMatrixTests.Basic
       VVMatrixTests.Creation
       VVMatrixTests.QSTests
 --      SizedVVMatrixTests.Algebra
