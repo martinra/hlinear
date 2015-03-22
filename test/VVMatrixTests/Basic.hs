@@ -19,4 +19,9 @@ properties = testGroup "Basic properties"
   [ testProperty "m == m" $ \m -> (m :: VVMatrix Int) == m
   , testProperty "m == forceVV m" $
       \m -> (m :: VVMatrix Int) == fromMaybe m (forceVVMay m)
+  , testProperty "m == forceSize m" $
+      \m nrs ncs -> (m :: VVMatrix Int) ==
+                    ( let nrs' = fromMaybe nrs $ nmbRows m
+                          ncs' = fromMaybe ncs $ nmbCols m
+                      in forceSize nrs' ncs' m )
   ]
