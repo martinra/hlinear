@@ -1,6 +1,6 @@
-{-# LANGUAGE 
+{-# LANGUAGE
     DataKinds
-  , KindSignatures 
+  , KindSignatures
   #-}
 
 module HLinear.VVMatrix.Definition
@@ -12,11 +12,10 @@ import Math.Structure
 import Numeric.Natural ( Natural )
 
 
--- | VVMatrix models the union of matrices of all sizes with entries in a
---   Zero and One elements, which don't have distinguished size are separate
---   constructurs
+-- | VVMatrix models the set of matrices of all sizes with entries in a field.
+--   Zero and One elements, which don't have distinguished size, are separate
+--   constructors
 data VVMatrix a =
--- todo: Int should be Natural
     Zero !(Maybe Natural) !(Maybe Natural)
   | One !(Maybe Natural) a
   | VVMatrix !Natural !Natural (Vector (Vector a))
