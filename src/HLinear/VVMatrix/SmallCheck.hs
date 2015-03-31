@@ -14,7 +14,7 @@ import qualified Data.Vector as V
 import Numeric.Natural ()
 
 import Test.SmallCheck.Series ( Serial, Series(..), series
-                              , generate
+                              , decDepth
                               , (\/) 
                               )
 import Test.Natural ()
@@ -39,7 +39,7 @@ instance (Monad m, Serial m a)
     seriesVV = do
       nrs <- series
       ncs <- series
-      return . VVMatrix nrs ncs =<<
-        return . V.replicate (fromIntegral nrs)
-               . V.replicate (fromIntegral ncs) =<<
-          series
+      return . VVMatrix nrs ncs =<< (
+        V.sequence $ V.iterateN (fromIntegral nrs) decDepth $
+        V.sequence $ V.iterateN (fromIntegral ncs) decDepth $
+        decDepth $ decDepth series )

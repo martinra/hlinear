@@ -18,8 +18,8 @@ module HLinear.VVMatrix
   , fromLists'
 
   , zeroMatrix
-  , diagonalMatrix
   , identityMatrix
+  , diagonalMatrix
 
   , zeroMatrix'
   , oneMatrix'

@@ -60,12 +60,14 @@ test-suite test-hlinear
   build-depends:
       base
     , algebra-structures
+    , composition
     , smallcheck
     , tasty
     , tasty-smallcheck
     , tasty-quickcheck
     , tasty-hunit
     , vector
+    , vector-test
     , hlinear == 0.0.1
 
   type:           exitcode-stdio-1.0

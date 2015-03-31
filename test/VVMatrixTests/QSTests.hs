@@ -18,25 +18,16 @@ unitTests = testGroup "Quick- and SmallCheck unit tests"
       [ zeroMatrix' Nothing Nothing
       , oneMatrix' Nothing 0
       , zeroMatrix' Nothing (Just 0)
-      , fromLists' 0 0 []
+      , zeroMatrix 0 0
       , zeroMatrix' (Just 0) Nothing
       , oneMatrix' Nothing 1
       , zeroMatrix' (Just 0) (Just 0)
-      , fromLists' 0 0 []
+      , zeroMatrix 0 1
       , oneMatrix' Nothing (-1)
-      , fromLists' 0 0 []
+      , zeroMatrix 1 0
       , oneMatrix' (Just 0) 0
-      , fromLists' 0 1 []
       , oneMatrix' (Just 0) 1
-      , fromLists' 0 1 []
       , oneMatrix' (Just 0) (-1)
-      , fromLists' 0 1 []
-      , fromLists' 1 0 [[]]
-      , fromLists' 1 0 [[]]
-      , fromLists' 1 0 [[]]
-      , fromLists' 1 1 [[0]]
-      , fromLists' 1 1 [[1]]
-      , fromLists' 1 1 [[-1]]
       ]
 
   , HU.testCase "QuickCheck fromLists'" $
