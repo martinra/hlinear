@@ -40,6 +40,7 @@ library
     , composition >= 1.0 && < 1.1
     , deepseq >= 1.4 && < 1.5
     , mtl >= 2.2 && < 2.3
+    , natural-test
     , permutation == 0.5.0.5
     , QuickCheck >= 2.7 && < 2.8
     , safe >= 0.3 && < 0.4
@@ -52,20 +53,69 @@ library
   hs-source-dirs:      src
   default-language:    Haskell2010
 
+
+benchmark bench-hlinear
+  ghc-options:
+    -O2
+--    -threaded
+    -fprof-auto
+    -caf-all
+    -rtsopts
+--    "-with-rtsopts=-N -p -s -h -i0.1"
+
+  main-is:        BenchmarkHLinear.hs
+  other-modules:
+    HLinear.VVMatrix
+    HLinear.VVMatrix.Algebra
+    HLinear.VVMatrix.Basic
+    HLinear.VVMatrix.Creation
+    HLinear.VVMatrix.Definition
+    HLinear.VVMatrix.NFData
+    HLinear.VVMatrix.QuickCheck
+    HLinear.VVMatrix.SmallCheck
+    HLinear.VVMatrix.Utils
+
+    HLinear.PLE.PLE
+    HLinear.PLE.ReversePermute
+    HLinear.PLE.VVMatrixField
+    HLinear.PLE.VVMatrixField.EchelonForm
+    HLinear.PLE.VVMatrixField.LeftTransformation
+
+  build-depends:
+      base >=4.7 && <4.9
+    , algebra-structures >= 0.1 && < 0.2
+    , composition >= 1.0 && < 1.1
+    , deepseq >= 1.4 && < 1.5
+    , logict >= 0.6 && < 0.7
+    , mtl >= 2.2 && < 2.3
+    , natural-test
+    , permutation == 0.5.0.5
+    , QuickCheck >= 2.7 && < 2.8
+    , safe >= 0.3 && < 0.4
+    , smallcheck >= 1.2 && < 1.3
+    , tasty
+    , tasty-smallcheck
+    , vector >= 0.10 && < 0.11
+
+  hs-source-dirs: bench, src
+  type:           exitcode-stdio-1.0
+  default-language: Haskell2010
+
+
 test-suite test-hlinear
   main-is:        TestHLinear.hs
   other-modules:
       TestHLinear.Utils
       VVMatrixTests
+      VVMatrixTests.Algebra
       VVMatrixTests.Basic
       VVMatrixTests.Creation
       VVMatrixTests.QSTests
-      SizedVVMatrixTests.Algebra
---      SizedVVMatrixTests.Utils
   build-depends:
       base
     , algebra-structures
     , composition
+    , mtl
     , natural-test
     , smallcheck
     , tasty

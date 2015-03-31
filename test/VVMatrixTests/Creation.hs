@@ -20,7 +20,7 @@ import HLinear.VVMatrix
 
 properties :: TestTree
 properties = testGroup "Creation properties"
-  [ testProperty "fromVectors' . toVectors == id" $ \m ->
+  [ testPropertyVVMatrix "fromVectors' . toVectors == id" $ \m ->
       ( let nrs = nmbRows m
             ncs = nmbCols m
             rs  = toVectors m
@@ -46,7 +46,7 @@ properties = testGroup "Creation properties"
                 in    nmbRows m == Just nrs
                    && nmbCols m == Just nrs )
 
-  , testProperty "diagonalMatrix . * = * . diagonalMatrix" $
+  , testPropertyVVMatrix "diagonalMatrix . * = * . diagonalMatrix" $
       \abs -> ( let (as,bs) = V.unzip (abs :: Vector (Int,Int))
                   in (diagonalMatrix as) * (diagonalMatrix bs) ==
                      ( diagonalMatrix (V.map (uncurry (*)) abs) ) )

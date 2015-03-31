@@ -24,9 +24,16 @@ import qualified Test.Tasty.QuickCheck as QC
 
 
 testProperty s p = testGroup "(QuickCheck & SmallCheck)"
-  [ QC.testProperty s p,
-    SC.testProperty s p
+  [ QC.testProperty s p
+  , SC.testProperty s p
   ]
+
+testPropertyVVMatrix :: (QC.Testable p, SC.Testable IO p)
+                     => String -> p -> TestTree
+testPropertyVVMatrix s p = testGroup "(QuickCheck & SmallCheck)"
+  [ QC.testProperty s p
+  , SC.testProperty s $ SC.changeDepth (const 0) p
+  ] 
 
 
 equal :: Eq a

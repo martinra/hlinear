@@ -32,19 +32,19 @@ properties = testGroup "Basic properties"
              ( (zeroMatrix' (Just ix) Nothing :: VVMatrix Int)
                !? fromIntegral ix )
 
-  , testProperty "m == m" $ \m -> (m :: VVMatrix Int) == m
-  , testProperty "m == forceVV m" $
+  , testPropertyVVMatrix "m == m" $ \m -> (m :: VVMatrix Int) == m
+  , testPropertyVVMatrix "m == forceVV m" $
       \m -> (m :: VVMatrix Int) == fromMaybe m (forceVVMay m)
 
-  , testProperty "m == forceSize m" $
+  , testPropertyVVMatrix "m == forceSize m" $
       \m nrs ncs -> (m :: VVMatrix Int) ==
                     ( let nrs' = fromMaybe nrs $ nmbRows m
                           ncs' = fromMaybe ncs $ nmbCols m
                       in forceSize nrs' ncs' m )
 
-  , testProperty "transpose . transpose = id" $
+  , testPropertyVVMatrix "transpose . transpose = id" $
       \m -> (m :: VVMatrix Int) == transpose (transpose m)
-  , testProperty "transpose . forceVV . transpose == id" $
+  , testPropertyVVMatrix "transpose . forceVV . transpose == id" $
       \m -> forceVVMay (m :: VVMatrix Int) ==
             ( transpose <$> forceVVMay (transpose m) )
   ]

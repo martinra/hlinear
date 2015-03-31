@@ -15,20 +15,20 @@ import HLinear.VVMatrix
 unitTests = testGroup "Quick- and SmallCheck unit tests"
   [ HU.testCase "SmallCheck" $
     ( SCS.list 1 SCS.series :: [VVMatrix Int] ) @?=
-      [ zeroMatrix' Nothing Nothing
-      , oneMatrix' Nothing 0
-      , zeroMatrix' Nothing (Just 0)
-      , zeroMatrix 0 0
-      , zeroMatrix' (Just 0) Nothing
-      , oneMatrix' Nothing 1
-      , zeroMatrix' (Just 0) (Just 0)
-      , zeroMatrix 0 1
-      , oneMatrix' Nothing (-1)
-      , zeroMatrix 1 0
-      , oneMatrix' (Just 0) 0
-      , oneMatrix' (Just 0) 1
-      , oneMatrix' (Just 0) (-1)
-      ]
+    [ zeroMatrix' Nothing Nothing
+    , oneMatrix' Nothing (0)
+    , zeroMatrix' (Just 0) Nothing
+    , zeroMatrix 0 0
+    , zeroMatrix' Nothing (Just 0)
+    , oneMatrix' (Just 0) 0
+    , zeroMatrix' (Just 0) (Just 0)
+    , zeroMatrix 1 0
+    , oneMatrix' Nothing 1
+    , zeroMatrix 0 1
+    , oneMatrix' (Just 0) 1
+    , oneMatrix' Nothing (-1)
+    , oneMatrix' (Just 0) (-1)
+    ]
 
   , HU.testCase "QuickCheck fromLists'" $
     QC.shrink (fromLists' 1 1 [[1]] :: VVMatrix Int) @?=

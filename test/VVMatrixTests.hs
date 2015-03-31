@@ -10,11 +10,7 @@ import Test.Tasty ( testGroup,
                     TestTree
                   )
 
-import HLinear.VVMatrix
-
-import qualified TestHLinear.Utils as U
-import TestHLinear.Utils ( testProperty )
-
+import qualified VVMatrixTests.Algebra as Algebra
 import qualified VVMatrixTests.Basic as Basic 
 import qualified VVMatrixTests.Creation as Creation
 import qualified VVMatrixTests.QSTests as QSTests
@@ -26,4 +22,5 @@ vvMatrixTestGroup =
   [ QSTests.unitTests
   , Basic.properties
   , Creation.properties
+  , Algebra.properties
   ]
