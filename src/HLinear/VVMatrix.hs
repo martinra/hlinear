@@ -41,6 +41,8 @@ import HLinear.VVMatrix.Basic
 import HLinear.VVMatrix.Creation
 import HLinear.VVMatrix.Definition
 
+import HLinear.VVMatrix.NFData
+
 import HLinear.VVMatrix.QuickCheck
 import HLinear.VVMatrix.SmallCheck
 

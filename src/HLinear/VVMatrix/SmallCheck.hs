@@ -50,10 +50,10 @@ instance (KnownNat nrs, KnownNat ncs, Monad m, Serial m a)
       => Serial m (SizedVVMatrix nrs ncs a)
   where
   series = return . SizedVVMatrix .
-           VVMatrix (fromInteger nrs) (fromInteger ncs) =<< (
-             V.sequence $ V.iterateN (fromInteger nrs) decDepth $
-             V.sequence $ V.iterateN (fromInteger ncs) decDepth $
-             decDepth $ decDepth series )
+           VVMatrix (fromInteger nrs) (fromInteger ncs) =<<
+             ( V.replicateM nrs' $ V.replicateM ncs' series )
     where
     nrs = natVal ( Proxy :: Proxy nrs )
     ncs = natVal ( Proxy :: Proxy ncs )
+    nrs' = fromInteger nrs :: Int
+    ncs' = fromInteger ncs :: Int
