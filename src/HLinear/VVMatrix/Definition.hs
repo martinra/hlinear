@@ -21,4 +21,5 @@ data VVMatrix a =
   | One !(Maybe Natural) a
   | VVMatrix !Natural !Natural (Vector (Vector a))
 
-newtype SizedVVMatrix (m :: Nat) (n :: Nat) a = SizedVVMatrix (VVMatrix a)
+newtype SizedVVMatrix (nrs :: Nat) (ncs :: Nat) a =
+  SizedVVMatrix { fromSized :: (VVMatrix a) }

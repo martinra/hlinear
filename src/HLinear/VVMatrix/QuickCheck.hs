@@ -1,9 +1,15 @@
+{-# LANGUAGE
+    ScopedTypeVariables
+  #-}
+
 module HLinear.VVMatrix.QuickCheck
 where
 
 import Control.Applicative ( (<$>) )
+import Data.Proxy ( Proxy(..) )
 import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as VM
+import GHC.TypeLits ( Nat, KnownNat, natVal )
 
 import Test.Natural ()
 import Test.QuickCheck ( suchThat )
@@ -18,7 +24,7 @@ import Test.QuickCheck.Modifiers ( NonNegative(..)
                                  , getNonNegative, getSmall
                                  )
 
-import HLinear.VVMatrix.Definition ( VVMatrix(..) )
+import HLinear.VVMatrix.Definition ( VVMatrix(..), SizedVVMatrix(..) )
 
 
 instance Arbitrary a => Arbitrary (VVMatrix a) where
@@ -78,3 +84,18 @@ instance Arbitrary a => Arbitrary (VVMatrix a) where
                     , a <- shrink (v V.! ix)
                     ]
 
+instance    ( KnownNat m, KnownNat n, Arbitrary a )
+         => Arbitrary (SizedVVMatrix m n a) where
+  arbitrary = return . SizedVVMatrix .
+    VVMatrix (fromInteger nrs) (fromInteger ncs) =<<
+      ( V.replicateM (fromInteger nrs) $
+        V.replicateM (fromInteger ncs) arbitrary )
+    where
+      nrs = natVal ( Proxy :: Proxy m )
+      ncs = natVal ( Proxy :: Proxy n )
+
+  shrink m@(SizedVVMatrix (Zero _ _)) = [m]
+  shrink m@(SizedVVMatrix (One _ _))    = [m]
+  shrink (SizedVVMatrix (VVMatrix nrs ncs rs)) =
+    map ( SizedVVMatrix . VVMatrix nrs ncs ) $
+        V.mapM (V.mapM shrink) rs

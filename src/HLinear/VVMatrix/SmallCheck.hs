@@ -10,7 +10,9 @@ where
 
 import Control.Applicative ( empty )
 import Control.Monad ( when )
+import Data.Proxy ( Proxy(..) )
 import qualified Data.Vector as V
+import GHC.TypeLits ( Nat, KnownNat, natVal )
 import Numeric.Natural ()
 
 import Test.SmallCheck.Series ( Serial, Series(..), series
@@ -19,7 +21,7 @@ import Test.SmallCheck.Series ( Serial, Series(..), series
                               )
 import Test.Natural ()
 
-import HLinear.VVMatrix.Definition ( VVMatrix(..) )
+import HLinear.VVMatrix.Definition ( VVMatrix(..), SizedVVMatrix(..) )
 
 
 instance (Monad m, Serial m a)
@@ -43,3 +45,15 @@ instance (Monad m, Serial m a)
         V.sequence $ V.iterateN (fromIntegral nrs) decDepth $
         V.sequence $ V.iterateN (fromIntegral ncs) decDepth $
         decDepth $ decDepth series )
+
+instance (KnownNat nrs, KnownNat ncs, Monad m, Serial m a)
+      => Serial m (SizedVVMatrix nrs ncs a)
+  where
+  series = return . SizedVVMatrix .
+           VVMatrix (fromInteger nrs) (fromInteger ncs) =<< (
+             V.sequence $ V.iterateN (fromInteger nrs) decDepth $
+             V.sequence $ V.iterateN (fromInteger ncs) decDepth $
+             decDepth $ decDepth series )
+    where
+    nrs = natVal ( Proxy :: Proxy nrs )
+    ncs = natVal ( Proxy :: Proxy ncs )

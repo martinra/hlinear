@@ -1,5 +1,9 @@
 module HLinear.VVMatrix
   ( VVMatrix
+  , SizedVVMatrix
+
+  , fromSized
+  , toSized
 
   , nmbRows
   , nmbCols

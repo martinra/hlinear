@@ -55,7 +55,7 @@ test-suite test-hlinear
       VVMatrixTests.Basic
       VVMatrixTests.Creation
       VVMatrixTests.QSTests
---      SizedVVMatrixTests.Algebra
+      SizedVVMatrixTests.Algebra
 --      SizedVVMatrixTests.Utils
   build-depends:
       base

@@ -1,3 +1,8 @@
+{-# LANGUAGE
+    DataKinds
+  , KindSignatures
+  #-}
+
 module HLinear.VVMatrix.Basic
 where
 
@@ -11,14 +16,33 @@ import Control.Applicative ( (<$>), (<*>) )
 import Data.Bool ( bool )
 import Data.Composition ( (.:) )
 import Data.Maybe
+import Data.Proxy ( Proxy )
 import qualified Data.Vector as V
 import Data.Vector ( Vector )
+import GHC.TypeLits ( Nat, KnownNat, natVal )
 import Math.Structure
 import Numeric.Natural ( Natural )
 
 import HLinear.VVMatrix.Creation
-import HLinear.VVMatrix.Definition ( VVMatrix(..) )
+import HLinear.VVMatrix.Definition ( VVMatrix(..), SizedVVMatrix(..) )
 import HLinear.VVMatrix.Utils
+
+
+toSized :: ( KnownNat nrs, KnownNat ncs )
+        => Proxy (nrs :: Nat) -> Proxy (ncs :: Nat) -> VVMatrix a
+        -> Maybe (SizedVVMatrix mrs ncs a)
+toSized pnrs pncs (Zero nrs' ncs') =
+  cmbDimMay (fromInteger $ natVal pnrs) nrs' >>= \nrs ->
+  cmbDimMay (fromInteger $ natVal pncs) ncs' >>= \ncs ->
+  Just ( SizedVVMatrix $ Zero (Just nrs) (Just ncs) )
+toSized pnrs pncs (One nrs' a) =
+  cmbDimMay (fromInteger $ natVal pnrs) nrs' >>=
+  cmbDim    (fromInteger $ natVal pncs)      >>= \nrs ->
+  Just ( SizedVVMatrix $ One (Just nrs) a )
+toSized pnrs pncs m@(VVMatrix nrs' ncs' _) =
+  cmbDim (fromInteger $ natVal pnrs) nrs'    >>
+  cmbDim (fromInteger $ natVal pncs) ncs'    >>
+  Just ( SizedVVMatrix m )
 
 
 nmbRows :: VVMatrix a -> Maybe Natural
@@ -114,3 +138,12 @@ instance ( AdditiveMonoid a, Show a ) => Show (VVMatrix a) where
       maxLength = V.maximum $ V.map (V.maximum . V.map length) rsShown
       n = (maxLength - length s) `div` 2
       n' = maxLength - n - length s
+
+
+
+instance   ( DecidableZero a, DecidableOne a, Eq a)
+         =>  Eq (SizedVVMatrix nrs ncs a) where
+  (SizedVVMatrix m) == (SizedVVMatrix m') = m == m'
+
+instance ( AdditiveMonoid a, Show a ) => Show (SizedVVMatrix nrs ncs a) where
+  show (SizedVVMatrix m) = show m
