@@ -28,7 +28,7 @@ import HLinear.VVMatrix.Utils
 instance AdditiveMonoid a => AdditiveMagma (VVMatrix a) where
   (VVMatrix nrs ncs rs) + (VVMatrix nrs' ncs' rs') =
     VVMatrix (cmbDim' nrs nrs') (cmbDim' ncs ncs') $
-             V.zipWith (V.zipWith (+)) rs rs' 
+             V.zipWith (V.zipWith (+)) rs rs'
 
   (Zero nrs ncs) + (Zero nrs' ncs') =
     Zero (cmbDimMMay' nrs nrs') (cmbDimMMay' ncs ncs')
@@ -62,7 +62,7 @@ instance AdditiveGroup a => AdditiveGroup (VVMatrix a) where
 
   (VVMatrix nrs ncs rs) - (VVMatrix nrs' ncs' rs') =
     VVMatrix (cmbDim' nrs nrs') (cmbDim' ncs ncs') $
-             V.zipWith (V.zipWith (-)) rs rs' 
+             V.zipWith (V.zipWith (-)) rs rs'
 
   (Zero nrs ncs) - (Zero nrs' ncs') =
     Zero (cmbDimMMay' nrs nrs') (cmbDimMMay' ncs ncs')
@@ -137,7 +137,7 @@ instance Rng a => MultiplicativeSemigroupLeftAction (VVMatrix a) (VVMatrix a) wh
   (One nrs a) *. (VVMatrix nrs' ncs' rs') =
     seq (cmbDimMay' nrs' nrs) $
     VVMatrix nrs' ncs' $ V.map (V.map (a*)) rs'
-  
+
   (VVMatrix nrs ncs rs) *. (One nrs' a') =
     seq (cmbDimMay' ncs nrs') $
     VVMatrix nrs ncs $ V.map (V.map (*a')) rs
