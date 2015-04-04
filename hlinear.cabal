@@ -21,6 +21,10 @@ library
     HLinear.PLE.PLE
     HLinear.PLE.ReversePermute
     HLinear.PLE.VVMatrixField
+
+    -- we export these so that they are available to the test suite
+    HLinear.PLE.VVMatrixField.EchelonForm
+    HLinear.PLE.VVMatrixField.LeftTransformation
   other-modules:
     HLinear.VVMatrix.Algebra
     HLinear.VVMatrix.Basic
@@ -31,8 +35,6 @@ library
     HLinear.VVMatrix.SmallCheck
     HLinear.VVMatrix.Utils
 
-    HLinear.PLE.VVMatrixField.EchelonForm
-    HLinear.PLE.VVMatrixField.LeftTransformation
     HLinear.PLE.VVMatrixField.PLE
     HLinear.PLE.VVMatrixField.QuickCheck
     HLinear.PLE.VVMatrixField.SmallCheck
@@ -109,6 +111,9 @@ test-suite test-hlinear
   main-is:        TestHLinear.hs
   other-modules:
       TestHLinear.Utils
+      PLETests
+      PLETests.VVMatrixField
+      PLETests.VVMatrixField.LeftTransformation
       VVMatrixTests
       VVMatrixTests.Algebra
       VVMatrixTests.Basic

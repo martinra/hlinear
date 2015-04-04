@@ -5,8 +5,12 @@ import Test.Tasty ( defaultMain
                   , testGroup
                   )
 
-import VVMatrixTests ( vvMatrixTestGroup )
+import PLETests ( pleTests )
+import VVMatrixTests ( vvMatrixTests )
 
 
 main = defaultMain $
-       testGroup "HLinear Tests" [vvMatrixTestGroup]
+  testGroup "HLinear Tests"
+  [ vvMatrixTests
+  , pleTests
+  ]

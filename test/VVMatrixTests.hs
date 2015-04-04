@@ -16,8 +16,8 @@ import qualified VVMatrixTests.Creation as Creation
 import qualified VVMatrixTests.QSTests as QSTests
 
 
-vvMatrixTestGroup :: TestTree
-vvMatrixTestGroup =
+vvMatrixTests :: TestTree
+vvMatrixTests =
   testGroup "VVMatrix Tests"
   [ QSTests.unitTests
   , Basic.properties

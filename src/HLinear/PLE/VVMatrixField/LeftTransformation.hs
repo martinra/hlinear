@@ -34,6 +34,7 @@ import HLinear.VVMatrix.Definition ( VVMatrix(..) )
  --   . . . .
 data LeftTransformation a =
   LeftTransformation Natural (Vector (NonZero a, Vector a))
+  deriving Show
 
 toVVMatrix :: forall a . Field a
            => LeftTransformation a -> VVMatrix a
