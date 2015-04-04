@@ -21,7 +21,6 @@ import Test.QuickCheck.Gen ( frequency
                            , elements )
 import Test.QuickCheck.Modifiers ( NonNegative(..)
                                  , Small(..)
-                                 , getNonNegative, getSmall
                                  )
 
 import HLinear.VVMatrix.Definition ( VVMatrix(..), SizedVVMatrix(..) )

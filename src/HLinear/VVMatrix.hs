@@ -45,4 +45,3 @@ import HLinear.VVMatrix.NFData
 
 import HLinear.VVMatrix.QuickCheck
 import HLinear.VVMatrix.SmallCheck
-

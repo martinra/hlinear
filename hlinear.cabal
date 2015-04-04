@@ -18,6 +18,9 @@ cabal-version:       >=1.10
 library
   exposed-modules:
     HLinear.VVMatrix
+    HLinear.PLE.PLE
+    HLinear.PLE.ReversePermute
+    HLinear.PLE.VVMatrixField
   other-modules:
     HLinear.VVMatrix.Algebra
     HLinear.VVMatrix.Basic
@@ -28,11 +31,11 @@ library
     HLinear.VVMatrix.SmallCheck
     HLinear.VVMatrix.Utils
 
-    HLinear.PLE.PLE
-    HLinear.PLE.ReversePermute
-    HLinear.PLE.VVMatrixField
     HLinear.PLE.VVMatrixField.EchelonForm
     HLinear.PLE.VVMatrixField.LeftTransformation
+    HLinear.PLE.VVMatrixField.PLE
+    HLinear.PLE.VVMatrixField.QuickCheck
+    HLinear.PLE.VVMatrixField.SmallCheck
 
   build-depends:
       base >=4.7 && <4.9
