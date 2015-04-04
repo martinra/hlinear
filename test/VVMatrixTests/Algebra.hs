@@ -21,8 +21,8 @@ properties = testGroup "Algebra properties" $
   [ isRing (Proxy :: Proxy (SizedVVMatrix 2 2 Integer))
   , isRing (Proxy :: Proxy (SizedVVMatrix 3 3 Integer))
 
-  , isModule (Proxy :: Proxy Integer)
-             (Proxy :: Proxy (SizedVVMatrix 2 2 Integer))
+  , isAlgebra (Proxy :: Proxy Integer)
+              (Proxy :: Proxy (SizedVVMatrix 2 2 Integer))
 
   , isLeftModule (Proxy :: Proxy (SizedVVMatrix 2 2 Integer))
                  (Proxy :: Proxy (SizedVVMatrix 2 3 Integer))

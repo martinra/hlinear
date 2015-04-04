@@ -175,6 +175,10 @@ instance Ring a => LeftModule a (VVMatrix a)
 instance Ring a => RightModule a (VVMatrix a)
 instance (Commutative a, Ring a) => Module a (VVMatrix a)
 
+instance Ring a => LeftAlgebra a (VVMatrix a)
+instance Ring a => RightAlgebra a (VVMatrix a)
+instance (Commutative a, Ring a) => Algebra a (VVMatrix a)
+
 
 instance AdditiveMonoid a => AdditiveMagma (SizedVVMatrix nrs ncs a) where
   (SizedVVMatrix m) + (SizedVVMatrix m') = SizedVVMatrix (m + m')
@@ -260,3 +264,10 @@ instance    (KnownNat nrs, KnownNat ncs, Ring a)
          => RightModule a (SizedVVMatrix nrs ncs a)
 instance    (KnownNat nrs, KnownNat ncs, Commutative a, Ring a)
          => Module a (SizedVVMatrix nrs ncs a)
+
+instance    (KnownNat nrs, Ring a)
+         => LeftAlgebra a (SizedVVMatrix nrs nrs a)
+instance    (KnownNat nrs, Ring a)
+         => RightAlgebra a (SizedVVMatrix nrs nrs a)
+instance    (KnownNat nrs, Commutative a, Ring a)
+         => Algebra a (SizedVVMatrix nrs nrs a)
