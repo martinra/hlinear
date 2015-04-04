@@ -17,4 +17,16 @@ import TestHLinear.Utils ( testPropertyVVMatrix )
 properties :: TestTree
 properties = testGroup "Algebra properties" $
   (`runTestR` testPropertyVVMatrix) $
-  isAbelianGroup (Proxy :: Proxy (SizedVVMatrix 2 2 Integer))
+  fmap concat $ sequence
+  [ isRing (Proxy :: Proxy (SizedVVMatrix 2 2 Integer))
+  , isRing (Proxy :: Proxy (SizedVVMatrix 3 3 Integer))
+
+  , isModule (Proxy :: Proxy Integer)
+             (Proxy :: Proxy (SizedVVMatrix 2 2 Integer))
+
+  , isLeftModule (Proxy :: Proxy (SizedVVMatrix 2 2 Integer))
+                 (Proxy :: Proxy (SizedVVMatrix 2 3 Integer))
+  , isRightModule (Proxy :: Proxy (SizedVVMatrix 3 3 Integer))
+                  (Proxy :: Proxy (SizedVVMatrix 2 3 Integer))
+ ]
+                
