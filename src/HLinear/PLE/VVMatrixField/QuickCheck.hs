@@ -30,10 +30,10 @@ instance    (DecidableZero a, Arbitrary a)
 
   shrink (LeftTransformation nrs cs) =
     [ LeftTransformation (nrs-1) $
-      dropIx ix $ (`V.imap` cs)
-                  (\jx (a,c) -> if jx>=ix then (a,c)
-                                else (a, dropIx (ix-jx-1) c))
-    | ix <- [0..V.length cs - 1]
+      dropIx jx $ (`V.imap` cs)
+                  (\jx' (a,c) -> if jx'>=jx then (a,c)
+                                 else (a, dropIx (jx-jx'-1) c))
+    | jx <- [0..V.length cs - 1]
     ]
     ++
     map (LeftTransformation nrs) (V.mapM shrinkColumn cs)
@@ -45,6 +45,6 @@ instance    (DecidableZero a, Arbitrary a)
       [ (a',c) | a' <- shrink a ]
       ++
       [ (a,V.modify (\c' -> VM.write c' ix e) c)
-      | ix <- [0..V.length c]
+      | ix <- [0..V.length c - 1]
       , e <- shrink (c V.! ix)
       ]
