@@ -105,6 +105,15 @@ instance Rng a => MultiplicativeSemigroup (VVMatrix a)
 instance Ring a => MultiplicativeMonoid (VVMatrix a) where
   one = One Nothing one
 
+instance    ( DecidableZero a, DecidableOne a, Ring a )
+         => DecidableOne (VVMatrix a) where
+  isOne (Zero _ _)        = False
+  isOne (One _ a)         = isOne a
+  isOne (VVMatrix nrs ncs rs)
+    | nrs /= ncs = False
+    | otherwise  = V.all id $ (`V.imap` rs) $ \ix r ->
+                   V.all id $ (`V.imap` r) $ \jx e ->
+                     if ix==jx then isOne e else isZero e
 
 instance Rng a => Distributive (VVMatrix a)
 instance Rng a => Semiring (VVMatrix a)
