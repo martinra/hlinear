@@ -1,6 +1,8 @@
 module PLETests.VVMatrixField.LeftTransformation
 where
 
+import Math.Structure ( isOne )
+
 import Test.Tasty
 import qualified Test.Tasty.QuickCheck as QC
 
@@ -13,6 +15,5 @@ leftTransformationTests :: TestTree
 leftTransformationTests =
   testGroup "LeftTransformation"
   [ QC.testProperty "toVVMatrix = apply to identity" $
-      \l -> toVVMatrix (l :: LeftTransformation Rational)
-            == apply l (identityMatrix (nmbRows l))
+      \l -> isOne ( apply l $ toVVMatrix (l :: LeftTransformation Rational) )
   ]
