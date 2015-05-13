@@ -27,6 +27,8 @@ library
     HLinear.PLE.VVMatrixField.LeftTransformation
   other-modules:
     HLinear.VVMatrix.Algebra
+    HLinear.VVMatrix.Algebra.Sized
+    HLinear.VVMatrix.Algebra.TypeUnion
     HLinear.VVMatrix.Basic
     HLinear.VVMatrix.Creation
     HLinear.VVMatrix.Definition
