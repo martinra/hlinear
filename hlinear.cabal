@@ -20,11 +20,11 @@ library
     HLinear.VVMatrix
     HLinear.PLE.PLE
     HLinear.PLE.ReversePermute
-    HLinear.PLE.VVMatrixField
+    HLinear.PLE.Hook
 
     -- we export these so that they are available to the test suite
-    HLinear.PLE.VVMatrixField.EchelonForm
-    HLinear.PLE.VVMatrixField.LeftTransformation
+    HLinear.PLE.Hook.EchelonForm
+    HLinear.PLE.Hook.LeftTransformation
   other-modules:
     HLinear.VVMatrix.Algebra
     HLinear.VVMatrix.Algebra.Sized
@@ -37,22 +37,22 @@ library
     HLinear.VVMatrix.SmallCheck
     HLinear.VVMatrix.Utils
 
-    HLinear.PLE.VVMatrixField.PLE
-    HLinear.PLE.VVMatrixField.QuickCheck
-    HLinear.PLE.VVMatrixField.SmallCheck
+    HLinear.PLE.Hook.PLE
+    HLinear.PLE.Hook.Test.QuickCheck
+    HLinear.PLE.Hook.Test.SmallCheck
 
   build-depends:
-      base >=4.7 && <4.9
-    , algebra-structures >= 0.1 && < 0.2
-    , composition >= 1.0 && < 1.1
-    , deepseq >= 1.4 && < 1.5
-    , mtl >= 2.2 && < 2.3
+      base
+    , algebra-structures
+    , composition
+    , deepseq
+    , mtl
     , natural-test
-    , permutation == 0.5.0.5
-    , QuickCheck >= 2.7 && < 2.8
-    , safe >= 0.3 && < 0.4
-    , smallcheck >= 1.2 && < 1.3
-    , vector >= 0.10 && < 0.11
+    , permutation
+    , QuickCheck
+    , safe
+    , smallcheck
+    , vector
 
   ghc-options:
     -O2
@@ -89,20 +89,20 @@ benchmark bench-hlinear
     HLinear.PLE.VVMatrixField.LeftTransformation
 
   build-depends:
-      base >=4.7 && <4.9
-    , algebra-structures >= 0.1 && < 0.2
-    , composition >= 1.0 && < 1.1
-    , deepseq >= 1.4 && < 1.5
-    , logict >= 0.6 && < 0.7
-    , mtl >= 2.2 && < 2.3
+      base
+    , algebra-structures
+    , composition
+    , deepseq
+    , logict
+    , mtl
     , natural-test
-    , permutation == 0.5.0.5
-    , QuickCheck >= 2.7 && < 2.8
-    , safe >= 0.3 && < 0.4
-    , smallcheck >= 1.2 && < 1.3
+    , permutation
+    , QuickCheck
+    , safe
+    , smallcheck
     , tasty
     , tasty-smallcheck
-    , vector >= 0.10 && < 0.11
+    , vector
 
   hs-source-dirs: bench, src
   type:           exitcode-stdio-1.0
