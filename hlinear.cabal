@@ -72,22 +72,6 @@ benchmark bench-hlinear
 --    "-with-rtsopts=-N -p -s -h -i0.1"
 
   main-is:        BenchmarkHLinear.hs
-  other-modules:
-    HLinear.VVMatrix
-    HLinear.VVMatrix.Algebra
-    HLinear.VVMatrix.Basic
-    HLinear.VVMatrix.Creation
-    HLinear.VVMatrix.Definition
-    HLinear.VVMatrix.NFData
-    HLinear.VVMatrix.QuickCheck
-    HLinear.VVMatrix.SmallCheck
-    HLinear.VVMatrix.Utils
-
-    HLinear.PLE.PLE
-    HLinear.PLE.ReversePermute
-    HLinear.PLE.VVMatrixField
-    HLinear.PLE.VVMatrixField.EchelonForm
-    HLinear.PLE.VVMatrixField.LeftTransformation
 
   build-depends:
       base
@@ -112,41 +96,6 @@ benchmark bench-hlinear
 
 test-suite test-hlinear
   main-is:        HLinear/Test.hs
-  other-modules:
-    HLinear.PLE.Hook.EchelonForm
-    HLinear.PLE.Hook.LeftTransformation
-    HLinear.PLE.Hook.LeftTransformation.Basic
-    HLinear.PLE.Hook.LeftTransformation.Column
-    HLinear.PLE.Hook.LeftTransformation.Instances
-    HLinear.PLE.Hook.LeftTransformation.QuickCheck
-    HLinear.PLE.Hook.LeftTransformation.SmallCheck
-    HLinear.PLE.Hook.LeftTransformation.VVMatrix
-    HLinear.PLE.Hook.PLE
-    HLinear.PLE.Hook.ReversePermute
-    HLinear.PLE.Hook.Test.QuickCheck
-    HLinear.PLE.Hook.Test.SmallCheck
-
-    HLinear.Test.Utils
-    HLinear.Test.PLE
-    HLinear.Test.PLE.Hook
-    HLinear.Test.PLE.Hook.LeftTransformation
-    HLinear.Test.VVMatrix
-    HLinear.Test.VVMatrix.Algebra
-    HLinear.Test.VVMatrix.Basic
-    HLinear.Test.VVMatrix.Creation
-    HLinear.Test.VVMatrix.QSTests
-
-    HLinear.VVMatrix.Algebra
-    HLinear.VVMatrix.Algebra.Sized
-    HLinear.VVMatrix.Algebra.TypeUnion
-    HLinear.VVMatrix.Basic
-    HLinear.VVMatrix.Creation
-    HLinear.VVMatrix.Definition
-    HLinear.VVMatrix.MatrixRow
-    HLinear.VVMatrix.NFData
-    HLinear.VVMatrix.QuickCheck
-    HLinear.VVMatrix.SmallCheck
-    HLinear.VVMatrix.Utils
 
   build-depends:
       base
