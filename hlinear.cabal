@@ -170,3 +170,29 @@ test-suite test-hlinear
   hs-source-dirs: test, src
   type:           exitcode-stdio-1.0
   default-language: Haskell2010
+
+test-suite debug-hlinear
+  main-is:        HLinear/Debug.hs
+
+  build-depends:
+      base
+    , algebra-structures
+    , composition
+    , deepseq
+    , mtl
+    , natural-test
+    , permutation
+    , QuickCheck
+    , safe
+    , smallcheck
+    , smallcheck
+    , tasty
+    , tasty-smallcheck
+    , tasty-quickcheck
+    , tasty-hunit
+    , vector
+    , vector-test
+
+  hs-source-dirs: debug, src
+  type:           exitcode-stdio-1.0
+  default-language: Haskell2010
