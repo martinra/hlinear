@@ -31,11 +31,6 @@ import HLinear.VVMatrix.Utils
 import HLinear.VVMatrix.Definition ( VVMatrix(..) )
 
 
-instance MultiplicativeSemigroupLeftAction ReversePermute (LeftTransformationColumn a) where
-  p *. (LeftTransformationColumn s a v)
-    | sizeRP p > V.length v = error "to large permutation"
-    | otherwise              = LeftTransformationColumn s a (p *. v)
-
 instance MultiplicativeSemigroupLeftAction ReversePermute (LeftTransformation a) where
   p *. (LeftTransformation nrs cs) = LeftTransformation nrs $ V.map (p*.) cs
 
@@ -60,6 +55,22 @@ instance    ( DivisionRing a, DecidableZero a, DecidableOne a )
     V.null cs
     ||
     (`all` cs) (\(LeftTransformationColumn _ a v) -> isOne (fromNonZero a) && all isZero v)
+
+instance DivisionRing a => MultiplicativeGroup (LeftTransformation a) where
+  recip (LeftTransformation nrs cs)
+    | V.length cs == 1
+      = let LeftTransformationColumn _ a c = V.head cs
+            a' = fromNonZero a
+            c' = LeftTransformationColumn 0 (recip a) (V.map ((*a') . negate) c)
+        in LeftTransformation nrs $ V.singleton c'
+    | otherwise = foldl (*) initLt $ V.reverse $ V.map recip columnLTs
+        where
+        initLt = LeftTransformation nrs V.empty
+        columnLTs = V.map go cs
+        go (LeftTransformationColumn _ a c) =
+          LeftTransformation (fromIntegral $ succ $ V.length c) $
+                             V.singleton $ LeftTransformationColumn 0 a c
+
 
 instance    (DivisionRing a, LeftModule a b)
          => MultiplicativeSemigroupLeftAction

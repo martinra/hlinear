@@ -39,11 +39,11 @@ library
     HLinear.PLE.Hook.LeftTransformation.Basic
     HLinear.PLE.Hook.LeftTransformation.Column
     HLinear.PLE.Hook.LeftTransformation.Instances
+    HLinear.PLE.Hook.LeftTransformation.QuickCheck
+    HLinear.PLE.Hook.LeftTransformation.SmallCheck
     HLinear.PLE.Hook.LeftTransformation.VVMatrix
     HLinear.PLE.Hook.PLE
     HLinear.PLE.Hook.ReversePermute
-    HLinear.PLE.Hook.Test.QuickCheck
-    HLinear.PLE.Hook.Test.SmallCheck
 
   build-depends:
       base
@@ -118,6 +118,8 @@ test-suite test-hlinear
     HLinear.PLE.Hook.LeftTransformation.Basic
     HLinear.PLE.Hook.LeftTransformation.Column
     HLinear.PLE.Hook.LeftTransformation.Instances
+    HLinear.PLE.Hook.LeftTransformation.QuickCheck
+    HLinear.PLE.Hook.LeftTransformation.SmallCheck
     HLinear.PLE.Hook.LeftTransformation.VVMatrix
     HLinear.PLE.Hook.PLE
     HLinear.PLE.Hook.ReversePermute

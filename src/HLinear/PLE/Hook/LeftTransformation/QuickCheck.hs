@@ -1,13 +1,15 @@
-module HLinear.PLE.Hook.Test.QuickCheck
+module HLinear.PLE.Hook.LeftTransformation.QuickCheck
 where
 
+import Control.Arrow ( (&&&) )
+import Data.Traversable ( forM )
 import qualified Data.Vector as V
 import Data.Vector ( Vector )
 import qualified Data.Vector.Mutable as VM
-import Math.Structure ( DecidableZero )
+import Math.Structure ( DecidableZero, NonZero )
 
 import Math.Structure.Tasty ()
-import Test.QuickCheck ( suchThat )
+import Test.QuickCheck ( suchThat, Gen )
 import Test.QuickCheck.Arbitrary ( Arbitrary
                                  , arbitrary
                                  , shrink
@@ -16,21 +18,27 @@ import Test.QuickCheck.Modifiers ( NonNegative(..)
                                  , Small(..)
                                  )
 
-import HLinear.PLE.Hook.LeftTransformation
-  ( LeftTransformation(..)
-  , LeftTransformationColumn(..)
-  )
+import HLinear.PLE.Hook.LeftTransformation.Basic
+import HLinear.PLE.Hook.LeftTransformation.Column
+
+import Debug.Trace
 
 
 instance    (DecidableZero a, Arbitrary a)
          => Arbitrary (LeftTransformation a) where
   arbitrary = do
-    nrs'@(NonNegative (Small nrs)) <- arbitrary 
-    NonNegative (Small ncs) <- arbitrary `suchThat` (<nrs') 
-    cs <- V.generateM ncs $ \jx ->
-            LeftTransformationColumn jx <$>
-              arbitrary <*>
-              V.replicateM (nrs-jx-1) arbitrary
+    -- We use this slightly odd construction of nrs to avoid infinite loops
+    -- that QuickCheck sometimes produces on using
+    --   ncs <- arbitary `suchThat` (<nrs)
+    NonNegative ncs <- arbitrary
+    NonNegative nrsDiff <- arbitrary
+    let nrs = ncs + nrsDiff
+
+    cs <- V.generateM ncs $ \jx -> do
+            a <- arbitrary
+            c <- V.replicateM (nrs-jx-1) arbitrary
+            return $ LeftTransformationColumn jx a c
+              
     return $ LeftTransformation (fromIntegral nrs) cs
 
   shrink (LeftTransformation nrs cs) =
