@@ -28,8 +28,9 @@ instance    (DecidableZero a, Arbitrary a)
     nrs'@(NonNegative (Small nrs)) <- arbitrary 
     NonNegative (Small ncs) <- arbitrary `suchThat` (<nrs') 
     cs <- V.generateM ncs $ \jx ->
-            LeftTransformationColumn <$> arbitrary <*> arbitrary <*>
-                                         V.replicateM (nrs-jx-1) arbitrary
+            LeftTransformationColumn jx <$>
+              arbitrary <*>
+              V.replicateM (nrs-jx-1) arbitrary
     return $ LeftTransformation (fromIntegral nrs) cs
 
   shrink (LeftTransformation nrs cs) =

@@ -19,12 +19,8 @@ library
   exposed-modules:
     HLinear.VVMatrix
     HLinear.PLE.PLE
-    HLinear.PLE.ReversePermute
     HLinear.PLE.Hook
 
-    -- we export these so that they are available to the test suite
-    HLinear.PLE.Hook.EchelonForm
-    HLinear.PLE.Hook.LeftTransformation
   other-modules:
     HLinear.VVMatrix.Algebra
     HLinear.VVMatrix.Algebra.Sized
@@ -32,12 +28,20 @@ library
     HLinear.VVMatrix.Basic
     HLinear.VVMatrix.Creation
     HLinear.VVMatrix.Definition
+    HLinear.VVMatrix.MatrixRow
     HLinear.VVMatrix.NFData
     HLinear.VVMatrix.QuickCheck
     HLinear.VVMatrix.SmallCheck
     HLinear.VVMatrix.Utils
 
+    HLinear.PLE.Hook.EchelonForm
+    HLinear.PLE.Hook.LeftTransformation
+    HLinear.PLE.Hook.LeftTransformation.Basic
+    HLinear.PLE.Hook.LeftTransformation.Column
+    HLinear.PLE.Hook.LeftTransformation.Instances
+    HLinear.PLE.Hook.LeftTransformation.VVMatrix
     HLinear.PLE.Hook.PLE
+    HLinear.PLE.Hook.ReversePermute
     HLinear.PLE.Hook.Test.QuickCheck
     HLinear.PLE.Hook.Test.SmallCheck
 

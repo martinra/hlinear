@@ -46,6 +46,7 @@ import HLinear.VVMatrix ( nmbRows, nmbCols
                         , zeroMatrix
                         )
 import HLinear.VVMatrix.Definition ( VVMatrix(..) )
+import HLinear.VVMatrix.MatrixRow
 
 
 instance (DecidableZero a, DivisionRing a) => HasPLE (VVMatrix a) where
@@ -125,38 +126,6 @@ splitOffHook m@(VVMatrix nrs ncs rs)
           csTail = V.map V.tail rs
 
 
-newtype MatrixRow a = MatrixRow {unMatrixRow :: Vector a}
-
--- todo these should be wrapped by newtypes
-instance AdditiveMagma a => AdditiveMagma (MatrixRow a) where
-  MatrixRow a + MatrixRow b = MatrixRow $
-    V.zipWith (+) a b
-    V.++
-    case compare na nb of
-      LT -> V.drop na b
-      EQ -> V.empty
-      GT -> V.drop nb a
-    where
-    na = V.length a
-    nb = V.length b
-          
-instance AdditiveSemigroup a => AdditiveSemigroup (MatrixRow a)
-instance AdditiveMonoid a => AdditiveMonoid (MatrixRow a) where
-  zero = MatrixRow V.empty
-instance Abelian a => Abelian (MatrixRow a)
-
-instance AdditiveGroup a => AdditiveGroup (MatrixRow a) where
-  negate (MatrixRow v) = MatrixRow $ V.map negate v
-
-instance    MultiplicativeSemigroup a
-         => MultiplicativeSemigroupLeftAction a (MatrixRow a) where
-  a *. (MatrixRow v) = MatrixRow $ V.map (a*) v
-
-instance MultiplicativeMonoid a => MultiplicativeLeftAction a (MatrixRow a)
-
-instance Ring a => LinearSemiringLeftAction a (MatrixRow a)
-
-instance Ring a => LeftModule a (MatrixRow a)
 
 
 -- type PLEParametrizedFunction a =
