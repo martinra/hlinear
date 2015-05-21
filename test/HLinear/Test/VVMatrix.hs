@@ -2,7 +2,7 @@
     FlexibleContexts
   #-}
 
-module VVMatrixTests
+module HLinear.Test.VVMatrix
 where
 
 import qualified Data.Vector as V
@@ -10,10 +10,10 @@ import Test.Tasty ( testGroup,
                     TestTree
                   )
 
-import qualified VVMatrixTests.Algebra as Algebra
-import qualified VVMatrixTests.Basic as Basic 
-import qualified VVMatrixTests.Creation as Creation
-import qualified VVMatrixTests.QSTests as QSTests
+import qualified HLinear.Test.VVMatrix.Algebra as Algebra
+import qualified HLinear.Test.VVMatrix.Basic as Basic 
+import qualified HLinear.Test.VVMatrix.Creation as Creation
+import qualified HLinear.Test.VVMatrix.QSTests as QSTests
 
 
 vvMatrixTests :: TestTree

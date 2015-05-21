@@ -2,7 +2,7 @@
     FlexibleContexts
   #-}
 
-module TestHLinear.Utils
+module HLinear.Test.Utils
 where
 
 -- copied from HFlint. This should be implemented in a separate package.

@@ -114,23 +114,52 @@ benchmark bench-hlinear
 
 
 test-suite test-hlinear
-  main-is:        TestHLinear.hs
+  main-is:        HLinear/Test.hs
   other-modules:
-      TestHLinear.Utils
-      PLETests
-      PLETests.VVMatrixField
-      PLETests.VVMatrixField.LeftTransformation
-      VVMatrixTests
-      VVMatrixTests.Algebra
-      VVMatrixTests.Basic
-      VVMatrixTests.Creation
-      VVMatrixTests.QSTests
+    HLinear.PLE.Hook.EchelonForm
+    HLinear.PLE.Hook.LeftTransformation
+    HLinear.PLE.Hook.LeftTransformation.Basic
+    HLinear.PLE.Hook.LeftTransformation.Column
+    HLinear.PLE.Hook.LeftTransformation.Instances
+    HLinear.PLE.Hook.LeftTransformation.VVMatrix
+    HLinear.PLE.Hook.PLE
+    HLinear.PLE.Hook.ReversePermute
+    HLinear.PLE.Hook.Test.QuickCheck
+    HLinear.PLE.Hook.Test.SmallCheck
+
+    HLinear.Test.Utils
+    HLinear.Test.PLE
+    HLinear.Test.PLE.Hook
+    HLinear.Test.PLE.Hook.LeftTransformation
+    HLinear.Test.VVMatrix
+    HLinear.Test.VVMatrix.Algebra
+    HLinear.Test.VVMatrix.Basic
+    HLinear.Test.VVMatrix.Creation
+    HLinear.Test.VVMatrix.QSTests
+
+    HLinear.VVMatrix.Algebra
+    HLinear.VVMatrix.Algebra.Sized
+    HLinear.VVMatrix.Algebra.TypeUnion
+    HLinear.VVMatrix.Basic
+    HLinear.VVMatrix.Creation
+    HLinear.VVMatrix.Definition
+    HLinear.VVMatrix.MatrixRow
+    HLinear.VVMatrix.NFData
+    HLinear.VVMatrix.QuickCheck
+    HLinear.VVMatrix.SmallCheck
+    HLinear.VVMatrix.Utils
+
   build-depends:
       base
     , algebra-structures
     , composition
+    , deepseq
     , mtl
     , natural-test
+    , permutation
+    , QuickCheck
+    , safe
+    , smallcheck
     , smallcheck
     , tasty
     , tasty-smallcheck
@@ -138,8 +167,7 @@ test-suite test-hlinear
     , tasty-hunit
     , vector
     , vector-test
-    , hlinear == 0.0.1
 
-  hs-source-dirs: test
+  hs-source-dirs: test, src
   type:           exitcode-stdio-1.0
   default-language: Haskell2010

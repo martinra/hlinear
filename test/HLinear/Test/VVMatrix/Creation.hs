@@ -1,4 +1,4 @@
-module VVMatrixTests.Creation
+module HLinear.Test.VVMatrix.Creation
 where
 
 import Prelude hiding ( (*) )
@@ -13,7 +13,7 @@ import qualified Test.Tasty.QuickCheck as QC
 import Test.Vector
 import Test.Tasty
 
-import TestHLinear.Utils
+import HLinear.Test.Utils
 
 import HLinear.VVMatrix
 

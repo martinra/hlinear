@@ -2,7 +2,7 @@
     DataKinds
   #-}
 
-module VVMatrixTests.Algebra
+module HLinear.Test.VVMatrix.Algebra
 where
 
 import Control.Monad.Reader ( runReader )
@@ -11,7 +11,7 @@ import Math.Structure.Tasty
 import Test.Tasty
 
 import HLinear.VVMatrix
-import TestHLinear.Utils ( testPropertyVVMatrix )
+import HLinear.Test.Utils ( testPropertyVVMatrix )
 
 
 properties :: TestTree

@@ -1,4 +1,4 @@
-module VVMatrixTests.QSTests
+module HLinear.Test.VVMatrix.QSTests
 where
 
 -- import Math.Structure
@@ -11,7 +11,7 @@ import qualified Test.Tasty.SmallCheck as SC
 
 import HLinear.VVMatrix
 
--- todo: to get this straight, we need full form show first
+
 unitTests = testGroup "Quick- and SmallCheck unit tests"
   [ HU.testCase "SmallCheck" $
     ( SCS.list 1 SCS.series :: [VVMatrix Int] ) @?=

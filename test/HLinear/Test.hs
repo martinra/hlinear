@@ -5,8 +5,8 @@ import Test.Tasty ( defaultMain
                   , testGroup
                   )
 
-import PLETests ( pleTests )
-import VVMatrixTests ( vvMatrixTests )
+import HLinear.Test.PLE ( pleTests )
+import HLinear.Test.VVMatrix ( vvMatrixTests )
 
 
 main = defaultMain $
