@@ -78,19 +78,20 @@ instance    (DivisionRing a, LeftModule a b)
   where
   -- we fill the vector v with zeros from the top
   (LeftTransformation nrs cs) *. v =
-    V.foldr' go v $ V.drop (fromIntegral nrs - nv) cs
+    V.foldr' applyCol v $ V.drop nrsDiff cs
     where
     nv = length v
+    nrsDiff = fromIntegral nrs - nv
+
     -- this assumes that vn is longer than v'
-    go c@(LeftTransformationColumn s' a' v') vn =
-       V.init vn1
-       `V.snoc`
-       (nza' *. V.last vn1)
+    applyCol c@(LeftTransformationColumn s' a' v') vn =
+       V.init vn1 `V.snoc` av
        V.++
-       V.zipWith (\bl br -> bl*nza'*.br) v' vn2
+       V.zipWith (\bl br -> bl*.av + br) v' vn2
          where
-         nza' = fromNonZero a'
+         av = fromNonZero a' *. V.last vn1
          (vn1,vn2) = V.splitAt (V.length vn - V.length v') vn
+
 instance    (DivisionRing a, LeftModule a b)
          => MultiplicativeLeftAction (LeftTransformation a) (Vector b)
 
