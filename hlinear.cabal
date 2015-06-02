@@ -120,7 +120,7 @@ test-suite test-hlinear
   type:           exitcode-stdio-1.0
   default-language: Haskell2010
 
-test-suite debug-hlinear
+executable debug-hlinear
   main-is:        HLinear/Debug.hs
 
   build-depends:
@@ -143,5 +143,4 @@ test-suite debug-hlinear
     , vector-test
 
   hs-source-dirs: debug, src
-  type:           exitcode-stdio-1.0
   default-language: Haskell2010
