@@ -41,17 +41,25 @@ instance    (DecidableZero a, Arbitrary a)
               
     return $ LeftTransformation (fromIntegral nrs) cs
 
+  -- todo: Shrink should not have exponential runtime
   shrink (LeftTransformation nrs cs) =
+    -- remove one column and row
     [ LeftTransformation (nrs-1) $
       dropIx jx $ (`V.imap` cs)
         ( \jx' (LeftTransformationColumn s a c) ->
-          LeftTransformationColumn s a $
-          if jx'>=jx then c else dropIx (jx-jx'-1) c
+            case compare jx jx' of
+              GT -> LeftTransformationColumn s a $ dropIx (jx-jx'-1) c
+              -- EQ -> will be dropped above
+              _  -> LeftTransformationColumn (s-1) a c
+          
         )
     | jx <- [0..V.length cs - 1]
     ]
+    {-
     ++
+    -- shrink entries (removed to reduce runtime
     map (LeftTransformation nrs) (V.mapM shrinkColumn cs)
+    -}
       where
       dropIx :: Int -> Vector a -> Vector a
       dropIx ix v = v1 V.++ V.tail v2
