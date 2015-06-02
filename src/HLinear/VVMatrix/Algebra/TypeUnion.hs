@@ -92,9 +92,9 @@ instance Rng a => MultiplicativeMagma (VVMatrix a) where
     = seq d $ case d of
         0 -> Zero (Just nrs) (Just ncs')
         _ -> VVMatrix nrs ncs' $
-                     ( `V.map` rs ) $ \r ->
-                       V.foldr1' (V.zipWith (+)) $
-                       V.zipWith (\a -> V.map (a*)) r rs'
+                     (`V.map` rs) $ \r ->
+                       V.foldr1' (+) $
+                       V.zipWith (\a r' -> V.map (a*) r') r rs'
       where d = cmbDim' ncs nrs'
 
   (Zero nrs ncs) * (Zero nrs' ncs') =
