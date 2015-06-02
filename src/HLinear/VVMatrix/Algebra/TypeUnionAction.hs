@@ -27,12 +27,13 @@ import HLinear.VVMatrix.Definition
 import HLinear.VVMatrix.Utils
 
 
-instance    ( Rng a, LinearSemiringLeftAction a b )
+instance    ( Rng a, AdditiveMonoid b, LinearSemiringLeftAction a b )
          => MultiplicativeSemigroupLeftAction
               (VVMatrix a) (Vector b)
   where
   (VVMatrix nrs ncs rs) *. v
-    | fromIntegral nrs /= V.length v = error "VVMatrix a *. Vector a: Incompatible dimensions"
-    | otherwise = V.foldl1 (+) $
+    | fromIntegral ncs /= V.length v = error "VVMatrix a *. Vector a: Incompatible dimensions"
+    | ncs == 0 = V.replicate (fromIntegral nrs) zero
+    | otherwise = V.map (V.foldl1 (+)) $
                   (`V.map` rs) $ \r ->
                   V.zipWith (*.) r v
