@@ -57,6 +57,10 @@ ltcHeadRecip (LeftTransformationColumn _ na _) = fromNonZero $ recip na
 ltcTail :: LeftTransformationColumn a -> Vector a
 ltcTail (LeftTransformationColumn _ _ v) = v
 
+instance Eq a => Eq (LeftTransformationColumn a) where
+  (LeftTransformationColumn s a v) == (LeftTransformationColumn s' a' v') =
+    s == s' && a == a' && (`V.all` V.zip v v') (uncurry (==))
+
 instance MultiplicativeSemigroupLeftAction ReversePermute (LeftTransformationColumn a) where
   p *. (LeftTransformationColumn s a v)
     | sizeRP p > V.length v = error "to large permutation"

@@ -46,3 +46,12 @@ ltDrop :: Int -> LeftTransformation a -> LeftTransformation a
 ltDrop ix (LeftTransformation nrs cs) = LeftTransformation nrs' $ V.drop ix cs
   where
   nrs' = fromIntegral $ fromIntegral nrs - ix
+
+instance Eq a => Eq (LeftTransformation a) where
+  (LeftTransformation nrs cs) == (LeftTransformation nrs' cs') =
+    nrs == nrs' && ncs == ncs'
+    &&
+    (`V.all` (V.zip cs cs')) (uncurry (==))
+      where
+      ncs = V.length cs
+      ncs' = V.length cs'
