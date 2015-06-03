@@ -65,7 +65,7 @@ leftTransformationUnitTests =
 
 leftTransformationProperties :: TestTree
 leftTransformationProperties =
-  testGroup "LeftTransformation"
+  testGroup "LeftTransformation" $
     [ QC.testProperty "toMatrix *. vector == *. vector" $
         \lt v -> let m = toMatrix (lt :: LeftTransformation Rational)
                      nrsDiff = V.length v - fromIntegral (nmbRows lt)
@@ -73,10 +73,18 @@ leftTransformationProperties =
                      mv2 = m *. ( V.replicate (-nrsDiff) 0 V.++ v2 )
                      mv = v1 V.++ V.drop (-nrsDiff) mv2
                  in lt *. (v :: V.Vector Rational) == mv
+
+    , QC.testProperty "*. LeftTransformation Column" $
+        \lt ltc -> let _ = lt :: LeftTransformation Rational
+                       _ = ltc :: LeftTransformationColumn Rational
+                   in toVector (lt *. ltc) == lt *. toVector ltc
     ]
---  (`runTestR` QC.testProperty) $
---  isMultiplicativeSemigroup (Proxy :: Proxy (LeftTransformation Rational))
-  
+--    ++
+--    ( (`runTestR` QC.testProperty) $
+--         isMultiplicativeSemigroup
+--         ( Proxy :: Proxy (LeftTransformation Rational) )
+--    ) 
+
 --  [ QC.testProperty "toMatrix * toInverseMatrix" $
 --      \lt -> let m = toMatrix (lt :: LeftTransformation Rational)
 --                 mi = toInverseMatrix lt

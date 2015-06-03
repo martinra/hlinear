@@ -105,14 +105,17 @@ instance    DivisionRing a
     LeftTransformationColumn s a' v'
     where
     nv = V.length v
-    nvDiff = fromIntegral nrs - fromIntegral s - nv
+    nvDiff = fromIntegral nrs - nv
 
     c1 = cs V.!? (nvDiff - 1)
 
     a' = maybe a ((*a) . ltcHeadNonZero) c1
-    alRecip = maybe one ltcHeadRecip c1
-    v' = V.zipWith (\bl br -> bl + br*alRecip) (maybe V.empty ltcTail c1) $
-         ltDrop nvDiff lt *. v
+    v' = go (lt *. v)
+           where
+           go = case c1 of
+                  Just c1' -> V.zipWith (\bc bv -> bv + bc*nza') (ltcTail c1')
+                  Nothing  -> id
+           nza' = fromNonZero a'
 
 instance    DivisionRing a
          => MultiplicativeLeftAction

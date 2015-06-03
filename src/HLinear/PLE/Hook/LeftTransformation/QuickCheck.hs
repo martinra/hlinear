@@ -21,8 +21,6 @@ import Test.QuickCheck.Modifiers ( NonNegative(..)
 import HLinear.PLE.Hook.LeftTransformation.Basic
 import HLinear.PLE.Hook.LeftTransformation.Column
 
-import Debug.Trace
-
 
 instance    (DecidableZero a, Arbitrary a)
          => Arbitrary (LeftTransformation a) where
@@ -42,33 +40,22 @@ instance    (DecidableZero a, Arbitrary a)
     return $ LeftTransformation (fromIntegral nrs) cs
 
   -- todo: Shrink should not have exponential runtime
-  shrink (LeftTransformation nrs cs) =
-    -- remove one column and row
-    [ LeftTransformation (nrs-1) $
-      dropIx jx $ (`V.imap` cs)
-        ( \jx' (LeftTransformationColumn s a c) ->
-            case compare jx jx' of
-              GT -> LeftTransformationColumn s a $ dropIx (jx-jx'-1) c
-              -- EQ -> will be dropped above
-              _  -> LeftTransformationColumn (s-1) a c
-          
-        )
-    | jx <- [0..V.length cs - 1]
-    ]
-    {-
-    ++
-    -- shrink entries (removed to reduce runtime
-    map (LeftTransformation nrs) (V.mapM shrinkColumn cs)
-    -}
+  shrink (LeftTransformation nrs cs)
+    | nrs <= 1 || V.length cs <= 1 = []
+    | otherwise =
+      ltLeft:ltRight:
+      map (LeftTransformation nrs) (V.mapM shrinkColumn cs)
       where
-      dropIx :: Int -> Vector a -> Vector a
-      dropIx ix v = v1 V.++ V.tail v2
-        where (v1,v2) = V.splitAt ix v
+        nrsLeft = nrs `div` 2
+        (csLeft,csRight) = V.splitAt (fromIntegral nrsLeft) cs
+        ltLeft = LeftTransformation nrsLeft csLeft
+        ltRight = LeftTransformation (fromIntegral $ V.length csRight) $
+                    V.map (ltcShiftOffset (negate $ fromIntegral nrsLeft)) csRight
 
-      shrinkColumn (LeftTransformationColumn s a c) =
-        [ LeftTransformationColumn s a' c | a' <- shrink a ]
-        ++
-        [ LeftTransformationColumn s a $ V.update c $ V.singleton (ix,e)
-        | ix <- [0..V.length c - 1]
-        , e <- shrink (c V.! ix)
-        ]
+        shrinkColumn (LeftTransformationColumn s a c) =
+          [ LeftTransformationColumn s a' c | a' <- shrink a ]
+          ++
+          [ LeftTransformationColumn s a $ V.update c $ V.singleton (ix,e)
+          | ix <- [0..V.length c - 1]
+          , e <- shrink (c V.! ix)
+          ]
