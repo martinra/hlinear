@@ -26,9 +26,6 @@ import Numeric.Natural ( Natural )
 import HLinear.PLE.Hook.LeftTransformation.Basic
 import HLinear.PLE.Hook.LeftTransformation.Column
 import HLinear.PLE.Hook.ReversePermute
-import HLinear.VVMatrix hiding ( (!), (!?) )
-import HLinear.VVMatrix.Utils
-import HLinear.VVMatrix.Definition ( VVMatrix(..) )
 
 
 instance MultiplicativeSemigroupLeftAction ReversePermute (LeftTransformation a) where
