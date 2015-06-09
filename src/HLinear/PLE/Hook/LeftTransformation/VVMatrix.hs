@@ -16,14 +16,26 @@ import qualified Data.Vector as V
 import Math.Structure
 import HLinear.PLE.Hook.LeftTransformation
 import HLinear.VVMatrix
+import HLinear.VVMatrix.Creation
 import HLinear.VVMatrix.Definition
 
 
--- we define this instance only for the constructor VVMatrix _ _ _
--- this is for testing purposes mostly
 instance    ( DivisionRing a, LeftModule a b )
-         => MultiplicativeSemigroupLeftAction (LeftTransformation a) (VVMatrix b) where
-  lt *. (VVMatrix nrs' ncs' rs') = VVMatrix nrs' ncs' $ V.map (lt*.) rs'
+         => MultiplicativeSemigroupLeftAction
+              (LeftTransformation a) (VVMatrix b)
+  where
+  -- todo: this is not what we want: zero rows are given by V.empty
+  lt *. (VVMatrix nrs' ncs' rs') = VVMatrix nrs' ncs' (lt *. rs')
+  lt *. (Zero nrs' ncs') = Zero nrs' ncs'
+  lt@(LeftTransformation nrs _) *. (One nrsMay' a') = (.* a') $
+    case nrsMay' of
+      Just nrs' -> case compare nrs nrs' of
+                     GT -> let nrsDiff = fromIntegral nrs - fromIntegral nrs'
+                           in submatix nrsDiff nrsDiff nrs nrs $ toMatrix lt
+                     EQ -> toMatrix lt
+                     LT -> let nrsDiff = fromIntegral nrs' - fromIntegral nrs
+                           in identityMatrix nrsDiff `mappend` toMatrix lt
+      Nothing   -> error "LeftTransformation *. (One Nothing _ :: VVMatrix)"
 
 instance    (DivisionRing a, LeftModule a b)
          => MultiplicativeLeftAction (LeftTransformation a) (VVMatrix b)

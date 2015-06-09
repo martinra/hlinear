@@ -13,6 +13,7 @@ import Prelude hiding ( (+), (-), negate, subtract
                       )
 
 import Control.Applicative ( (<$>), (<*>) )
+import Control.Monad ( guard )
 import Data.Bool ( bool )
 import Data.Composition ( (.:) )
 import Data.Maybe
@@ -26,23 +27,6 @@ import Numeric.Natural ( Natural )
 import HLinear.VVMatrix.Creation
 import HLinear.VVMatrix.Definition ( VVMatrix(..), SizedVVMatrix(..) )
 import HLinear.VVMatrix.Utils
-
-
-toSized :: ( KnownNat nrs, KnownNat ncs )
-        => Proxy (nrs :: Nat) -> Proxy (ncs :: Nat) -> VVMatrix a
-        -> Maybe (SizedVVMatrix mrs ncs a)
-toSized pnrs pncs (Zero nrs' ncs') =
-  cmbDimMay (fromInteger $ natVal pnrs) nrs' >>= \nrs ->
-  cmbDimMay (fromInteger $ natVal pncs) ncs' >>= \ncs ->
-  Just ( SizedVVMatrix $ Zero (Just nrs) (Just ncs) )
-toSized pnrs pncs (One nrs' a) =
-  cmbDimMay (fromInteger $ natVal pnrs) nrs' >>=
-  cmbDim    (fromInteger $ natVal pncs)      >>= \nrs ->
-  Just ( SizedVVMatrix $ One (Just nrs) a )
-toSized pnrs pncs m@(VVMatrix nrs' ncs' _) =
-  cmbDim (fromInteger $ natVal pnrs) nrs'    >>
-  cmbDim (fromInteger $ natVal pncs) ncs'    >>
-  Just ( SizedVVMatrix m )
 
 
 nmbRows :: VVMatrix a -> Maybe Natural
@@ -62,12 +46,13 @@ nmbCols (VVMatrix _ ncs _) = Just ncs
 
 (!?) :: ( AdditiveMonoid a, MultiplicativeMonoid a )
     => VVMatrix a -> Int -> Maybe (Vector a)
-(Zero nrs ncs) !? ix = (ix<) <$> fromIntegral <$> nrs >>=
-                       bool Nothing (Just True) >>
-                       (`V.replicate` zero) <$> fromIntegral <$> ncs
-(One nrs a) !? ix =
-    (ix<) <$> fromIntegral <$> nrs >>= bool Nothing (Just True) >>
-    ( `V.generate` (bool zero a . (==ix)) ) <$> fromIntegral <$> nrs
+(Zero nrs ncs) !? ix = do
+    guard . (ix<) . fromIntegral =<< nrs
+    return . flip V.replicate zero . fromIntegral =<< ncs
+(One nrs a) !? ix = do
+    guard . (ix<) . fromIntegral =<< nrs
+    return . flip V.generate (bool zero a . (==ix))
+               . fromIntegral =<< nrs
 (VVMatrix _ _ rs) !? ix = rs V.!? ix
 
 
@@ -77,9 +62,11 @@ transpose m@(One _ _) = m
 transpose (VVMatrix nrs ncs rs) =
   VVMatrix ncs nrs $
     V.generate (fromIntegral ncs) $ \ix ->
-    V.generate (fromIntegral nrs) $ \jx -> rs V.! jx V.! ix
+    V.generate (fromIntegral nrs) $ \jx ->
+      rs V.! jx V.! ix
 
 
+-- todo: this is probably wrong
 instance   ( DecidableZero a, DecidableOne a, Eq a)
          =>  Eq (VVMatrix a) where
   (VVMatrix nrs ncs rs) == (VVMatrix nrs' ncs' rs') =
@@ -119,7 +106,8 @@ instance   ( DecidableZero a, DecidableOne a, Eq a)
   m == m'@(One _ _) = m' == m
 
 
-instance ( AdditiveMonoid a, Show a ) => Show (VVMatrix a) where
+instance   ( AdditiveMonoid a, Show a )
+         => Show (VVMatrix a) where
   show m@(Zero nrs ncs) =
     "VVMatrix.Zero (" ++ show nrs ++ ") (" ++ show ncs ++ ")"
   show m@(One nrs a)    =
@@ -140,6 +128,23 @@ instance ( AdditiveMonoid a, Show a ) => Show (VVMatrix a) where
       n' = maxLength - n - length s
 
 
+-- Sized matrices
+
+toSized :: ( KnownNat nrs, KnownNat ncs )
+        => Proxy (nrs :: Nat) -> Proxy (ncs :: Nat) -> VVMatrix a
+        -> Maybe (SizedVVMatrix nrs ncs a)
+toSized pnrs pncs (Zero nrs' ncs') =
+  cmbDimMay (fromInteger $ natVal pnrs) nrs' >>= \nrs ->
+  cmbDimMay (fromInteger $ natVal pncs) ncs' >>= \ncs ->
+  Just ( SizedVVMatrix $ Zero (Just nrs) (Just ncs) )
+toSized pnrs pncs (One nrs' a) =
+  cmbDimMay (fromInteger $ natVal pnrs) nrs' >>=
+  cmbDim    (fromInteger $ natVal pncs)      >>= \nrs ->
+  Just ( SizedVVMatrix $ One (Just nrs) a )
+toSized pnrs pncs m@(VVMatrix nrs' ncs' _) =
+  cmbDim (fromInteger $ natVal pnrs) nrs'    >>
+  cmbDim (fromInteger $ natVal pncs) ncs'    >>
+  Just ( SizedVVMatrix m )
 
 instance   ( DecidableZero a, DecidableOne a, Eq a)
          =>  Eq (SizedVVMatrix nrs ncs a) where

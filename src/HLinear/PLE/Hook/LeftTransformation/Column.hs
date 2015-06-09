@@ -112,4 +112,4 @@ instance    ( DecidableZero a, Arbitrary a )
 instance MultiplicativeSemigroupLeftAction ReversePermute (LeftTransformationColumn a) where
   p *. (LeftTransformationColumn s a v)
     | sizeRP p > V.length v = error "to large permutation"
-    | otherwise              = LeftTransformationColumn s a (p *. v)
+    | otherwise             = LeftTransformationColumn s a (p *. v)

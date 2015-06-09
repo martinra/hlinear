@@ -28,7 +28,8 @@ library
     HLinear.VVMatrix.Basic
     HLinear.VVMatrix.Creation
     HLinear.VVMatrix.Definition
-    HLinear.VVMatrix.MatrixRow
+    HLinear.VVMatrix.Force
+    HLinear.VVMatrix.Monoid
     HLinear.VVMatrix.NFData
     HLinear.VVMatrix.QuickCheck
     HLinear.VVMatrix.SmallCheck

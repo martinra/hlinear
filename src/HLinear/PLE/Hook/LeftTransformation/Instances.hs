@@ -68,8 +68,7 @@ instance DivisionRing a => MultiplicativeGroup (LeftTransformation a) where
           LeftTransformation (fromIntegral $ succ $ V.length c) $
                              V.singleton $ LeftTransformationColumn 0 a c
 
-
-instance    (DivisionRing a, LeftModule a b)
+instance    (DivisionRing a, LinearSemiringLeftAction a b)
          => MultiplicativeSemigroupLeftAction
               (LeftTransformation a) (Vector b)
   where
