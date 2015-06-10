@@ -17,23 +17,18 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:
-    HLinear.VVMatrix
+    HLinear.BRMatrix
+    HLinear.BRMatrix.RVector
     HLinear.PLE.PLE
     HLinear.PLE.Hook
 
   other-modules:
-    HLinear.VVMatrix.Algebra
-    HLinear.VVMatrix.Algebra.Sized
-    HLinear.VVMatrix.Algebra.TypeUnion
-    HLinear.VVMatrix.Basic
-    HLinear.VVMatrix.Creation
-    HLinear.VVMatrix.Definition
-    HLinear.VVMatrix.Force
-    HLinear.VVMatrix.Monoid
-    HLinear.VVMatrix.NFData
-    HLinear.VVMatrix.QuickCheck
-    HLinear.VVMatrix.SmallCheck
-    HLinear.VVMatrix.Utils
+    HLinear.BRMatrix.Algebra
+    HLinear.BRMatrix.Basic
+    HLinear.BRMatrix.Definition
+    HLinear.BRMatrix.QuickCheck
+    HLinear.BRMatrix.SmallCheck
+    HLinear.BRMatrix.StdElements
 
     HLinear.PLE.Hook.EchelonForm
     HLinear.PLE.Hook.LeftTransformation
