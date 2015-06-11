@@ -9,6 +9,7 @@ import Prelude hiding ( (+), (-), negate, subtract
                       )
 
 import Control.DeepSeq ( NFData, rnf )
+import Data.Composition ( (.:.) )
 import Data.Vector ( Vector )
 import qualified Data.Vector as V
 import Math.Structure
@@ -58,14 +59,13 @@ toShortestLists = V.toList . V.map V.toList . toShortestVectors
 
 fromVectors :: Vector (Vector a) -> Either String (BRMatrix a)
 fromVectors rs =
-  -- todo: introduce unsafe version of fromVectors'
   fromVectors' nrs ncs rs
     where
     nrs = fromIntegral $ V.length rs
     ncs = if nrs == 0 then 0 else fromIntegral $ V.length (V.head rs)
 
-fromVectors' :: Natural -> Natural
-             -> Vector (Vector a) -> Either String (BRMatrix a)
+fromVectors' :: Natural -> Natural -> Vector (Vector a)
+             -> Either String (BRMatrix a)
 fromVectors' nrs ncs rs
   | nrs /= fromIntegral (V.length rs) = Left
       "HLinear.BRMatrix fromVectors': incorrect number of rows"
@@ -73,9 +73,15 @@ fromVectors' nrs ncs rs
       "HLinear.BRMatrix fromVectors': rows must have the same length"
   | otherwise = Right $ BRMatrix nrs ncs $ RVector $ V.map RVector rs
 
-
 fromLists :: [[a]] -> Either String (BRMatrix a)
 fromLists = fromVectors . V.map V.fromList . V.fromList
 
-fromLists' :: Natural -> Natural -> [[a]] -> Either String (BRMatrix a)
+fromLists' :: Natural -> Natural -> [[a]]
+           -> Either String (BRMatrix a)
 fromLists' nrs ncs = fromVectors' nrs ncs . V.map V.fromList . V.fromList
+
+fromVectorsUnsafe = either undefined id . fromVectors
+fromVectorsUnsafe' = either undefined id .:. fromVectors'
+
+fromListsUnsafe = either undefined id . fromLists
+fromListsUnsafe' = either undefined id .:. fromLists'

@@ -10,14 +10,20 @@ module HLinear.BRMatrix
   , fromVectors
   , fromVectors'
 
+  , fromVectorsUnsafe
+  , fromVectorsUnsafe'
+
   , fromLists
   , fromLists'
+
+  , fromListsUnsafe
+  , fromListsUnsafe'
 
   , zeroMatrix
   , identityMatrix
   , diagonalMatrix
 
-  , Column
+  , Column(Column)
   , unColumn
   )
 
