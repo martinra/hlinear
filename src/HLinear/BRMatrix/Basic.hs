@@ -22,7 +22,7 @@ import qualified HLinear.BRMatrix.RVector as RV
 -- this is equality as elements of the inverse limit, that is disregarding
 -- zeros at the left and the top
 instance   ( Eq a, DecidableZero a ) =>  Eq (BRMatrix a) where
-  BRMatrix _ _ rs == BRMatrix _ _ rs' = rs == rs'
+  m == m' = toShortestVectors m == toShortestVectors m'
 
 instance Show a => Show (BRMatrix a) where
   show (BRMatrix 0 ncs rs) = "[ BRMatrix 0 " ++ show ncs ++ " ]"
@@ -44,6 +44,15 @@ instance Show a => Show (BRMatrix a) where
 instance NFData a => NFData (BRMatrix a) where
   rnf (BRMatrix nrs ncs rs) =
     rnf nrs `seq` rnf ncs `seq` rnf rs `seq` ()
+
+-- deconstruction of matrices
+
+toShortestVectors :: DecidableZero a => BRMatrix a -> Vector (Vector a)
+toShortestVectors (BRMatrix _ _ rs) =
+  V.map RV.toShortestVector $ RV.toShortestVector rs
+
+toShortestLists :: DecidableZero a => BRMatrix a -> [[a]]
+toShortestLists = V.toList . V.map V.toList . toShortestVectors
 
 -- construction of matrices from vectors or lists
 
