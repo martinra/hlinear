@@ -37,9 +37,8 @@ library
     HLinear.PLE.Hook.LeftTransformation.Instances
     HLinear.PLE.Hook.LeftTransformation.QuickCheck
     HLinear.PLE.Hook.LeftTransformation.SmallCheck
-    HLinear.PLE.Hook.LeftTransformation.VVMatrix
     HLinear.PLE.Hook.PLE
-    HLinear.PLE.Hook.ReversePermute
+    HLinear.PLE.Hook.RPermute
 
   build-depends:
       base

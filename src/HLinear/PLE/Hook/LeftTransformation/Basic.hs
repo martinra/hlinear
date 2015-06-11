@@ -18,10 +18,9 @@ import Numeric.Natural ( Natural )
 
 
 import HLinear.PLE.Hook.LeftTransformation.Column
-import HLinear.PLE.Hook.ReversePermute
-import HLinear.VVMatrix hiding ( (!), (!?) )
-import HLinear.VVMatrix.Utils
-import HLinear.VVMatrix.Definition ( VVMatrix(..) )
+import HLinear.PLE.Hook.RPermute
+import HLinear.BRMatrix hiding ( (!), (!?) )
+import HLinear.BRMatrix.Definition ( BRMatrix(..) )
 
 
  -- \ A vector of columns (a, [v]) which are offset by their index.

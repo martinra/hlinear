@@ -12,7 +12,8 @@ import Data.Vector ( Vector(..) )
 import Math.Structure
 import Numeric.Natural ( Natural )
 
-import HLinear.VVMatrix.Definition ( VVMatrix(..) )
+import HLinear.BRMatrix.Definition ( BRMatrix(..) )
+import HLinear.BRMatrix.RVector
 
 
 -- represents a matrix of given size that has echelon normal form
@@ -25,10 +26,11 @@ data EchelonFormRow a = EchelonFormRow Natural (Vector a)
  --   0 v v v v ...
  --   0 0 0 v v ...
 toMatrix :: DivisionRing a
-           => EchelonForm a -> VVMatrix a
-toMatrix (EchelonForm nrs ncs rs) = VVMatrix nrs ncs rs'
+           => EchelonForm a -> BRMatrix a
+toMatrix (EchelonForm nrs ncs rs) = BRMatrix nrs ncs rs'
   where
-  rs' = (`V.map` rs) $ \(EchelonFormRow s r) -> V.replicate (fromIntegral s) zero V.++ r
+  rs' = RVector $ (`V.map` rs) $ \(EchelonFormRow s r) ->
+          RVector $ V.replicate (fromIntegral s) zero V.++ r
 
 nmbRows :: EchelonForm a -> Natural
 nmbRows (EchelonForm nrs _ _) = nrs

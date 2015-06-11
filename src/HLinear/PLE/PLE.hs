@@ -8,7 +8,7 @@ module HLinear.PLE.PLE
 where
 
 import Data.Permute
-import HLinear.PLE.Hook.ReversePermute
+import HLinear.PLE.Hook.RPermute
 
 
 data PLEHook m where
@@ -27,10 +27,10 @@ _echelon :: HasPLE m => PLEHook m -> PLEEchelon m
 _echelon (PLEHook _ _ e) = e
 
 
-newtype VVMatrixPermute m = VVMatrixPermute Permute
+newtype MatrixPermute m = MatrixPermute Permute
 
-fromVVMatrixPermute :: VVMatrixPermute m -> Permute
-fromVVMatrixPermute (VVMatrixPermute p) = p
+fromMatrixPermute :: MatrixPermute m -> Permute
+fromMatrixPermute (MatrixPermute p) = p
 
 
 class HasPLE m where
@@ -40,7 +40,7 @@ class HasPLE m where
 
   ple :: m -> PLEDecomposition m
 
-  permutation :: PLEDecomposition m -> VVMatrixPermute m
+  permutation :: PLEDecomposition m -> MatrixPermute m
   permutation (PLEDecomposition hook) = fromPLEPermute $ _permutation hook
 
   left :: PLEDecomposition m -> m
@@ -49,6 +49,6 @@ class HasPLE m where
   echelon :: PLEDecomposition m -> m
   echelon (PLEDecomposition hook) = fromPLEEchelon $ _echelon hook
 
-  fromPLEPermute :: PLEPermute m -> VVMatrixPermute m
+  fromPLEPermute :: PLEPermute m -> MatrixPermute m
   fromPLELeft :: PLELeft m -> m
   fromPLEEchelon :: PLEEchelon m -> m

@@ -29,10 +29,11 @@ import Test.QuickCheck.Arbitrary ( Arbitrary
                                  )
 import Test.QuickCheck.Modifiers ( NonNegative(..) )
 
-import HLinear.PLE.Hook.ReversePermute
-import HLinear.VVMatrix hiding ( (!), (!?) )
-import HLinear.VVMatrix.Utils
-import HLinear.VVMatrix.Definition ( VVMatrix(..) )
+import HLinear.PLE.Hook.RPermute
+import HLinear.BRMatrix hiding ( (!), (!?) )
+import HLinear.BRMatrix.Definition ( BRMatrix(..) )
+import qualified HLinear.BRMatrix.RVector as RV
+import HLinear.BRMatrix.RVector ( RVector(RVector) )
 
 
 data LeftTransformationColumn a =
@@ -73,6 +74,8 @@ instance Eq a => Eq (LeftTransformationColumn a) where
   (LeftTransformationColumn s a v) == (LeftTransformationColumn s' a' v') =
     s == s' && a == a' && (`V.all` V.zip v v') (uncurry (==))
 
+-- QuickCheck
+
 instance    ( DecidableZero a, Arbitrary a )
          => Arbitrary (LeftTransformationColumn a) where
   arbitrary = do
@@ -107,9 +110,13 @@ instance    ( DecidableZero a, Arbitrary a )
            , e <- shrink (v V.! ix)
            ]
                 
-      
+-- partially defined permutation action
 
-instance MultiplicativeSemigroupLeftAction ReversePermute (LeftTransformationColumn a) where
+instance MultiplicativeSemigroupLeftAction
+           RPermute
+           (LeftTransformationColumn a)
+  where
   p *. (LeftTransformationColumn s a v)
-    | sizeRP p > V.length v = error "to large permutation"
-    | otherwise             = LeftTransformationColumn s a (p *. v)
+    | size p > V.length v = error "to large permutation"
+    | otherwise           = LeftTransformationColumn s a
+                              (RV.toCurrentVector $ p *. RVector v)

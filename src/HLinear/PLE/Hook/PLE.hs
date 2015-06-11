@@ -36,84 +36,76 @@ import Math.Structure
 import Numeric.Natural ( Natural )
 
 import HLinear.PLE.PLE
-import qualified HLinear.PLE.Hook.ReversePermute as RP
-import HLinear.PLE.Hook.ReversePermute ( ReversePermute(..) )
+import qualified HLinear.PLE.Hook.RPermute as RP
+import HLinear.PLE.Hook.RPermute ( RPermute(..) )
 import qualified HLinear.PLE.Hook.EchelonForm as EF
 import HLinear.PLE.Hook.EchelonForm ( EchelonForm(..) )
 import qualified HLinear.PLE.Hook.LeftTransformation as LT
 import HLinear.PLE.Hook.LeftTransformation ( LeftTransformation(..) )
-import HLinear.VVMatrix ( nmbRows, nmbCols
+import HLinear.BRMatrix ( nmbRows, nmbCols
                         , zeroMatrix
                         )
-import HLinear.VVMatrix.Definition ( VVMatrix(..) )
-import HLinear.VVMatrix.MatrixRow
+import HLinear.BRMatrix.Definition ( BRMatrix(..) )
+import qualified HLinear.BRMatrix.RVector as RV
 
 
-instance (DecidableZero a, DivisionRing a) => HasPLE (VVMatrix a) where
-  type PLEPermute (VVMatrix a) = ReversePermute
-  type PLELeft (VVMatrix a) = LeftTransformation a
-  type PLEEchelon (VVMatrix a) = EchelonForm a
+instance (DecidableZero a, DivisionRing a) => HasPLE (BRMatrix a) where
+  type PLEPermute (BRMatrix a) = RPermute
+  type PLELeft (BRMatrix a) = LeftTransformation a
+  type PLEEchelon (BRMatrix a) = EchelonForm a
 
   -- todo: later use  runReader def $ pleSlice m
   ple m = PLEDecomposition $ V.foldl (*) firstHook $
           V.unfoldr splitOffHook m
     where
     firstHook = PLEHook
-      (RP.reversePermute $ fromIntegral nrs)
+      (RP.rpermute $ fromIntegral nrs)
       (LeftTransformation nrs V.empty)
       (EchelonForm nrs ncs V.empty)
-    nrs = fromJust $ nmbRows m
-    ncs = fromJust $ nmbCols m
+    nrs = nmbRows m
+    ncs = nmbCols m
 
-  fromPLEPermute = VVMatrixPermute . RP.fromReversePermute . recip
+  fromPLEPermute = MatrixPermute . RP.toPermute . recip
   fromPLELeft = LT.toInverseMatrix
   fromPLEEchelon = EF.toMatrix
 
 
 instance    (DecidableZero a, DivisionRing a)
-         => MultiplicativeMagma (PLEHook (VVMatrix a)) where
+         => MultiplicativeMagma (PLEHook (BRMatrix a)) where
   -- Note that the permutation and the left matrix are represented by their
   -- inverse. 
   (PLEHook p lt ef) * (PLEHook p' lt' ef') =
     PLEHook (p'*p) (lt' * (p' *. lt)) (ef * ef')
 
 fromEchelonForm :: (DecidableZero a, DivisionRing a)
-                => EchelonForm a -> PLEHook (VVMatrix a)
+                => EchelonForm a -> PLEHook (BRMatrix a)
 fromEchelonForm ef@(EchelonForm nrs _ _) = PLEHook
-    (RP.reversePermute $ fromIntegral nrs)
+    (RP.rpermute $ fromIntegral nrs)
     (LeftTransformation nrs V.empty)
     ef
 
 splitOffHook :: ( DecidableZero a, DivisionRing a )
-             => VVMatrix a -> Maybe (PLEHook (VVMatrix a), VVMatrix a)
-splitOffHook (Zero (Just nrs) (Just ncs))
+             => BRMatrix a -> Maybe (PLEHook (BRMatrix a), BRMatrix a)
+splitOffHook m@(BRMatrix nrs ncs rs)
   | nrs == 0 || ncs == 0 = Nothing
-  | otherwise            = Just $ (,zeroMatrix 0 0) $ fromEchelonForm $
-      EchelonForm nrs ncs V.empty
-splitOffHook (One (Just nrs) a)
-  | nrs == 0  = Nothing
-  | otherwise = Just $ (,zeroMatrix 0 0) $ fromEchelonForm $
-      EchelonForm nrs nrs $ V.generate (fromIntegral nrs) $
-        \ix -> EF.EchelonFormRow (fromIntegral ix) $
-                 a `V.cons` V.replicate (fromIntegral nrs - ix - 1) zero
-splitOffHook m@(VVMatrix nrs ncs rs)
-  | nrs == 0 || ncs == 0 = Nothing
-  | otherwise            =
-      case V.findIndex ((not . isZero) . V.head) rs of
+  | otherwise            = 
+      case ($rs) $ RV.lift $
+             V.findIndex ((not . isZero) . RV.lift V.head) of
         Nothing -> Just ( fromEchelonForm $
                           EchelonForm nrs ncs V.empty
-                        , VVMatrix nrs (pred ncs) csTail
+                        , BRMatrix nrs (pred ncs) csTail
                         )
         Just pIx -> Just ( PLEHook p l e
-                         , VVMatrix (pred nrs) (pred ncs) $
-                           V.map unMatrixRow $
-                           l *. (p *. V.map MatrixRow (V.tail csTail))
+                         , BRMatrix (pred nrs) (pred ncs) $
+                           l *. (p *. (RV.liftRV V.tail csTail))
                          )
           where
-          pivotRecip = recip $ nonZero $ V.head (rs V.! pIx)
+          pivotRecip = recip $ nonZero $
+                         RV.lift V.head (RV.lift (V.!pIx) rs)
           negCol = V.map negate $
             V.generate (fromIntegral nrs - 1) $ \ix ->
-              V.head $ rs V.! (if ix < pIx then ix else ix+1)
+              RV.lift V.head $
+              RV.lift (V.! if ix < pIx then ix else ix+1) rs
  
           p = RP.fromTransposition (fromIntegral nrs) (0,pIx)
           l = LeftTransformation nrs $ V.singleton $
@@ -121,9 +113,9 @@ splitOffHook m@(VVMatrix nrs ncs rs)
           e = EchelonForm 1 ncs $ V.singleton $
               EF.EchelonFormRow 0 $
               one `V.cons`
-              V.map (fromNonZero pivotRecip *) (V.tail $ rs V.! pIx)
+              V.map (fromNonZero pivotRecip *) (RV.lift V.tail $ RV.lift (V.!pIx) rs)
         where
-          csTail = V.map V.tail rs
+          csTail = RV.liftRV (V.map $ RV.liftRV V.tail) rs
 
 
 

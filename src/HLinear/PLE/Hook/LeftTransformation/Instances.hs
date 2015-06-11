@@ -23,14 +23,22 @@ import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural ( Natural )
 
+import HLinear.BRMatrix.Definition
+import HLinear.BRMatrix.RVector
+import qualified HLinear.BRMatrix.RVector as RV
 import HLinear.PLE.Hook.LeftTransformation.Basic
 import HLinear.PLE.Hook.LeftTransformation.Column
-import HLinear.PLE.Hook.ReversePermute
+import HLinear.PLE.Hook.RPermute
 
 
-instance MultiplicativeSemigroupLeftAction ReversePermute (LeftTransformation a) where
+-- partially defined permutation action
+instance MultiplicativeSemigroupLeftAction
+           RPermute
+           (LeftTransformation a)
+  where
   p *. (LeftTransformation nrs cs) = LeftTransformation nrs $ V.map (p*.) cs
 
+-- product structure
 
 instance DivisionRing a => MultiplicativeMagma (LeftTransformation a) where
   lt@(LeftTransformation nrs cs) * (LeftTransformation nrs' cs') =
@@ -68,12 +76,19 @@ instance DivisionRing a => MultiplicativeGroup (LeftTransformation a) where
           LeftTransformation (fromIntegral $ succ $ V.length c) $
                              V.singleton $ LeftTransformationColumn 0 a c
 
-instance    (DivisionRing a, LinearSemiringLeftAction a b)
+-- action on RVector
+
+-- incoherent against
+-- instance Semiring a =>
+--   MultiplicativeSemigroupLeftAction a (RVector a)
+-- should not occur: LinearSemiringLeftAction a (LeftTransformation a)
+instance  {-# INCOHERENT #-}
+            (DivisionRing a, LinearSemiringLeftAction a b)
          => MultiplicativeSemigroupLeftAction
-              (LeftTransformation a) (Vector b)
+              (LeftTransformation a) (RVector b)
   where
   -- we fill the vector v with zeros from the top
-  (LeftTransformation nrs cs) *. v =
+  (LeftTransformation nrs cs) *. (RVector v) = RVector $
     V.foldr' applyCol v $ V.drop nrsDiff cs
     where
     nv = length v
@@ -89,8 +104,9 @@ instance    (DivisionRing a, LinearSemiringLeftAction a b)
          (vn1,vn2) = V.splitAt (V.length vn - V.length v') vn
 
 instance    (DivisionRing a, LeftModule a b)
-         => MultiplicativeLeftAction (LeftTransformation a) (Vector b)
+         => MultiplicativeLeftAction (LeftTransformation a) (RVector b)
 
+-- action on LeftTransformationColumn
 
 instance    DivisionRing a
          => MultiplicativeSemigroupLeftAction
@@ -106,7 +122,7 @@ instance    DivisionRing a
     c1 = cs V.!? (nvDiff - 1)
 
     a' = maybe a ((*a) . ltcHeadNonZero) c1
-    v' = go (lt *. v)
+    v' = go (toCurrentVector $ lt *. RVector v)
            where
            go = case c1 of
                   Just c1' -> V.zipWith (\bc bv -> bv + bc*nza') (ltcTail c1')
@@ -117,3 +133,16 @@ instance    DivisionRing a
          => MultiplicativeLeftAction
              (LeftTransformation a)
              (LeftTransformationColumn a)
+
+-- action on BRMatrix
+
+instance    DivisionRing a
+         => MultiplicativeSemigroupLeftAction
+              (LeftTransformation a) (BRMatrix a)
+  where
+  lt *. (BRMatrix nrs' ncs' rs') =
+    BRMatrix nrs' ncs' $ lt *. rs'
+
+instance    DivisionRing a
+         => MultiplicativeLeftAction
+              (LeftTransformation a) (BRMatrix a)
