@@ -59,6 +59,10 @@ instance    ( Rng a, AdditiveMonoid b
       V.foldl' (+) zero $
       RV.lift2Discard (V.zipWith (*.)) r v
 
+instance Rng a => MultiplicativeSemigroupLeftAction (BRMatrix a) (RVector a)
+  where
+  m *. v = unColumn $ (m *.) $ Column v
+
 
 instance Rng a => MultiplicativeMagma (BRMatrix a) where
   m@(BRMatrix nrs ncs rs) * (BRMatrix nrs' ncs' rs') =
