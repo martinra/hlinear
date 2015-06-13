@@ -29,11 +29,8 @@ import Test.QuickCheck.Arbitrary ( Arbitrary
                                  )
 import Test.QuickCheck.Modifiers ( NonNegative(..) )
 
-import HLinear.PLE.Hook.RPermute
-import HLinear.BRMatrix hiding ( (!), (!?) )
-import HLinear.BRMatrix.Definition ( BRMatrix(..) )
-import qualified HLinear.BRMatrix.RVector as RV
-import HLinear.BRMatrix.RVector ( RVector(RVector) )
+import HLinear.PLE.Hook.RPermute as RP
+import HLinear.Matrix.Algebra ( Column(..), unColumn )
 
 
 data LeftTransformationColumn a =
@@ -116,7 +113,5 @@ instance MultiplicativeSemigroupLeftAction
            RPermute
            (LeftTransformationColumn a)
   where
-  p *. (LeftTransformationColumn s a v)
-    | size p > V.length v = error "to large permutation"
-    | otherwise           = LeftTransformationColumn s a
-                              (RV.toCurrentVector $ p *. RVector v)
+  p *. (LeftTransformationColumn s a v) =
+    LeftTransformationColumn s a $ RP.fromRPVector $ p *. RPVector v

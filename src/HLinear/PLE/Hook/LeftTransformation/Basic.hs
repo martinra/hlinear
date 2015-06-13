@@ -19,9 +19,6 @@ import Numeric.Natural ( Natural )
 
 import HLinear.PLE.Hook.LeftTransformation.Column
 import HLinear.PLE.Hook.RPermute
-import HLinear.BRMatrix hiding ( (!), (!?) )
-import HLinear.BRMatrix.Definition ( BRMatrix(..) )
-
 
  -- \ A vector of columns (a, [v]) which are offset by their index.
  --   It represents a transformation from the left

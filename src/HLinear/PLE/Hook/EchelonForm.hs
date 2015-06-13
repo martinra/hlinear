@@ -12,8 +12,7 @@ import Data.Vector ( Vector(..) )
 import Math.Structure
 import Numeric.Natural ( Natural )
 
-import HLinear.BRMatrix.Definition ( BRMatrix(..) )
-import HLinear.BRMatrix.RVector
+import HLinear.Matrix.Definition ( Matrix(..) )
 
 
 -- represents a matrix of given size that has echelon normal form
@@ -26,11 +25,17 @@ data EchelonFormRow a = EchelonFormRow Natural (Vector a)
  --   0 v v v v ...
  --   0 0 0 v v ...
 toMatrix :: DivisionRing a
-           => EchelonForm a -> BRMatrix a
-toMatrix (EchelonForm nrs ncs rs) = BRMatrix nrs ncs rs'
+           => EchelonForm a -> Matrix a
+toMatrix (EchelonForm nrs ncs rs) = Matrix nrs ncs rs'
   where
-  rs' = RVector $ (`V.map` rs) $ \(EchelonFormRow s r) ->
-          RVector $ V.replicate (fromIntegral s) zero V.++ r
+  rs' = (`V.map` rs) $ \(EchelonFormRow s r) ->
+          V.replicate (fromIntegral s) zero V.++ r
+
+fromVector :: MultiplicativeMonoid a => Vector a -> EchelonForm a
+fromVector v = EchelonForm 1 (1+nv) $ V.singleton $
+                 EchelonFormRow 0 $ one `V.cons` v
+  where
+    nv = fromIntegral $ V.length v
 
 nmbRows :: EchelonForm a -> Natural
 nmbRows (EchelonForm nrs _ _) = nrs

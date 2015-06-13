@@ -60,22 +60,22 @@ instance DecidableOne RPermute where
 instance MultiplicativeGroup RPermute where
   recip (RPermute p) = RPermute $ P.inverse p
 
--- action on RVector
+-- action on vectors
 
--- incoherent against
--- instance Semiring a =>
---   MultiplicativeSemigroupLeftAction a (RVector a)
--- should not occur: instance Semiring RPermute
-instance {-# INCOHERENT #-}
-  MultiplicativeSemigroupLeftAction RPermute (RVector a)
+newtype RPVector a = RPVector {fromRPVector :: Vector a}
+
+-- this is partially defined (i.e. for internal use only)
+instance
+  MultiplicativeSemigroupLeftAction RPermute (RPVector a)
   where
-  rp@(RPermute p) *. (RVector v) = RVector $ V.backpermute v' vp'
+  rp@(RPermute p) *. (RPVector v) = RPVector $ V.backpermute v vp'
     where
       nv = V.length v
-      np = np
-      vp = V.generate np $ \ix -> np-1 - (p `P.at` ix)
-      (v',vp') = case compare nv np of
-                   EQ -> (v,vp)
-                   GT -> (v,V.enumFromStepN nv (-1) (nv-np) V.++ vp)
+      np = size rp
+      vp = V.generate np $ \ix -> nv-1 - (p `P.at` (np-1 - ix))
+      vp' = case compare nv np of
+              EQ -> vp
+              GT -> V.enumFromN 0 (nv-np) V.++ vp
+              LT -> error "RPermute *. lVector: permutation to large"
 
-instance MultiplicativeLeftAction RPermute (RVector a)
+instance MultiplicativeLeftAction RPermute (RPVector a)

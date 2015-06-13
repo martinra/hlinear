@@ -29,11 +29,3 @@ minimizeSize m = BRMatrix nrs ncs (RVector rs)
          RV.toCurrentVector $ rows m
     nrs = fromIntegral $ V.length rs
     ncs = V.maximum $ V.map RV.currentLength rs
-
--- row access
-
-(!) :: BRMatrix a -> Int -> RVector a
-(!) = (V.!) . RV.toCurrentVector . rows
-
-(!?) :: BRMatrix a -> Int -> Maybe (RVector a)
-(!?) = (V.!?) . RV.toCurrentVector . rows

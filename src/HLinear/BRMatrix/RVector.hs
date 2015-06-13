@@ -33,6 +33,16 @@ newtype RVector a = RVector {toCurrentVector :: Vector a}
 minimizeSize :: DecidableZero a => RVector a -> RVector a
 minimizeSize = RVector . toShortestVector
 
+fromRVectorUnsafe :: DecidableZero a => Natural -> RVector a -> Vector a
+fromRVectorUnsafe nrs rv@(RVector v) =
+  case compare nrsZ nv of
+    EQ -> v
+    GT -> error "RVector:toVectorUnsafe cannot convert"
+    LT -> V.replicate (nrsZ - nv) zero V.++ v
+  where
+    nrsZ = fromIntegral nrs
+    nv = V.length v
+
 toShortestVector :: DecidableZero a => RVector a -> Vector a
 toShortestVector = V.dropWhile isZero . toCurrentVector
 
@@ -81,6 +91,13 @@ instance ( Eq a, DecidableZero a ) => Eq (RVector a) where
            V.all isZero zs && V.all (uncurry (==)) (V.zip v w)
 
 deriving instance NFData a => NFData (RVector a)
+
+-- entry access
+
+(!) :: AdditiveMonoid a => RVector a -> Int -> a
+(!) (RVector v) ix
+  | ix < V.length v = v V.! ix
+  | otherwise = zero
 
 -- Additive structure
 

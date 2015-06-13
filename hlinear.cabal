@@ -19,6 +19,8 @@ library
   exposed-modules:
     HLinear.BRMatrix
     HLinear.BRMatrix.RVector
+    HLinear.Matrix
+    HLinear.Matrix.ExceptIO
     HLinear.PLE.PLE
     HLinear.PLE.Hook
 
@@ -29,6 +31,9 @@ library
     HLinear.BRMatrix.QuickCheck
     HLinear.BRMatrix.SmallCheck
     HLinear.BRMatrix.StdElements
+
+    HLinear.Matrix.Algebra
+    HLinear.Matrix.Definition
 
     HLinear.PLE.Hook.EchelonForm
     HLinear.PLE.Hook.LeftTransformation
@@ -51,6 +56,7 @@ library
     , QuickCheck
     , safe
     , smallcheck
+    , transformers
     , vector
 
   hs-source-dirs:      src

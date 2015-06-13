@@ -42,17 +42,23 @@ import qualified HLinear.PLE.Hook.EchelonForm as EF
 import HLinear.PLE.Hook.EchelonForm ( EchelonForm(..) )
 import qualified HLinear.PLE.Hook.LeftTransformation as LT
 import HLinear.PLE.Hook.LeftTransformation ( LeftTransformation(..) )
-import HLinear.BRMatrix ( nmbRows, nmbCols
-                        , zeroMatrix
-                        )
-import HLinear.BRMatrix.Definition ( BRMatrix(..) )
-import qualified HLinear.BRMatrix.RVector as RV
+import qualified HLinear.BRMatrix as BRM
+import HLinear.Matrix ( nmbRows, nmbCols
+                      , zeroMatrix
+                      , headRows, tailRows
+                      )
+import HLinear.Matrix.Conversion
+import HLinear.Matrix.Definition ( Matrix(..) )
 
+-- instance (DecidableZero a, DivisionRing a) => HasPLE (BRMatrix a) where
+--   type PLEPermute (BRMatrix a) = RPermute
+--   type PLELeft (BRMatrix a) = LeftTransformation a
+--   type PLEEchelon (BRMatrix a) = EchelonForm a
 
-instance (DecidableZero a, DivisionRing a) => HasPLE (BRMatrix a) where
-  type PLEPermute (BRMatrix a) = RPermute
-  type PLELeft (BRMatrix a) = LeftTransformation a
-  type PLEEchelon (BRMatrix a) = EchelonForm a
+instance (DecidableZero a, DivisionRing a) => HasPLE (Matrix a) where
+  type PLEPermute (Matrix a) = RPermute
+  type PLELeft (Matrix a) = LeftTransformation a
+  type PLEEchelon (Matrix a) = EchelonForm a
 
   -- todo: later use  runReader def $ pleSlice m
   ple m = PLEDecomposition $ V.foldl (*) firstHook $
@@ -67,58 +73,69 @@ instance (DecidableZero a, DivisionRing a) => HasPLE (BRMatrix a) where
 
   fromPLEPermute = MatrixPermute . RP.toPermute . recip
   fromPLELeft = LT.toInverseMatrix
-  fromPLEEchelon = EF.toMatrix
+  fromPLEEchelon =  EF.toMatrix
 
 
 instance    (DecidableZero a, DivisionRing a)
-         => MultiplicativeMagma (PLEHook (BRMatrix a)) where
+         => MultiplicativeMagma (PLEHook (Matrix a)) where
+  -- This is partially defined. The right factor must be smaller than the
+  -- largest contribution of the LeftTransformation of the left factor.
   -- Note that the permutation and the left matrix are represented by their
   -- inverse. 
   (PLEHook p lt ef) * (PLEHook p' lt' ef') =
     PLEHook (p'*p) (lt' * (p' *. lt)) (ef * ef')
 
 fromEchelonForm :: (DecidableZero a, DivisionRing a)
-                => EchelonForm a -> PLEHook (BRMatrix a)
+                => EchelonForm a -> PLEHook (Matrix a)
 fromEchelonForm ef@(EchelonForm nrs _ _) = PLEHook
     (RP.rpermute $ fromIntegral nrs)
     (LeftTransformation nrs V.empty)
     ef
 
 splitOffHook :: ( DecidableZero a, DivisionRing a )
-             => BRMatrix a -> Maybe (PLEHook (BRMatrix a), BRMatrix a)
-splitOffHook m@(BRMatrix nrs ncs rs)
+             => Matrix a -> Maybe (PLEHook (Matrix a), Matrix a)
+splitOffHook m@(Matrix nrs ncs rs)
   | nrs == 0 || ncs == 0 = Nothing
-  | otherwise            = 
-      case ($rs) $ RV.lift $
-             V.findIndex ((not . isZero) . RV.lift V.head) of
-        Nothing -> Just ( fromEchelonForm $
-                          EchelonForm nrs ncs V.empty
-                        , BRMatrix nrs (pred ncs) csTail
-                        )
-        Just pIx -> Just ( PLEHook p l e
-                         , BRMatrix (pred nrs) (pred ncs) $
-                           l *. (p *. (RV.liftRV V.tail csTail))
-                         )
+  | otherwise            = Just $
+      case V.findIndex ((not . isZero) . V.head) rs of
+        Nothing -> ( fromEchelonForm $ EchelonForm nrs ncs V.empty
+                   , Matrix nrs (pred ncs) rsTails
+                   )
+        Just pIx -> pleFromPLM p l $ Matrix nrs (pred ncs) rsTails
           where
-          pivotRecip = recip $ nonZero $
-                         RV.lift V.head (RV.lift (V.!pIx) rs)
+          pivotRecip = recip $ nonZero $ V.head (rs V.! pIx)
           negCol = V.map negate $
             V.generate (fromIntegral nrs - 1) $ \ix ->
-              RV.lift V.head $
-              RV.lift (V.! if ix < pIx then ix else ix+1) rs
+              V.head $ (V.! if ix < pIx then ix else ix+1) rs
  
           p = RP.fromTransposition (fromIntegral nrs) (0,pIx)
           l = LeftTransformation nrs $ V.singleton $
               LT.LeftTransformationColumn 0 pivotRecip negCol
-          e = EchelonForm 1 ncs $ V.singleton $
-              EF.EchelonFormRow 0 $
-              one `V.cons`
-              V.map (fromNonZero pivotRecip *) (RV.lift V.tail $ RV.lift (V.!pIx) rs)
-        where
-          csTail = RV.liftRV (V.map $ RV.liftRV V.tail) rs
+          
+      where
+        rsTails = V.map V.tail rs
 
+pleFromPLM :: ( DivisionRing a, DecidableZero a )
+           => RPermute -> LeftTransformation a -> Matrix a
+           -> ( PLEHook (Matrix a), Matrix a )
+pleFromPLM p l m = ( PLEHook p l e, tailRows plm )
+  where
+    plm = fromPLMatrix $ l *. (p *. PLMatrix m)
+    e = EF.fromVector $ headRows plm
 
+newtype PLMatrix a = PLMatrix {fromPLMatrix :: Matrix a}
 
+instance MultiplicativeSemigroupLeftAction RPermute (PLMatrix a) where
+  p *. PLMatrix (Matrix nrs ncs rs) = PLMatrix $
+    Matrix nrs ncs $ RP.fromRPVector $ p *. RP.RPVector rs
+
+instance    ( DivisionRing a, DecidableZero a )
+         => MultiplicativeSemigroupLeftAction
+              (LeftTransformation a) (PLMatrix a)
+  where
+  lt *. PLMatrix m@(Matrix nrs ncs _) = PLMatrix $ 
+    fromBRMatrixUnsafe nrs ncs $ lt *. toBRMatrix m
+    
 
 -- type PLEParametrizedFunction a =
 --   (Field a) 

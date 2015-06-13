@@ -8,6 +8,7 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       )
 
+import Data.Composition ( (.:) )
 import Data.Vector ( Vector )
 import qualified Data.Vector as V
 import Math.Structure
@@ -15,35 +16,29 @@ import Numeric.Natural
 
 import HLinear.BRMatrix.Basic
 import HLinear.BRMatrix.Definition
-import HLinear.BRMatrix.RVector ( RVector(RVector) )
+import HLinear.BRMatrix.RVector ( RVector(..) )
 import qualified HLinear.BRMatrix.RVector as RV
+import HLinear.Matrix.Conversion
+import qualified HLinear.Matrix.StdElements as M
 
 
 zeroMatrix :: AdditiveMonoid a
            => Natural -> Natural -> BRMatrix a
-zeroMatrix nrs ncs =
-  BRMatrix nrs ncs $
-    RVector $ V.replicate (fromIntegral nrs) $
-    RVector $ V.replicate (fromIntegral ncs) zero
+zeroMatrix = toBRMatrix .: M.zeroMatrix
 
 identityMatrix :: ( AdditiveMonoid a, MultiplicativeMonoid a )
                => Natural -> BRMatrix a
-identityMatrix = diagonalMatrix . (`V.replicate` one) . fromIntegral
+identityMatrix = toBRMatrix . M.identityMatrix
 
 diagonalMatrix :: AdditiveMonoid a
                => Vector a -> BRMatrix a
-diagonalMatrix ds =
-  BRMatrix nrs nrs $
-    RVector $ (`V.imap` ds) $ \ix d ->
-    RVector $ V.generate nrsZ $ \jx ->
-      if ix==jx then d else zero
-  where
-    nrsZ = V.length ds
-    nrs = fromIntegral nrsZ
+diagonalMatrix = toBRMatrix . M.diagonalMatrix
+
 
 -- block diagonal sums and the associated monoid structure
 
--- block sums are taken in the natural order of the liminv for BRMatrix
+-- note: block sums are taken in the natural order of the liminv for BRMatrix
+-- this is different from block sums of Matrix
 blockSum :: (AdditiveMonoid a)
          => BRMatrix a -> BRMatrix a -> BRMatrix a
 BRMatrix nrs ncs (RVector rs) `blockSum` BRMatrix nrs' ncs' (RVector rs') =

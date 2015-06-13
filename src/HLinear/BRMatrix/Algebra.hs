@@ -46,6 +46,35 @@ instance AdditiveGroup a => AdditiveGroup (BRMatrix a) where
 
 instance Abelian a => Abelian (BRMatrix a)
 
+-- action of base ring
+
+instance    MultiplicativeSemigroup a
+         => MultiplicativeSemigroupLeftAction a (BRMatrix a)
+  where
+  a *. (BRMatrix nrs ncs rs) = BRMatrix nrs ncs $ ($rs) $
+    RV.liftRV $ V.map $ RV.liftRV $ V.map (a*)
+
+instance    MultiplicativeMonoid a
+         => MultiplicativeLeftAction a (BRMatrix a)
+
+instance Semiring a => LinearSemiringLeftAction a (BRMatrix a)
+
+instance Ring a => LeftModule a (BRMatrix a)
+
+
+instance    MultiplicativeSemigroup a
+         => MultiplicativeSemigroupRightAction a (BRMatrix a)
+  where
+  (BRMatrix nrs ncs rs) .* a = BRMatrix nrs ncs $ ($rs) $
+    RV.liftRV $ V.map $ RV.liftRV $ V.map (*a)
+
+instance    MultiplicativeMonoid a
+         => MultiplicativeRightAction a (BRMatrix a)
+
+instance Semiring a => LinearSemiringRightAction a (BRMatrix a)
+
+instance Ring a => RightModule a (BRMatrix a)
+
 -- multiplicative structure
 
 newtype Column a = Column {unColumn :: RVector a}
@@ -69,3 +98,17 @@ instance Rng a => MultiplicativeMagma (BRMatrix a) where
     BRMatrix nrs ncs' $ unColumn $ m *. Column rs'
 
 instance Rng a => MultiplicativeSemigroup (BRMatrix a)
+
+-- algebra structure
+
+instance Rng a => Distributive (BRMatrix a)
+instance Rng a => Semiring (BRMatrix a)
+instance Rng a => Rng (BRMatrix a)
+
+instance Rng a => NonUnitalLeftModule a (BRMatrix a)
+instance Rng a => NonUnitalRightModule a (BRMatrix a)
+instance ( Rng a, Commutative a ) => NonUnitalModule a (BRMatrix a)
+
+instance Rng a => NonUnitalLeftAlgebra a (BRMatrix a)
+instance Rng a => NonUnitalRightAlgebra a (BRMatrix a)
+instance ( Rng a, Commutative a ) => NonUnitalAlgebra a (BRMatrix a)
