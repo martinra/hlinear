@@ -32,7 +32,7 @@ testPropertyMatrix :: (QC.Testable p, SC.Testable IO p)
                      => String -> p -> TestTree
 testPropertyMatrix s p = testGroup "(QuickCheck & SmallCheck)"
   [ QC.testProperty s p
-  , SC.testProperty s $ SC.changeDepth (const 0) p
+  , SC.testProperty s $ SC.changeDepth (const 1) p
   ] 
 
 

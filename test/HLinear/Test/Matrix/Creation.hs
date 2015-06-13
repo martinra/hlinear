@@ -1,4 +1,4 @@
-module HLinear.Test.BRMatrix.Creation
+module HLinear.Test.Matrix.Creation
 where
 
 import Prelude hiding ( (*) )
@@ -15,7 +15,7 @@ import Test.Tasty
 
 import HLinear.Test.Utils
 
-import HLinear.BRMatrix
+import HLinear.Matrix
 
 
 properties :: TestTree
@@ -34,18 +34,18 @@ properties = testGroup "Creation properties"
 --      )
 
     testProperty "zeroMatrix == zero" $
-      \nrs ncs -> zeroMatrix nrs ncs == (zero :: BRMatrix Int)
+      \nrs ncs -> zeroMatrix nrs ncs == (zero :: Matrix Int)
   , testProperty "nmbRows/Cols .: zeroMatrix" $
-      \nrs ncs -> ( let m = zeroMatrix nrs ncs :: BRMatrix Int
+      \nrs ncs -> ( let m = zeroMatrix nrs ncs :: Matrix Int
                     in    nmbRows m == nrs
                        && nmbCols m == ncs )
 
   , testProperty "nmbRows/Cols .: identityMatrix" $
-      \nrs -> ( let m = identityMatrix nrs :: BRMatrix Int
+      \nrs -> ( let m = identityMatrix nrs :: Matrix Int
                 in    nmbRows m == nrs
                    && nmbCols m == nrs )
 
-  , testPropertyBRMatrix "diagonalMatrix . * == * . diagonalMatrix" $
+  , testPropertyMatrix "diagonalMatrix . * == * . diagonalMatrix" $
       \abs -> ( let (as,bs) = V.unzip (abs :: Vector (Int,Int))
                   in (diagonalMatrix as) * (diagonalMatrix bs) ==
                      ( diagonalMatrix (V.map (uncurry (*)) abs) ) )

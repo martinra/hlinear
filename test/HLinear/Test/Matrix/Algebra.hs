@@ -11,12 +11,12 @@ import Math.Structure.Tasty
 import Test.Tasty
 
 import HLinear.Matrix
-import HLinear.Matrix.MaybeIO
+import HLinear.Matrix.Maybe
 import HLinear.Test.Utils ( testPropertyMatrix )
 
 properties :: TestTree
 properties = testGroup "Algebra properties" $
   (`runTestR` testPropertyMatrix) $
   fmap concat $ sequence
-  [ isSemiring (Proxy :: Proxy (MaybeIOMatrix Integer))
+  [ isSemiring (Proxy :: Proxy (MaybeMatrix Integer))
  ]

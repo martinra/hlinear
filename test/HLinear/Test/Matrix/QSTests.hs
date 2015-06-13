@@ -9,16 +9,16 @@ import Test.Tasty.HUnit ( (@?=) )
 import qualified Test.Tasty.QuickCheck as QC
 import qualified Test.Tasty.SmallCheck as SC
 
-import HLinear.BRMatrix
+import HLinear.Matrix
 
 
 unitTests = testGroup "Quick- and SmallCheck unit tests"
   [ HU.testCase "SmallCheck" $
-    ( SCS.list 1 SCS.series :: [BRMatrix Int] ) @?=
+    ( SCS.list 1 SCS.series :: [Matrix Int] ) @?=
     []
 
   , HU.testCase "QuickCheck fromLists'" $
-    QC.shrink (fromListsUnsafe' 1 1 [[1]] :: BRMatrix Int) @?=
+    QC.shrink (fromListsUnsafe' 1 1 [[1]] :: Matrix Int) @?=
       rights
       [ fromLists' 0 1 []
       , fromLists' 1 0 [[]]
