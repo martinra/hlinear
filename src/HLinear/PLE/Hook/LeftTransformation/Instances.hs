@@ -78,6 +78,7 @@ instance    ( DivisionRing a, DecidableZero a )
 instance    ( DivisionRing a, DecidableZero a )
          => MultiplicativeMonoid (LeftTransformation a) where
   one = LeftTransformation 0 V.empty
+
 instance    ( DivisionRing a, DecidableZero a, DecidableOne a )
          => DecidableOne (LeftTransformation a) where
   isOne (LeftTransformation nrs cs) =

@@ -42,18 +42,32 @@ data LeftTransformation a =
 nmbCols :: LeftTransformation a -> Natural
 nmbCols = fromIntegral . V.length . columns
 
+minimizeSize :: ( DecidableZero a, DecidableOne a )
+             => LeftTransformation a -> LeftTransformation a
+minimizeSize (LeftTransformation nrs cs) =
+  if null cs'
+  then LeftTransformation 0 V.empty
+  else LeftTransformation nrs' cs'
+  where
+    cs' = V.dropWhile isIdentityLTColumn cs
+    nrs' = fromIntegral $ fromIntegral nrs - (V.length cs - V.length cs')
+
 -- Eq an Show instances
 
 deriving instance Show a => Show (LeftTransformation a)
 
-instance Eq a => Eq (LeftTransformation a) where
-  (LeftTransformation nrs cs) == (LeftTransformation nrs' cs') =
-    nrs == nrs' && ncs == ncs'
-    &&
-    (`V.all` (V.zip cs cs')) (uncurry (==))
-      where
-      ncs = V.length cs
-      ncs' = V.length cs'
+instance    ( Eq a, DecidableZero a, DecidableOne a )
+         => Eq (LeftTransformation a) where
+  -- this is equality in the injective limit of left transformations
+  -- with respect to adding identity matrices to the top left
+  lt == lt' =
+    let LeftTransformation nrs cs = minimizeSize lt
+        LeftTransformation nrs' cs' = minimizeSize lt'
+        ncs = V.length cs
+        ncs' = V.length cs'
+    in nrs == nrs' && ncs == ncs'
+       &&
+       V.all (uncurry (==)) (V.zip cs cs')
 
 -- creation
 

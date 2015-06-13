@@ -91,7 +91,7 @@ leftTransformationProperties =
     ++
     ( (`runTestR` testPropertyMatrixSC ) $
       fmap concat $ sequence
-      [ isMultiplicativeSemigroup
+      [ isMultiplicativeMonoid
           ( Proxy :: Proxy (LeftTransformation Rational) )
       , isMultiplicativeLeftAction
           ( Proxy ::  Proxy (LeftTransformation Rational) )

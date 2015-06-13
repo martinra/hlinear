@@ -93,6 +93,11 @@ instance Eq a => Eq (LeftTransformationColumn a) where
   (LeftTransformationColumn s a v) == (LeftTransformationColumn s' a' v') =
     s == s' && a == a' && (`V.all` V.zip v v') (uncurry (==))
 
+isIdentityLTColumn :: ( DecidableZero a, DecidableOne a )
+                   => LeftTransformationColumn a -> Bool
+isIdentityLTColumn (LeftTransformationColumn _ a v) =
+  isOne (fromNonZero a) && V.all isZero v
+
 -- creation
 
 identityLTColumn :: ( Ring a, DecidableZero a )
