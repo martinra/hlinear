@@ -26,8 +26,8 @@ instance    (Monad m, Serial m a, DecidableZero a)
     ncs <- series
     guard $ nrs >= ncs
   
-    return . LeftTransformation nrs =<< (
-      V.generateM (fromIntegral ncs) $ \jx -> do
+    return . LeftTransformation nrs =<<
+      V.generateM (fromIntegral ncs) ( \jx -> do
         a <- series
         guard $ not $ isZero a
         return . LeftTransformationColumn jx (nonZero a) =<<

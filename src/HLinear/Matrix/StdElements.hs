@@ -45,8 +45,8 @@ blockSum :: (AdditiveMonoid a)
          => Matrix a -> Matrix a -> Matrix a
 Matrix nrs ncs rs `blockSum` Matrix nrs' ncs' rs' =
   Matrix (nrs+nrs') (ncs+ncs') $ (V.++)
-    ( V.map (zeros' V.++) rs )
-    ( V.map (V.++ zeros) rs' )
+    ( V.map (V.++ zeros) rs )
+    ( V.map (zeros' V.++) rs' )
   where
     zeros = V.replicate (fromIntegral nrs) zero 
     zeros' = V.replicate (fromIntegral nrs') zero 

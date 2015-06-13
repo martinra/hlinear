@@ -26,7 +26,8 @@ import Numeric.Natural ( Natural )
 import HLinear.BRMatrix.Definition
 import HLinear.BRMatrix.RVector
 import qualified HLinear.BRMatrix.RVector as RV
-import HLinear.PLE.Hook.LeftTransformation.Basic
+import HLinear.PLE.Hook.LeftTransformation.Basic as LT
+import qualified HLinear.PLE.Hook.LeftTransformation.Column as LTC
 import HLinear.PLE.Hook.LeftTransformation.Column
 import HLinear.PLE.Hook.RPermute
 
@@ -40,19 +41,42 @@ instance MultiplicativeSemigroupLeftAction
 
 -- product structure
 
-instance DivisionRing a => MultiplicativeMagma (LeftTransformation a) where
-  lt@(LeftTransformation nrs cs) * (LeftTransformation nrs' cs') =
-    LeftTransformation (max nrs nrs') $
-      csLeft V.++ V.map (LeftTransformation nrs' csMiddleRight *.) cs' V.++ csRight
-    where
-    ncs = V.length cs
-    ncs' = V.length cs'
-    nrsDiff = min 0 $ fromIntegral nrs - fromIntegral nrs'
-    (csLeft, csMiddleRight) = V.splitAt nrsDiff cs
-    (csMiddle, csRight) = V.splitAt ncs' csMiddleRight
+ltLengths :: LeftTransformation a -> (Int,[Int])
+ltLengths (LeftTransformation nrs cs) = (fromIntegral nrs, V.toList $ V.map LTC.length cs)
 
-instance DivisionRing a => MultiplicativeSemigroup (LeftTransformation a)
-instance DivisionRing a => MultiplicativeMonoid (LeftTransformation a) where
+instance    ( DivisionRing a, DecidableZero a )
+         => MultiplicativeMagma (LeftTransformation a) where
+  lt@(LeftTransformation nrs cs) * lt'@(LeftTransformation nrs' cs')
+    | ncs  == 0 = lt'
+    | ncs' == 0 = lt
+    | nrsZ - ncs >= nrs'Z =
+        let ltcOnes = V.map (LTC.identityLTColumn nrsZ) $
+                        V.enumFromN ncs (nrsZ - ncs - nrs'Z)
+            cs'shifted = V.map (LTC.setLength nrsZ) cs' 
+        in LeftTransformation nrs $ cs V.++ ltcOnes V.++ cs'shifted
+    | nrs' >= nrs =
+        let ltLeft = LeftTransformation nrs' $ V.map (lt*.) cs' 
+            ltRight = LT.drop (nrsZ - (nrs'Z - ncs')) lt
+        in ltLeft * ltRight
+    | otherwise =
+        let (ltLeft,ltRight) = LT.splitAt (nrsZ - nrs'Z) lt
+        in ltLeft * (ltRight * lt')
+    where
+      maxnrs = max nrs nrs'
+      minnrs = min nrs nrs'
+      ncs = V.length cs
+      ncs' = V.length cs'
+
+      nrsZ = fromIntegral nrs
+      nrs'Z = fromIntegral nrs'
+      maxnrsZ = fromIntegral maxnrs
+      minnrsZ = fromIntegral minnrs 
+
+instance    ( DivisionRing a, DecidableZero a )
+         => MultiplicativeSemigroup (LeftTransformation a)
+
+instance    ( DivisionRing a, DecidableZero a )
+         => MultiplicativeMonoid (LeftTransformation a) where
   one = LeftTransformation 0 V.empty
 instance    ( DivisionRing a, DecidableZero a, DecidableOne a )
          => DecidableOne (LeftTransformation a) where
@@ -61,7 +85,8 @@ instance    ( DivisionRing a, DecidableZero a, DecidableOne a )
     ||
     (`all` cs) (\(LeftTransformationColumn _ a v) -> isOne (fromNonZero a) && all isZero v)
 
-instance DivisionRing a => MultiplicativeGroup (LeftTransformation a) where
+instance    ( DivisionRing a, DecidableZero a )
+         => MultiplicativeGroup (LeftTransformation a) where
   recip (LeftTransformation nrs cs)
     | V.length cs == 1
       = let LeftTransformationColumn _ a c = V.head cs
@@ -83,15 +108,15 @@ instance DivisionRing a => MultiplicativeGroup (LeftTransformation a) where
 --   MultiplicativeSemigroupLeftAction a (RVector a)
 -- should not occur: LinearSemiringLeftAction a (LeftTransformation a)
 instance  {-# INCOHERENT #-}
-            (DivisionRing a, LinearSemiringLeftAction a b)
+            ( DivisionRing a, DecidableZero a, LinearSemiringLeftAction a b )
          => MultiplicativeSemigroupLeftAction
               (LeftTransformation a) (RVector b)
   where
   -- we fill the vector v with zeros from the top
-  (LeftTransformation nrs cs) *. (RVector v) = RVector $
+  lt@(LeftTransformation nrs cs) *. (RVector v) = RVector $
     V.foldr' applyCol v $ V.drop nrsDiff cs
     where
-    nv = length v
+    nv = V.length v
     nrsDiff = fromIntegral nrs - nv
 
     -- this assumes that vn is longer than v'
@@ -103,46 +128,46 @@ instance  {-# INCOHERENT #-}
          av = fromNonZero a' *. V.last vn1
          (vn1,vn2) = V.splitAt (V.length vn - V.length v') vn
 
-instance    (DivisionRing a, LeftModule a b)
+instance    ( DivisionRing a, DecidableZero a, LeftModule a b )
          => MultiplicativeLeftAction (LeftTransformation a) (RVector b)
 
 -- action on LeftTransformationColumn
 
-instance    DivisionRing a
+instance    ( DivisionRing a, DecidableZero a )
          => MultiplicativeSemigroupLeftAction
              (LeftTransformation a)
              (LeftTransformationColumn a)
   where
-  lt@(LeftTransformation nrs cs) *. (LeftTransformationColumn s a v) =
+  lt@(LeftTransformation nrs cs) *. ltc@(LeftTransformationColumn s a v) =
     LeftTransformationColumn s a' v'
     where
-    nv = V.length v
-    nvDiff = fromIntegral nrs - nv
+      nv = V.length v
+      nvDiff = fromIntegral nrs - nv
+  
+      c1 = cs V.!? (nvDiff-1)
+      nza1recip = fromNonZero $ maybe one (recip . LTC.headNonZero) c1
 
-    c1 = cs V.!? (nvDiff - 1)
+      a' = maybe a ((*a) . LTC.headNonZero) c1
+      ltv = toCurrentVector $ lt *. RVector v
+      v' = case c1 of
+             Just c1' -> V.zipWith (\bc bv -> bc + bv*nza1recip)
+                           (LTC.tail c1') ltv
+             Nothing  -> ltv
 
-    a' = maybe a ((*a) . ltcHeadNonZero) c1
-    v' = go (toCurrentVector $ lt *. RVector v)
-           where
-           go = case c1 of
-                  Just c1' -> V.zipWith (\bc bv -> bv + bc*nza') (ltcTail c1')
-                  Nothing  -> id
-           nza' = fromNonZero a'
-
-instance    DivisionRing a
+instance    ( DivisionRing a, DecidableZero a )
          => MultiplicativeLeftAction
              (LeftTransformation a)
              (LeftTransformationColumn a)
 
 -- action on BRMatrix
 
-instance    DivisionRing a
+instance    ( DivisionRing a, DecidableZero a )
          => MultiplicativeSemigroupLeftAction
               (LeftTransformation a) (BRMatrix a)
   where
   lt *. (BRMatrix nrs' ncs' rs') =
     BRMatrix nrs' ncs' $ lt *. rs'
 
-instance    DivisionRing a
+instance    ( DivisionRing a, DecidableZero a ) 
          => MultiplicativeLeftAction
               (LeftTransformation a) (BRMatrix a)

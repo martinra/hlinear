@@ -18,17 +18,17 @@ import Numeric.Natural ( Natural )
 
 
 import HLinear.PLE.Hook.LeftTransformation.Basic
-import HLinear.PLE.Hook.LeftTransformation.Column
+import HLinear.PLE.Hook.LeftTransformation.Column as LTC
 import HLinear.PLE.Hook.LeftTransformation.Instances
 import HLinear.PLE.Hook.RPermute
 import HLinear.Matrix hiding ( (!), (!?) )
 import HLinear.Matrix.Definition ( Matrix(..) )
 
 
-fromVector :: DecidableZero a
-             => Vector a -> LeftTransformation a
-fromVector v = LeftTransformation nrs $ V.singleton $
-                 LeftTransformationColumn 0 a c
+fromVector' :: DecidableZero a
+            => Vector a -> LeftTransformation a
+fromVector' v = LeftTransformation nrs $ V.singleton $
+                  LeftTransformationColumn 0 a c
   where
   nrs = fromIntegral $ V.length v
   a = nonZero $ V.head v
@@ -40,7 +40,7 @@ toMatrix (LeftTransformation nrs cs) =
   Matrix nrs nrs $
     V.generate nrs' $ \ix ->
     V.generate nrs' $ \jx ->
-      let a = maybe one ltcHead $ cs V.!? jx
+      let a = maybe one LTC.head $ cs V.!? jx
       in
       case compare ix jx of
         LT -> zero
@@ -49,6 +49,6 @@ toMatrix (LeftTransformation nrs cs) =
   where
   nrs' = fromIntegral nrs
 
-toInverseMatrix :: DivisionRing a
+toInverseMatrix :: ( DivisionRing a, DecidableZero a )
                 => LeftTransformation a -> Matrix a
 toInverseMatrix = toMatrix . recip

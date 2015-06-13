@@ -1,6 +1,7 @@
 {-# LANGUAGE
     FlexibleContexts
   , MultiParamTypeClasses
+  , StandaloneDeriving
   #-}
 
 module HLinear.PLE.Hook.LeftTransformation.Column
@@ -34,42 +35,71 @@ import HLinear.Matrix.Algebra ( Column(..), unColumn )
 
 
 data LeftTransformationColumn a =
-  LeftTransformationColumn Int (NonZero a) (Vector a)
-  deriving Show
+  LeftTransformationColumn
+    { offset :: Int
+    , headNonZero :: NonZero a
+    , tail :: Vector a
+    }
+
+-- lenght and offset
+
+length :: LeftTransformationColumn a -> Int
+length (LeftTransformationColumn s _ v) = s + 1 + V.length v
+
+length' :: LeftTransformationColumn a -> (Int,Int,Int)
+length' (LeftTransformationColumn s _ v) = (s,1,V.length v)
+
+setLength :: Int -> LeftTransformationColumn a
+          -> LeftTransformationColumn a
+setLength n (LeftTransformationColumn _ a v)
+  | o' < 0 = error "LeftTransformationColumn.setLength: to large offset"
+  | otherwise = LeftTransformationColumn o' a v
+  where
+    o' = n - 1 - V.length v
+
+shiftOffset :: Int -> LeftTransformationColumn a
+            -> LeftTransformationColumn a
+shiftOffset s (LeftTransformationColumn o a vs) =
+  LeftTransformationColumn (o+s) a vs
+
+-- access and conversion
 
 (!) :: LeftTransformationColumn a -> Int -> a
-(!) (LeftTransformationColumn offset a vs) ix
-  | ix < offset  = error "LeftTransformationColumn (!) out of range"
-  | ix == offset = fromNonZero a
-  | otherwise    = vs V.! (ix - offset - 1)
+(!) (LeftTransformationColumn o a v) ix
+  | ix < o    = error "LeftTransformationColumn.(!): out of range"
+  | ix == o   = fromNonZero a
+  | otherwise = v V.! (ix - o - 1)
 
+head :: LeftTransformationColumn a -> a  
+head = fromNonZero . headNonZero
 
-ltcShiftOffset :: Int -> LeftTransformationColumn a
-              -> LeftTransformationColumn a
-ltcShiftOffset shift (LeftTransformationColumn offset a vs) =
-  LeftTransformationColumn (offset + shift) a vs
-
-ltcHead :: LeftTransformationColumn a -> a  
-ltcHead (LeftTransformationColumn _ a _) = fromNonZero a
-
-ltcHeadNonZero :: LeftTransformationColumn a -> NonZero a
-ltcHeadNonZero (LeftTransformationColumn _ a _) = a
-
-ltcHeadRecip :: MultiplicativeGroup (NonZero a)
+headRecip :: MultiplicativeGroup (NonZero a)
             => LeftTransformationColumn a -> a  
-ltcHeadRecip (LeftTransformationColumn _ na _) = fromNonZero $ recip na
+headRecip = fromNonZero . recip . headNonZero
 
-ltcTail :: LeftTransformationColumn a -> Vector a
-ltcTail (LeftTransformationColumn _ _ v) = v
+toVector :: Rng a
+         => LeftTransformationColumn a -> Vector a
+toVector (LeftTransformationColumn o a v) =
+  V.replicate (fromIntegral o) zero
+  V.++ a' `V.cons` V.map (*a') v
+  where
+    a' = fromNonZero a
 
-toVector :: AdditiveMonoid a => LeftTransformationColumn a -> Vector a
-toVector (LeftTransformationColumn s a v) =
-  V.replicate (fromIntegral s) zero
-  V.++ fromNonZero a `V.cons` v
+-- Eq and Show instancs
+
+deriving instance Show a => Show (LeftTransformationColumn a)
 
 instance Eq a => Eq (LeftTransformationColumn a) where
   (LeftTransformationColumn s a v) == (LeftTransformationColumn s' a' v') =
     s == s' && a == a' && (`V.all` V.zip v v') (uncurry (==))
+
+-- creation
+
+identityLTColumn :: ( Ring a, DecidableZero a )
+                 => Int -> Int -> LeftTransformationColumn a
+identityLTColumn n o | n <= o = error "identityLTColumn: to large offset"
+                     | otherwise = LeftTransformationColumn o (nonZero one) $
+                                     V.replicate (n-o-1) zero
 
 -- QuickCheck
 
@@ -84,7 +114,7 @@ instance    ( DecidableZero a, Arbitrary a )
 
   shrink (LeftTransformationColumn s a v) =
     [ LeftTransformationColumn s' a v
-    | s' <- shrink s
+    | s' <- shrink s, s' >= 0
     ]
     ++
     [ LeftTransformationColumn s a' v
@@ -113,5 +143,8 @@ instance MultiplicativeSemigroupLeftAction
            RPermute
            (LeftTransformationColumn a)
   where
-  p *. (LeftTransformationColumn s a v) =
-    LeftTransformationColumn s a $ RP.fromRPVector $ p *. RPVector v
+  p *. (LeftTransformationColumn s a v)
+    | RP.size p > V.length v =
+        error "RPermute *. LeftTransformationColumn: permutation too large"
+    | otherwise = LeftTransformationColumn s a $
+                    RP.fromRPVector $ p *. RPVector v

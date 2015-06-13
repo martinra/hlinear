@@ -18,8 +18,8 @@ import Test.QuickCheck.Modifiers ( NonNegative(..)
                                  , Small(..)
                                  )
 
-import HLinear.PLE.Hook.LeftTransformation.Basic
-import HLinear.PLE.Hook.LeftTransformation.Column
+import HLinear.PLE.Hook.LeftTransformation.Basic as LT
+import HLinear.PLE.Hook.LeftTransformation.Column as LTC
 
 
 instance    (DecidableZero a, Arbitrary a)
@@ -39,23 +39,22 @@ instance    (DecidableZero a, Arbitrary a)
               
     return $ LeftTransformation (fromIntegral nrs) cs
 
-  -- todo: Shrink should not have exponential runtime
-  shrink (LeftTransformation nrs cs)
+  shrink lt@(LeftTransformation nrs cs)
     | nrs <= 1 || V.length cs <= 1 = []
     | otherwise =
-      ltLeft:ltRight:
-      map (LeftTransformation nrs) (V.mapM shrinkColumn cs)
-      where
-        nrsLeft = nrs `div` 2
-        (csLeft,csRight) = V.splitAt (fromIntegral nrsLeft) cs
-        ltLeft = LeftTransformation nrsLeft csLeft
-        ltRight = LeftTransformation (fromIntegral $ V.length csRight) $
-                    V.map (ltcShiftOffset (negate $ fromIntegral nrsLeft)) csRight
+        ltLeft:ltRight:
+        [ LeftTransformation nrs $ V.update cs $ V.singleton (jx,c)
+        | jx <- [0..ncs-1]
+        , c <- shrinkColumn $ cs V.! jx
+        ]
+        where
+          ncs = V.length cs
+          (ltLeft,ltRight) = LT.splitAt (fromIntegral $ ncs `div` 2) lt
 
-        shrinkColumn (LeftTransformationColumn s a c) =
-          [ LeftTransformationColumn s a' c | a' <- shrink a ]
-          ++
-          [ LeftTransformationColumn s a $ V.update c $ V.singleton (ix,e)
-          | ix <- [0..V.length c - 1]
-          , e <- shrink (c V.! ix)
-          ]
+          shrinkColumn (LeftTransformationColumn s a c) =
+            [ LeftTransformationColumn s a' c | a' <- shrink a ]
+            ++
+            [ LeftTransformationColumn s a $ V.update c $ V.singleton (ix,e)
+            | ix <- [0..V.length c - 1]
+            , e <- shrink (c V.! ix)
+            ]

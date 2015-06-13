@@ -17,13 +17,17 @@ import qualified Data.Vector as V
 import Test.Tasty
 import qualified Test.Tasty.HUnit as HU
 import Test.Tasty.HUnit ( (@?=) )
+import qualified Test.Tasty.SmallCheck as SC
 import qualified Test.Tasty.QuickCheck as QC
 import Test.Vector
 
 import HLinear.PLE.Hook
 import HLinear.PLE.Hook.LeftTransformation
 import HLinear.BRMatrix.RVector ( RVector(..) )
+import HLinear.Matrix.Conversion
 import qualified HLinear.Matrix as M
+
+import HLinear.Test.Utils
 
 
 leftTransformationTests :: TestTree
@@ -69,7 +73,7 @@ leftTransformationUnitTests =
 
 leftTransformationProperties :: TestTree
 leftTransformationProperties =
-  testGroup "LeftTransformation"
+  testGroup "LeftTransformation" $
     [ QC.testProperty "toMatrix *. vector == *. vector" $
         \lt v -> let m = toMatrix (lt :: LeftTransformation Rational)
                      nrsDiff = V.length v - fromIntegral (nmbRows lt)
@@ -84,11 +88,12 @@ leftTransformationProperties =
                        toRVector = RVector . toVector
                    in toRVector (lt *. ltc) == lt *. toRVector ltc
     ]
---    ++
---    ( (`runTestR` QC.testProperty) $
---         isMultiplicativeSemigroup
---         ( Proxy :: Proxy (LeftTransformation Rational) )
---    ) 
+    ++
+    ( (`runTestR` testPropertyMatrixSC ) $
+      isMultiplicativeSemigroup
+          ( Proxy :: Proxy (LeftTransformation Rational) )
+     
+    ) 
 
 --  [ QC.testProperty "toMatrix * toInverseMatrix" $
 --      \lt -> let m = toMatrix (lt :: LeftTransformation Rational)

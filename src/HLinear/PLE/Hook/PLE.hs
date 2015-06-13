@@ -43,10 +43,10 @@ import HLinear.PLE.Hook.EchelonForm ( EchelonForm(..) )
 import qualified HLinear.PLE.Hook.LeftTransformation as LT
 import HLinear.PLE.Hook.LeftTransformation ( LeftTransformation(..) )
 import qualified HLinear.BRMatrix as BRM
-import HLinear.Matrix ( nmbRows, nmbCols
-                      , zeroMatrix
+import HLinear.Matrix ( zeroMatrix
                       , headRows, tailRows
                       )
+import qualified HLinear.Matrix as M
 import HLinear.Matrix.Conversion
 import HLinear.Matrix.Definition ( Matrix(..) )
 
@@ -68,8 +68,8 @@ instance (DecidableZero a, DivisionRing a) => HasPLE (Matrix a) where
       (RP.rpermute $ fromIntegral nrs)
       (LeftTransformation nrs V.empty)
       (EchelonForm nrs ncs V.empty)
-    nrs = nmbRows m
-    ncs = nmbCols m
+    nrs = M.nmbRows m
+    ncs = M.nmbCols m
 
   fromPLEPermute = MatrixPermute . RP.toPermute . recip
   fromPLELeft = LT.toInverseMatrix

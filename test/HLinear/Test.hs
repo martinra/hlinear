@@ -12,7 +12,7 @@ import HLinear.Test.Matrix ( matrixTests )
 
 main = defaultMain $
   testGroup "HLinear Tests"
-  [ matrixTests
---  , brMatrixTests
---  , pleTests
+  [-- matrixTests
+   --, brMatrixTests
+    pleTests
   ]

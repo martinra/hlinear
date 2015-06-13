@@ -19,4 +19,4 @@ properties = testGroup "Algebra properties" $
   (`runTestR` testPropertyMatrix) $
   fmap concat $ sequence
   [ isSemiring (Proxy :: Proxy (MaybeMatrix Integer))
- ]
+  ]
