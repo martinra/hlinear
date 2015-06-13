@@ -36,12 +36,20 @@ library
     HLinear.Matrix.Definition
 
     HLinear.PLE.Hook.EchelonForm
+    HLinear.PLE.Hook.EchelonForm.Algebra
+    HLinear.PLE.Hook.EchelonForm.Basic
+    HLinear.PLE.Hook.EchelonForm.Definition
+    HLinear.PLE.Hook.EchelonForm.QuickCheck
+    HLinear.PLE.Hook.EchelonForm.Row
+    HLinear.PLE.Hook.EchelonForm.SmallCheck
+
     HLinear.PLE.Hook.LeftTransformation
     HLinear.PLE.Hook.LeftTransformation.Algebra
     HLinear.PLE.Hook.LeftTransformation.Basic
     HLinear.PLE.Hook.LeftTransformation.Column
     HLinear.PLE.Hook.LeftTransformation.QuickCheck
     HLinear.PLE.Hook.LeftTransformation.SmallCheck
+
     HLinear.PLE.Hook.PLE
     HLinear.PLE.Hook.RPermute
 

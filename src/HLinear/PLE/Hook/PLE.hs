@@ -83,7 +83,7 @@ instance    (DecidableZero a, DivisionRing a)
   -- Note that the permutation and the left matrix are represented by their
   -- inverse. 
   (PLEHook p lt ef) * (PLEHook p' lt' ef') =
-    PLEHook (p'*p) (lt' * (p' *. lt)) (ef * ef')
+    PLEHook (p'*p) (lt' * (p' *. lt)) (ef + ef')
 
 fromEchelonForm :: (DecidableZero a, DivisionRing a)
                 => EchelonForm a -> PLEHook (Matrix a)
@@ -121,7 +121,7 @@ pleFromPLM :: ( DivisionRing a, DecidableZero a )
 pleFromPLM p l m = ( PLEHook p l e, tailRows plm )
   where
     plm = fromPLMatrix $ l *. (p *. PLMatrix m)
-    e = EF.fromVector $ headRows plm
+    e = EF.singletonLeadingOne (M.nmbRows m) 0 $ headRows plm
 
 newtype PLMatrix a = PLMatrix {fromPLMatrix :: Matrix a}
 
