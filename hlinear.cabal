@@ -140,6 +140,7 @@ executable debug-hlinear
     , tasty-smallcheck
     , tasty-quickcheck
     , tasty-hunit
+    , transformers
     , vector
     , vector-test
 

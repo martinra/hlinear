@@ -28,9 +28,9 @@ testProperty s p = testGroup "(QuickCheck & SmallCheck)"
   , SC.testProperty s p
   ]
 
-testPropertyVVMatrix :: (QC.Testable p, SC.Testable IO p)
+testPropertyMatrix :: (QC.Testable p, SC.Testable IO p)
                      => String -> p -> TestTree
-testPropertyVVMatrix s p = testGroup "(QuickCheck & SmallCheck)"
+testPropertyMatrix s p = testGroup "(QuickCheck & SmallCheck)"
   [ QC.testProperty s p
   , SC.testProperty s $ SC.changeDepth (const 0) p
   ] 
