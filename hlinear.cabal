@@ -20,7 +20,7 @@ library
     HLinear.BRMatrix
     HLinear.BRMatrix.RVector
     HLinear.Matrix
-    HLinear.Matrix.ExceptIO
+    HLinear.Matrix.Maybe
     HLinear.PLE.PLE
     HLinear.PLE.Hook
 
@@ -138,7 +138,6 @@ executable debug-hlinear
     , permutation
     , QuickCheck
     , safe
-    , smallcheck
     , smallcheck
     , tasty
     , tasty-smallcheck
