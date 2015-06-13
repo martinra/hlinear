@@ -5,9 +5,9 @@ module HLinear.PLE.Hook.LeftTransformation
   )
 where
 
+import HLinear.PLE.Hook.LeftTransformation.Algebra ()
 import HLinear.PLE.Hook.LeftTransformation.Basic as Basic
 import HLinear.PLE.Hook.LeftTransformation.Column as Column
 import HLinear.PLE.Hook.LeftTransformation.Conversion as Conversion
-import HLinear.PLE.Hook.LeftTransformation.Instances as Instances
 import HLinear.PLE.Hook.LeftTransformation.QuickCheck ()
 import HLinear.PLE.Hook.LeftTransformation.SmallCheck ()

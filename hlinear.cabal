@@ -37,9 +37,9 @@ library
 
     HLinear.PLE.Hook.EchelonForm
     HLinear.PLE.Hook.LeftTransformation
+    HLinear.PLE.Hook.LeftTransformation.Algebra
     HLinear.PLE.Hook.LeftTransformation.Basic
     HLinear.PLE.Hook.LeftTransformation.Column
-    HLinear.PLE.Hook.LeftTransformation.Instances
     HLinear.PLE.Hook.LeftTransformation.QuickCheck
     HLinear.PLE.Hook.LeftTransformation.SmallCheck
     HLinear.PLE.Hook.PLE

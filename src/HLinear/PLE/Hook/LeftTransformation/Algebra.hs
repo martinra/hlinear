@@ -5,7 +5,7 @@
   , MultiParamTypeClasses
   #-}
 
-module HLinear.PLE.Hook.LeftTransformation.Instances
+module HLinear.PLE.Hook.LeftTransformation.Algebra
 where
 
 import qualified Prelude as P
@@ -40,9 +40,6 @@ instance MultiplicativeSemigroupLeftAction
   p *. (LeftTransformation nrs cs) = LeftTransformation nrs $ V.map (p*.) cs
 
 -- product structure
-
-ltLengths :: LeftTransformation a -> (Int,[Int])
-ltLengths (LeftTransformation nrs cs) = (fromIntegral nrs, V.toList $ V.map LTC.length cs)
 
 instance    ( DivisionRing a, DecidableZero a )
          => MultiplicativeMagma (LeftTransformation a) where

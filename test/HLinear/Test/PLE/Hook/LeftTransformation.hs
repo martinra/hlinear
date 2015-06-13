@@ -74,7 +74,7 @@ leftTransformationUnitTests =
 
 leftTransformationProperties :: TestTree
 leftTransformationProperties =
-  testGroup "LeftTransformation" $
+  testGroup "Properties" $
     [ QC.testProperty "toMatrix *. vector == *. vector" $
         \lt v -> let m = toMatrix (lt :: LeftTransformation Rational)
                      nrsDiff = V.length v - fromIntegral (nmbRows lt)
