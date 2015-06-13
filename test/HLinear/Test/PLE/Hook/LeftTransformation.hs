@@ -90,9 +90,13 @@ leftTransformationProperties =
     ]
     ++
     ( (`runTestR` testPropertyMatrixSC ) $
-      isMultiplicativeSemigroup
+      fmap concat $ sequence
+      [ isMultiplicativeSemigroup
           ( Proxy :: Proxy (LeftTransformation Rational) )
-     
+      , isMultiplicativeLeftAction
+          ( Proxy ::  Proxy (LeftTransformation Rational) )
+          ( Proxy ::  Proxy (RVector Rational) )
+      ]
     ) 
 
 --  [ QC.testProperty "toMatrix * toInverseMatrix" $
