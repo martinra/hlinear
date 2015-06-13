@@ -28,8 +28,8 @@ instance   ( Eq a, DecidableZero a ) =>  Eq (BRMatrix a) where
   m == m' = toShortestVectors m == toShortestVectors m'
 
 instance Show a => Show (BRMatrix a) where
-  show (BRMatrix 0 ncs rs) = "[ BRMatrix 0 " ++ show ncs ++ " ]"
-  show (BRMatrix nrs 0 rs) = "[ BRMatrix " ++ show nrs ++ " 0 ]"
+  show (BRMatrix 0 ncs rs) = "[ BRMatrix 0 x " ++ show ncs ++ " ]"
+  show (BRMatrix nrs 0 rs) = "[ BRMatrix " ++ show nrs ++ " x 0 ]"
   show (BRMatrix _ _ rs) = M.showMatrixAsRows $
                              V.map RV.toCurrentVector $ RV.toCurrentVector rs
 

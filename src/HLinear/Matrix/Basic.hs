@@ -23,8 +23,8 @@ instance Eq a => Eq (Matrix a) where
     nrs == nrs' && ncs == ncs' && rs == rs'
 
 instance Show a => Show (Matrix a) where
-  show (Matrix 0 ncs rs) = "[ Matrix 0 " ++ show ncs ++ " ]"
-  show (Matrix nrs 0 rs) = "[ Matrix " ++ show nrs ++ " 0 ]"
+  show (Matrix 0 ncs rs) = "[ Matrix 0 x " ++ show ncs ++ " ]"
+  show (Matrix nrs 0 rs) = "[ Matrix " ++ show nrs ++ " x 0 ]"
   show (Matrix _ _ rs) = showMatrixAsRows rs
 
 showMatrixAsRows :: Show a => Vector (Vector a) -> String
