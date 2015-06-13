@@ -68,13 +68,13 @@ instance    ( Rng a, AdditiveMonoid b
          => MultiplicativeSemigroupLeftAction (Matrix a) (Column b)
   where
   (Matrix nrs ncs rs) *. Column v
-    | ncs /= nv = error "Matrix *. Column: incompatible dimensions"
-    | ncs == 0 = Column $ V.replicate nvZ zero
+    | ncs /= nv = error $ "Matrix *. Column: incompatible dimensions"
+    | ncs == 0 = Column $ V.replicate nrsZ zero
     | otherwise = Column $ 
-      ($rs) $ V.map $ \r -> V.foldl1' (+) $ V.zipWith (*.) r v
+      (`V.map` rs) $ \r -> V.foldl1' (+) $ V.zipWith (*.) r v
     where
-      nvZ = V.length v
-      nv = fromIntegral nvZ
+      nv = fromIntegral $ V.length v
+      nrsZ = fromIntegral nrs
 
 instance Rng a => MultiplicativeSemigroupLeftAction (Matrix a) (Vector a)
   where
@@ -131,7 +131,7 @@ instance Semiring a => LinearSemiringLeftAction a (MRow (Vector a))
 instance Rng a => MultiplicativeMagma (Matrix a) where
   m@(Matrix nrs ncs rs) * (Matrix nrs' ncs' rs')
     | ncs /= nrs' = error "Matrix * Matrix: incompatible dimensions"
-    | otherwise = Matrix nrs ncs' $ flip runReader ncs $ unMRow $
+    | otherwise = Matrix nrs ncs' $ flip runReader ncs' $ unMRow $
                     V.sequence $ unColumn $ m *. (Column $ V.map return rs')
 
 instance Rng a => MultiplicativeSemigroup (Matrix a)
