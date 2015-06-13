@@ -22,8 +22,9 @@ import qualified Test.Tasty.QuickCheck as QC
 import Test.Vector
 
 import HLinear.PLE.Hook
-import HLinear.PLE.Hook.LeftTransformation
+import HLinear.PLE.Hook.LeftTransformation as LT
 import HLinear.BRMatrix.RVector ( RVector(..) )
+import qualified HLinear.BRMatrix as BRM
 import HLinear.Matrix.Conversion
 import qualified HLinear.Matrix as M
 
@@ -98,11 +99,15 @@ leftTransformationProperties =
           ( Proxy ::  Proxy (RVector Rational) )
       ]
     ) 
-
---  [ QC.testProperty "toMatrix * toInverseMatrix" $
---      \lt -> let m = toMatrix (lt :: LeftTransformation Rational)
---                 mi = toInverseMatrix lt
---             in isOne ( m * mi )
---  -- QC.testProperty "lt *. toMatrix lt equals identity" $
---  --    \lt -> isOne ( lt *. (toMatrix (lt :: LeftTransformation Rational)) )
---  ]
+    ++
+    [ testPropertyMatrixSC "toMatrix * toInverseMatrix" $
+        \lt -> let m = toMatrix (lt :: LeftTransformation Rational)
+                   mi = toInverseMatrix lt
+                   nrs = fromIntegral $ LT.nmbRows lt
+               in m * mi == M.identityMatrix nrs
+    , 
+      testPropertyMatrixSC "lt *. toInverseMatrix lt equals identity" $
+        \lt -> let mi = toBRMatrix $ toInverseMatrix (lt :: LeftTransformation Rational)
+                   nrs = fromIntegral $ LT.nmbRows lt
+               in lt *. mi == BRM.identityMatrix nrs
+    ]
