@@ -21,6 +21,10 @@ import Data.Vector ( Vector )
 import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural
+import Test.QuickCheck ( Arbitrary, arbitrary, shrink )
+import qualified Test.QuickCheck as QC
+import Test.SmallCheck.Series ( Serial, series )
+import qualified Test.SmallCheck as SC
 
 
 -- RVector a is the inductive limit
@@ -86,6 +90,10 @@ lift2Overlap f v w = fvw
 
 -- Equality and Show
 
+instance ( Show a, DecidableZero a ) => Show (RVector a)
+  where
+   show = show . toShortestVector
+
 instance ( Eq a, DecidableZero a ) => Eq (RVector a) where
   (==) = lift2Overlap $ \zs v w ->
            V.all isZero zs && V.all (uncurry (==)) (V.zip v w)
@@ -134,3 +142,25 @@ instance    Semiring a
 instance Rig a => MultiplicativeRightAction a (RVector a)
 instance Rng a => LinearSemiringRightAction a (RVector a)
 instance Ring a => RightModule a (RVector a)
+
+-- QuickCheck and SmallCheck
+
+instance ( Arbitrary a, DecidableZero a ) => Arbitrary (RVector a) where
+  arbitrary = do
+    QC.NonNegative (QC.Small nv) <- arbitrary
+    QC.NonNegative (QC.Small nz) <- arbitrary
+    RVector <$> (V.replicate nz zero V.++) <$> V.replicateM nv arbitrary
+
+  shrink rv@(RVector v)
+    | nv /= nsv = [RVector sv]
+    | otherwise = map (RVector . V.fromList) $ shrink $ V.toList v
+    where
+      nv = V.length v
+      nsv = V.length sv
+      sv = toShortestVector rv
+
+instance ( Serial m a, AdditiveMonoid a ) => Serial m (RVector a) where
+  series = do
+    nv <- series
+    nz <- series
+    RVector <$> (V.replicate nz zero V.++) <$> V.replicateM nv series
