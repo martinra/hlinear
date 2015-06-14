@@ -31,7 +31,7 @@ import Debug.Trace
 hookPLEProperties :: TestTree
 hookPLEProperties =
   testGroup "Hook PLE"
-  [ QC.testProperty "recombine splitOffHook" $
+  [ testPropertyMatrix "recombine splitOffHook" $
       \m -> let _ = m :: Matrix Rational
             in fromMaybe True $ do
                  (PLEHook p l e, m') <- splitOffHook m
@@ -43,5 +43,13 @@ hookPLEProperties =
                  let em = EF.toMatrix e
                  let d (Matrix nrs ncs _) = show [nrs,ncs]
                  return $ lm * pm * m == m'zero + em
+
+  , testPropertyMatrix "recombine ple decomposition" $
+      \m -> let pleM = ple (m :: Matrix Rational)
+                p = fromMatrixPermute $ permutation pleM
+                pl = left pleM
+                em = echelon pleM
+            in m == M.permuteRows p (pl * em)
+                
 
   ]
