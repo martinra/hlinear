@@ -7,6 +7,8 @@ module HLinear.Matrix
   , (!)
   , (!?)
 
+  , permuteRows
+
   , fromVectors
   , fromVectors'
 

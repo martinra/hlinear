@@ -10,6 +10,7 @@ import Prelude hiding ( (+), (-), negate, subtract
 
 import Data.Composition ( (.:), (.:.) )
 import Data.Maybe
+import qualified Data.Permute as P
 import Data.Vector ( Vector )
 import qualified Data.Vector as V
 import Math.Structure
@@ -47,6 +48,18 @@ showMatrixAsRows rs =
 
 (!?) :: Matrix a -> Int -> Maybe (Vector a)
 (!?) = (V.!?) . rows
+
+-- permutation of rows
+
+permuteRows :: P.Permute -> Matrix a -> Matrix a
+permuteRows p (Matrix nrs ncs rs)
+  | np /= nrsZ = error $ "Matrix.permuteRow: permutation size " ++
+                         "does not match number of rows"
+  | otherwise  = Matrix nrs ncs $
+                   V.backpermute rs $ V.generate np $ \ix -> p `P.at` ix
+  where
+    np = P.size p
+    nrsZ = fromIntegral nrs
 
 -- construction of matrices from vectors or lists
 
