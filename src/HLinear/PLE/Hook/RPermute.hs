@@ -19,6 +19,7 @@ import qualified Data.Permute as P
 
 import Math.Structure
 
+import HLinear.Matrix
 import HLinear.BRMatrix.RVector ( RVector(RVector) )
 
 -- right permutations, i.e. action on vectors with indices ... 3 2 1
@@ -39,6 +40,20 @@ toPermute (RPermute p) =
 
 size :: RPermute -> Int
 size (RPermute p) = P.size p
+
+at :: RPermute -> Int -> Int -> Int
+at (RPermute p) n ix = n-1 - P.at p (n-1 - ix)
+
+
+-- todo: check for Permute.at 
+toMatrix :: Ring a => RPermute -> Matrix a
+toMatrix p = Matrix np np $
+                V.generate npZ $ \ix ->
+                V.generate npZ $ \jx ->
+                  if at p npZ jx == ix then one else zero
+  where
+    npZ = size p
+    np = fromIntegral npZ 
 
 -- product structure
 
