@@ -28,6 +28,10 @@ module HLinear.Matrix
   , identityMatrix
   , diagonalMatrix
 
+  , blockSumRows
+  , blockSumCols
+  , blockMatrix
+
   , Column(Column)
   , unColumn
   )

@@ -46,8 +46,8 @@ BRMatrix nrs ncs (RVector rs) `blockSum` BRMatrix nrs' ncs' (RVector rs') =
     ( V.map (RV.liftRV (V.++ zeros)) rs' )
     ( V.map (RV.liftRV (zeros' V.++)) rs )
   where
-    zeros = V.replicate (fromIntegral nrs) zero 
-    zeros' = V.replicate (fromIntegral nrs') zero 
+    zeros = V.replicate (fromIntegral ncs) zero 
+    zeros' = V.replicate (fromIntegral ncs') zero 
 
 instance AdditiveMonoid a => Monoid (BRMatrix a) where
   mempty = zeroMatrix 0 0
