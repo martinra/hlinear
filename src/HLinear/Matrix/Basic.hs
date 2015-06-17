@@ -8,6 +8,7 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       )
 
+import Control.DeepSeq ( NFData, rnf )
 import Data.Composition ( (.:), (.:.) )
 import Data.Maybe
 import qualified Data.Permute as P
@@ -41,6 +42,13 @@ showMatrixAsRows rs =
       where
       n = (maxLength - length s) `div` 2
       n' = maxLength - n - length s
+
+instance NFData a => NFData (Matrix a) where
+  rnf (Matrix nrs ncs rs) =
+    seq (rnf nrs) $
+    seq (rnf ncs) $
+    seq (rnf rs) ()
+
 -- row access
 
 (!) :: Matrix a -> Int -> Vector a
