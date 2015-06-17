@@ -12,45 +12,57 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       )
 
-import Data.Ratio ( Ratio )
-import Data.Time
+import Criterion.Main
+import Data.Maybe
 import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural
-import System.Random
 
-import HLinear.Matrix
+import HLinear.Matrix as M
+import HLinear.PLE.Hook.EchelonForm as EF
+import HLinear.PLE.Hook.LeftTransformation as LT
+import HLinear.PLE.Hook.RPermute as RP
+import HLinear.PLE.Hook.PLE
+import HLinear.PLE.PLE
 
+
+
+exampleMatrix :: ( Fractional a, Ring a )
+              => Natural -> Matrix a
+exampleMatrix n = m
+  where
+  nZ = fromIntegral n
+  Right m = M.fromVectors' n n $
+    V.generate nZ $ \ix ->
+    V.generate nZ $ \jx ->
+      let ix' = fromIntegral ix
+          jx' = fromIntegral jx
+          n'  = fromIntegral n
+      in (ix'^2 + 2) P./ ((n'-jx')^3 + 1)
+
+pleEvalLE :: ( DecidableZero a, DivisionRing a )
+          => Matrix a -> (Matrix a, Matrix a)
+pleEvalLE mat =
+  let pledec = ple mat
+      p = fromMatrixPermute $ permutation pledec
+      lm = left pledec
+      em = echelon pledec
+  in (lm,em)
+
+pleEvalE :: ( DecidableZero a, DivisionRing a )
+         => Matrix a -> Matrix a
+pleEvalE = echelon . ple
 
 main :: IO ()
-main = do
-  let n = 1000
-  t <- getCurrentTime
-  m <- randomMatrixRational n n :: IO (Matrix Rational)
-  m' <- randomMatrixRational n n :: IO (Matrix Rational)
-  let f = seq (m,m') $ seq t $ seq (m * m') 
-  t' <- getCurrentTime
-  print $ f $ diffUTCTime t' t
-
-
-randomRational :: IO (Rational)
-randomRational = do
-  n <- randomIO :: IO Integer
-  d <- let go = randomIO >>= \d' -> if d'==0 then go else return d'
-       in go :: IO Integer
-  return $ fromIntegral n P./ fromIntegral d
-
-randomMatrixRational :: Natural -> Natural -> IO (Matrix Rational)
-randomMatrixRational nrs ncs =
-  Matrix nrs ncs <$> ( V.replicateM nrsZ $ V.replicateM ncsZ randomRational )
-  where
-  nrsZ = fromIntegral nrs
-  ncsZ = fromIntegral ncs
-
-randomMatrix :: Random a => Natural -> Natural -> IO (Matrix a)
-randomMatrix nrs ncs = Matrix nrs ncs <$>
-                         ( V.replicateM nrsZ $ V.replicateM ncsZ randomIO )
-  where
-  nrsZ = fromIntegral nrs
-  ncsZ = fromIntegral ncs
-
+main = defaultMain $ ($100) $ \matSize ->
+  [ env ( return (exampleMatrix matSize :: Matrix Rational) ) $ \mat ->
+    bgroup "Rational"
+    [ bench "ple all" $ nf pleEvalLE mat
+    , bench "ple matrix only" $ nf pleEvalE mat
+    ]
+--  , env ( return (exampleMatrix matSize :: Matrix FMPQ) ) $ \mat ->
+--    bgroup "FMPQ"
+--    [ bench "ple all" $ nf pleEvalLE mat
+--    , bench "ple matrix only" $ nf pleEvalE mat
+--    ]
+  ]
