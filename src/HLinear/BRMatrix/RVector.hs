@@ -110,13 +110,16 @@ deriving instance NFData a => NFData (RVector a)
 -- Additive structure
 
 instance AdditiveMagma a => AdditiveMagma (RVector a) where
+  {-# INLINE (+) #-}
   (+) = lift2Overlap $ \l v w ->
           RVector $ l V.++ V.zipWith (+) v w
           
 instance AdditiveSemigroup a => AdditiveSemigroup (RVector a)
 instance AdditiveMonoid a => AdditiveMonoid (RVector a) where
+  {-# INLINE zero #-}
   zero = RVector V.empty
 instance DecidableZero a => DecidableZero (RVector a) where
+  {-# INLINE isZero #-}
   isZero = V.all isZero . toCurrentVector
 instance Abelian a => Abelian (RVector a)
 
@@ -127,6 +130,7 @@ instance AdditiveGroup a => AdditiveGroup (RVector a) where
 
 instance    Semiring a
          => MultiplicativeSemigroupLeftAction a (RVector a) where
+  {-# INLINE (*.) #-}
   a *. (RVector v) = RVector $ V.map (a*.) v
 
 instance Rig a => MultiplicativeLeftAction a (RVector a)
@@ -137,6 +141,7 @@ instance Ring a => LeftModule a (RVector a)
 
 instance    Semiring a
          => MultiplicativeSemigroupRightAction a (RVector a) where
+  {-# INLINE (.*) #-}
   (RVector v) .* a = RVector $ V.map (.*a) v
 
 instance Rig a => MultiplicativeRightAction a (RVector a)

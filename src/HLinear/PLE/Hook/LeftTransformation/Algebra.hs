@@ -118,6 +118,7 @@ instance  {-# INCOHERENT #-}
     nrsDiff = fromIntegral nrs - nv
 
     -- this assumes that vn is longer than v'
+    {-# INLINE applyCol #-}
     applyCol c@(LeftTransformationColumn s' a' v') vn =
        V.init vn1 `V.snoc` av
        V.++
