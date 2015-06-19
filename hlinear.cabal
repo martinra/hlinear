@@ -75,10 +75,6 @@ benchmark bench-hlinear
   ghc-options:
     -O2
     -threaded
-    -fprof-auto
-    -caf-all
-    -rtsopts
---    "-with-rtsopts=-N -p -s -h -i0.1"
 
   main-is:
     HLinear/Bench.hs
@@ -89,6 +85,7 @@ benchmark bench-hlinear
     , composition
     , criterion
     , deepseq
+    , hflint
     , logict
     , mtl
     , natural-test
@@ -133,6 +130,7 @@ test-suite test-hlinear
   hs-source-dirs: test, src
   type:           exitcode-stdio-1.0
   default-language: Haskell2010
+
 
 executable debug-hlinear
   main-is:        HLinear/Debug.hs

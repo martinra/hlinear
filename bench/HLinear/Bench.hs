@@ -18,6 +18,8 @@ import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural
 
+import HFlint.FMPQ
+
 import HLinear.Matrix as M
 import HLinear.PLE.Hook.EchelonForm as EF
 import HLinear.PLE.Hook.LeftTransformation as LT
@@ -54,15 +56,15 @@ pleEvalE :: ( DecidableZero a, DivisionRing a )
 pleEvalE = echelon . ple
 
 main :: IO ()
-main = defaultMain $ ($100) $ \matSize ->
+main = defaultMain $ ($200) $ \matSize ->
   [ env ( return (exampleMatrix matSize :: Matrix Rational) ) $ \mat ->
     bgroup "Rational"
     [ bench "ple all" $ nf pleEvalLE mat
     , bench "ple matrix only" $ nf pleEvalE mat
     ]
---  , env ( return (exampleMatrix matSize :: Matrix FMPQ) ) $ \mat ->
---    bgroup "FMPQ"
---    [ bench "ple all" $ nf pleEvalLE mat
---    , bench "ple matrix only" $ nf pleEvalE mat
---    ]
+  , env ( return (exampleMatrix matSize :: Matrix FMPQ) ) $ \mat ->
+    bgroup "FMPQ"
+    [ bench "ple all" $ nf pleEvalLE mat
+    , bench "ple matrix only" $ nf pleEvalE mat
+    ]
   ]
