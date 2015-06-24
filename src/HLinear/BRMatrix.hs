@@ -18,6 +18,8 @@ module HLinear.BRMatrix
   , fromListsUnsafe
   , fromListsUnsafe'
 
+  , map
+
   , zeroMatrix
   , identityMatrix
   , diagonalMatrix
@@ -27,6 +29,8 @@ module HLinear.BRMatrix
   )
 
 where
+
+import qualified Prelude
 
 import HLinear.BRMatrix.Algebra
 import HLinear.BRMatrix.Basic

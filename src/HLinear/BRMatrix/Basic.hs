@@ -74,3 +74,8 @@ fromVectorsUnsafe' = M.toBRMatrix .:. M.fromVectorsUnsafe'
 
 fromListsUnsafe = M.toBRMatrix . M.fromListsUnsafe
 fromListsUnsafe' = M.toBRMatrix .:. M.fromListsUnsafe'
+
+-- map
+
+map :: (a -> b) -> BRMatrix a -> BRMatrix b
+map f (BRMatrix nrs ncs rs) = BRMatrix nrs ncs $ RV.liftRV (V.map (RV.liftRV $ V.map f)) rs

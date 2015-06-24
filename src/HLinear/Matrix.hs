@@ -21,6 +21,8 @@ module HLinear.Matrix
   , fromListsUnsafe
   , fromListsUnsafe'
 
+  , map
+
   , headRows
   , tailRows
   , headCols
@@ -38,6 +40,8 @@ module HLinear.Matrix
   , unColumn
   )
 where
+
+import qualified Prelude
 
 import HLinear.Matrix.Algebra
 import HLinear.Matrix.Basic

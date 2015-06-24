@@ -100,6 +100,11 @@ fromVectorsUnsafe' = either undefined id .:. fromVectors'
 fromListsUnsafe = either undefined id . fromLists
 fromListsUnsafe' = either undefined id .:. fromLists'
 
+-- map
+
+map :: (a -> b) -> Matrix a -> Matrix b
+map f (Matrix nrs ncs rs) = Matrix nrs ncs $ V.map (V.map f) rs
+
 -- submatrices
 
 headRows :: Matrix a -> Vector a
