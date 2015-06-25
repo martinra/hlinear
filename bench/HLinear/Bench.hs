@@ -1,5 +1,6 @@
 {-# LANGUAGE
     FlexibleInstances
+  , ScopedTypeVariables
   #-}
 
 module Main
@@ -14,11 +15,13 @@ import Prelude hiding ( (+), (-), negate, subtract
 
 import Criterion.Main
 import Data.Maybe
+import Data.Proxy
 import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural
 
 import HFlint.FMPQ
+import HFlint.NMod
 
 import HLinear.Matrix as M
 import HLinear.PLE.Hook.EchelonForm as EF
@@ -67,4 +70,11 @@ main = defaultMain $ ($200) $ \matSize ->
     [ bench "ple all" $ nf pleEvalLE mat
     , bench "ple matrix only" $ nf pleEvalE mat
     ]
+
+  , withNModContext 7 $ \(_ :: Proxy ctxProxy) -> 
+    env ( return (exampleMatrix matSize :: Matrix (NMod ctxProxy) ) ) $ \mat ->
+      bgroup "NMod"
+      [ bench "ple all" $ nf pleEvalLE mat
+      , bench "ple matrix only" $ nf pleEvalE mat
+      ]
   ]
