@@ -21,6 +21,7 @@ import Math.Structure
 import Numeric.Natural
 
 import HFlint.FMPQ
+import HFlint.FMPQMat as FMPQMat
 import HFlint.NMod
 
 import HLinear.Matrix as M
@@ -45,6 +46,10 @@ exampleMatrix n = m
           n'  = fromIntegral n
       in (ix'^2 + 2) P./ ((n'-jx')^3 + 1)
 
+exampleFMPQMat :: Natural -> FMPQMat
+exampleFMPQMat =
+  FMPQMat.fromVectors . M.rows . exampleMatrix
+
 pleEvalLE :: ( DecidableZero a, DivisionRing a )
           => Matrix a -> (Matrix a, Matrix a)
 pleEvalLE mat =
@@ -60,7 +65,12 @@ pleEvalE = echelon . ple
 
 main :: IO ()
 main = defaultMain $ ($200) $ \matSize ->
-  [ env ( return (exampleMatrix matSize :: Matrix Rational) ) $ \mat ->
+  [ env ( return (exampleFMPQMat matSize :: FMPQMat) ) $ \mat ->
+    bgroup "FMPQMat"
+    [ bench "rref" $ nf rref mat
+    ]
+
+  , env ( return (exampleMatrix matSize :: Matrix Rational) ) $ \mat ->
     bgroup "Rational"
     [ bench "ple all" $ nf pleEvalLE mat
     , bench "ple matrix only" $ nf pleEvalE mat
