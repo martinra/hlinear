@@ -163,7 +163,7 @@ instance ( Rng a, Commutative a ) => SemiAlgebra a (MaybeMatrix a)
 instance Arbitrary a => Arbitrary (MaybeMatrix a) where
   arbitrary = (MaybeMatrix . return) <$> arbitrary
 
-  shrink = map (MaybeMatrix . Just) . fromMaybe [] .
+  shrink = Prelude.map (MaybeMatrix . Just) . fromMaybe [] .
            liftA shrink . fromMaybeMatrix
      
 instance (Monad m, Serial m a) => Serial m (MaybeMatrix a) where
