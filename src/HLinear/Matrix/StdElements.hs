@@ -68,4 +68,3 @@ blockMatrix = V.foldl1' blockSumCols . V.map (V.foldl1' blockSumRows)
 instance AdditiveMonoid a => Monoid (Matrix a) where
   mempty = zeroMatrix 0 0
   mappend = blockSum
-

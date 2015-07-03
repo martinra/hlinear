@@ -118,3 +118,33 @@ headCols (Matrix _ _ rs) = V.map V.head rs
 
 tailCols :: Matrix a -> Matrix a
 tailCols (Matrix nrs ncs rs) = Matrix nrs (pred ncs) $ V.map V.tail rs
+
+
+splitAtRows :: Int -> Matrix a -> (Matrix a, Matrix a)
+splitAtRows ix m@(Matrix nrs ncs rs)
+  | ix < 0     = (zeroM, m)
+  | ix >= ncsZ = (m, zeroM)
+  | otherwise  = (Matrix nrs ncsLeft rsLeft, Matrix nrs ncsRight rsRight)
+  where
+   nrsZ = fromIntegral nrs
+   ncsZ = fromIntegral ncs
+
+   zeroM = Matrix nrs 0 $ V.replicate nrsZ V.empty
+
+   ncsLeft = fromIntegral ix
+   ncsRight = fromIntegral $ ncsZ - ix
+   (rsLeft,rsRight) = V.unzip $ V.map (V.splitAt ix) rs
+
+splitAtCols :: Int -> Matrix a -> (Matrix a, Matrix a)
+splitAtCols ix m@(Matrix nrs ncs rs)
+  | ix < 0     = (zeroM, m)
+  | ix >= nrsZ = (m, zeroM)
+  | otherwise  = (Matrix nrsTop ncs rsTop, Matrix nrsBottom ncs rsBottom)
+ where
+   nrsZ = fromIntegral nrs
+
+   zeroM = Matrix 0 ncs V.empty
+
+   nrsTop = fromIntegral ix
+   nrsBottom = fromIntegral $ nrsZ - ix
+   (rsTop,rsBottom) = V.splitAt ix rs

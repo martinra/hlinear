@@ -28,6 +28,9 @@ module HLinear.Matrix
   , headCols
   , tailCols
 
+  , splitAtRows
+  , splitAtCols
+
   , zeroMatrix
   , identityMatrix
   , diagonalMatrix

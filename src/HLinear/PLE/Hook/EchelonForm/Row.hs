@@ -5,6 +5,7 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , (*), (/), recip, (^), (^^)
                       , gcd
                       , quotRem, quot, rem
+                      , length
                       )
 import Control.Arrow ( first )
 import qualified Data.Vector as V
@@ -25,6 +26,13 @@ data EchelonFormRow a =
     , row :: Vector a
     }
   deriving Show
+
+-- properties
+
+pivotIx :: DecidableZero a => EchelonFormRow a -> Maybe Int
+pivotIx (EchelonFormRow o v) = (oZ+) <$> V.findIndex (not . isZero) v
+  where
+    oZ = fromIntegral o
 
 -- Eq
 
@@ -54,6 +62,16 @@ setLength nrs (EchelonFormRow o r)
   where
     o' = nrs - V.length r
   
+-- access and conversion
+
+(!) :: AdditiveMonoid a => EchelonFormRow a -> Int -> a
+(!) er@(EchelonFormRow o v) ix
+  | ix < oZ         = zero
+  | ix >= length er = error "EchelonFormRow.(!): out of range"
+  | otherwise       = v V.! (ix-oZ)
+  where
+    oZ = fromIntegral o
+
 -- creation
 
 toVector :: AdditiveMonoid a => EchelonFormRow a -> Vector a
@@ -61,15 +79,16 @@ toVector (EchelonFormRow o r) = V.replicate (fromIntegral o) zero V.++ r
 
 -- subrows
 
-splitAt :: Int -> EchelonFormRow a -> (EchelonFormRow a, EchelonFormRow a)
-splitAt ix (EchelonFormRow o r) =
-  ( EchelonFormRow lefto leftr, EchelonFormRow righto rightr )
+splitAt
+  ::  Int -> EchelonFormRow a
+  -> (EchelonFormRow a, EchelonFormRow a)
+splitAt ix (EchelonFormRow o r) 
+  | ix >= oZ  = ( EchelonFormRow o leftr, EchelonFormRow 0 rightr )
+  | otherwise = ( EchelonFormRow ix0N leftr
+                , EchelonFormRow (fromIntegral $oZ-ix0) rightr )
   where
-    (lefto,righto) =
-      if ix >= oZ
-      then (o,0)
-      else (fromIntegral ix0, fromIntegral $ oZ - ix0)
     ix0 = max 0 ix
+    ix0N = fromIntegral ix0
     oZ = fromIntegral o
     (leftr,rightr) = V.splitAt (ix-oZ) r
 
@@ -91,3 +110,8 @@ instance AdditiveMagma a => AdditiveMagma (EchelonFormRow a) where
                    in left V.++ V.zipWith (+) r right
 
 instance AdditiveSemigroup a => AdditiveSemigroup (EchelonFormRow a)
+
+-- block sums
+
+sumRow :: EchelonFormRow a -> Vector a -> EchelonFormRow a
+sumRow (EchelonFormRow o v) v' = EchelonFormRow o $ v V.++ v'
