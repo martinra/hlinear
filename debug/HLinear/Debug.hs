@@ -31,7 +31,7 @@ import HLinear.PLE.Hook.RPermute as RP
 main :: IO ()
 main = do
   -- let m = M.Matrix 3 1 $ V.map V.singleton $ V.fromList [ (-3)%2, 4%7, 13%19 ] :: M.Matrix Rational 
-  let m = M.Matrix 3 2 $ V.fromList $ map V.fromList
+  let m = M.Matrix 3 2 $ V.fromList $ P.map V.fromList
            [ [ (-1)%3, 7%4 ]
            , [ 1%19, 1%11]
            , [ 23%2, 31%2]
