@@ -16,8 +16,6 @@ import HLinear.PLE.Hook.EchelonForm.Definition as EF
 import HLinear.PLE.Hook.EchelonForm.Basic as EF
 import HLinear.PLE.Hook.EchelonForm.Row as EFR
 
-import Debug.Trace
-
 
 instance Arbitrary a => Arbitrary (EchelonForm a) where
   arbitrary = do

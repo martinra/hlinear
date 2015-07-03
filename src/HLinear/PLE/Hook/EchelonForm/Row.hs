@@ -16,8 +16,6 @@ import Numeric.Natural ( Natural )
 import HLinear.Matrix.Basic ()
 import HLinear.Matrix.Definition ( Matrix(..) )
 
-import Debug.Trace
-
 
 -- | A vector of rows, each set off by a number of zeros
 data EchelonFormRow a =

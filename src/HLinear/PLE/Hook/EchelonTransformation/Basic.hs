@@ -82,13 +82,14 @@ splitAt :: Int -> EchelonTransformation a
         -> (EchelonTransformation a, EchelonTransformation a)
 splitAt ix et@(EchelonTransformation nrs cs)
   | ix <= nrsZ - ncsZ = (identityET ixN, et)
+  | ix >= nrsZ        = (et, identityET nrs)
   | otherwise =
-      let (csLeft, csRight) = V.splitAt (ix-nrsZ+ncsZ) cs
+      let (csRight, csLeft) = V.splitAt (ix-nrsZ+ncsZ) cs
       in ( EchelonTransformation ixN $ V.map (ETC.setLength ix) csLeft
-         , EchelonTransformation (fromIntegral $ nrsZ-ix) csRight
+         , EchelonTransformation nrs csRight
          )
   where
-    ixN = fromIntegral ix
+    ixN = fromIntegral $ max 0 ix
     nrsZ = fromIntegral nrs
     ncsZ = V.length cs
 

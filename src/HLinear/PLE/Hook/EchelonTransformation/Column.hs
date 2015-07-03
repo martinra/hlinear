@@ -42,7 +42,7 @@ length' (EchelonTransformationColumn o v) = (V.length v,1,o)
 setLength :: Int -> EchelonTransformationColumn a
           -> EchelonTransformationColumn a
 setLength n (EchelonTransformationColumn _ v)
-  | o' < 0 = error "EchelonTransformationColumn.setLength: to large offset"
+  | o' < 0 = error "EchelonTransformationColumn.setLength: negative offset"
   | otherwise = EchelonTransformationColumn o' v
   where
     o' = n - 1 - V.length v

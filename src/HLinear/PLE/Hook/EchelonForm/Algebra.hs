@@ -16,8 +16,6 @@ import HLinear.PLE.Hook.EchelonForm.Basic as EF
 import HLinear.PLE.Hook.EchelonForm.Definition
 import HLinear.PLE.Hook.EchelonForm.Row as EFR
 
-import Debug.Trace
-
 
 -- This can lead to inconsitent data structures. We assume that
 -- the number of columns in the first argument equals the number of columns in

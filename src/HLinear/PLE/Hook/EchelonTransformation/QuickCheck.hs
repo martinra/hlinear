@@ -18,8 +18,8 @@ import Test.QuickCheck.Modifiers ( NonNegative(..)
                                  , Small(..)
                                  )
 
-import HLinear.PLE.Hook.EchelonTransformation.Basic as LT
-import HLinear.PLE.Hook.EchelonTransformation.Column as LTC
+import HLinear.PLE.Hook.EchelonTransformation.Basic as ET
+import HLinear.PLE.Hook.EchelonTransformation.Column as ETC
 
 
 instance    (DecidableZero a, Arbitrary a)
@@ -38,17 +38,18 @@ instance    (DecidableZero a, Arbitrary a)
               
     return $ EchelonTransformation (fromIntegral nrs) cs
 
-  shrink lt@(EchelonTransformation nrs cs)
+  shrink et@(EchelonTransformation nrs cs)
     | nrs <= 1 || V.length cs <= 1 = []
     | otherwise =
-        ltLeft:ltRight:
+        etLeft:etRight:
         [ EchelonTransformation nrs $ V.update cs $ V.singleton (jx,c)
         | jx <- [0..ncs-1]
         , c <- shrinkColumn $ cs V.! jx
         ]
         where
+          nrsZ = fromIntegral nrs
           ncs = V.length cs
-          (ltLeft,ltRight) = LT.splitAt (fromIntegral $ ncs `div` 2) lt
+          (etLeft,etRight) = ET.splitAt (fromIntegral $ nrsZ - (ncs `div` 2)) et
 
           shrinkColumn (EchelonTransformationColumn s c) =
             [ EchelonTransformationColumn s $ V.update c $ V.singleton (ix,e)

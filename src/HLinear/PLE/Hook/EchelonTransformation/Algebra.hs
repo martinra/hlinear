@@ -33,11 +33,11 @@ instance    DivisionRing a
   et@(EchelonTransformation nrs cs) * et'@(EchelonTransformation nrs' cs')
     | ncs  == 0 = et'
     | ncs' == 0 = et
-    | nrsZ - ncs >= nrs'Z =
-        let etcOnes = V.map (ETC.identityColumn nrs'Z) $
-                        V.enumFromN nrsZ (nrs'Z - ncs' - nrsZ)
-            csShifted = V.map (ETC.setLength nrs'Z) cs 
-        in EchelonTransformation nrs' $ csShifted V.++ etcOnes V.++ cs'
+    | nrsZ - ncs >= nrs'Z = 
+        let etcOnes = V.map (ETC.identityColumn nrsZ) $
+                        V.enumFromN nrs'Z (nrsZ - ncs - nrs'Z)
+            cs'Shifted = V.map (ETC.setLength nrsZ) cs' 
+        in EchelonTransformation nrs $  cs V.++ etcOnes V.++ cs'Shifted
     | nrsZ <= nrs'Z - ncs' =
         EchelonTransformation nrs' (V.map (et*.) cs') * et
     | nrs <= nrs' && nrsZ-ncs >= nrs'Z-ncs' =
@@ -47,16 +47,11 @@ instance    DivisionRing a
             (etLeft,etMiddle) = ET.splitAt (nrs'Z-ncs') etLeftMiddle
         in etRight * (etMiddle * (etLeft * et'))
     where
-      maxnrs = max nrs nrs'
-      minnrs = min nrs nrs'
       ncs = V.length cs
       ncs' = V.length cs'
 
       nrsZ = fromIntegral nrs
       nrs'Z = fromIntegral nrs'
-    
-      maxnrsZ = fromIntegral maxnrs
-      minnrsZ = fromIntegral minnrs 
 
 instance    DivisionRing a
          => MultiplicativeSemigroup (EchelonTransformation a)
@@ -90,14 +85,14 @@ instance    ( DivisionRing a, DecidableZero a )
 -- instance Semiring a =>
 --   MultiplicativeSemigroupLeftAction a (Vector a)
 -- should not occur: LinearSemiringLeftAction a (EchelonTransformation a)
-instance  {-# INCOHERENT #-}
+instance {-# INCOHERENT #-}
             ( DivisionRing a, LinearSemiringLeftAction a b )
          => MultiplicativeSemigroupLeftAction
               (EchelonTransformation a) (Vector b)
   where
-  -- we fill the vector v with zeros from the top
+  -- we fill the vector v with zeros from the bottom
   lt@(EchelonTransformation nrs cs) *. v =
-    V.foldr' applyCol v $ V.reverse $ V.drop nrsDiff cs
+    V.foldr' applyCol v $ V.drop nrsDiff cs
     where
       nv = V.length v
       nrsDiff = fromIntegral nrs - nv
@@ -122,15 +117,17 @@ instance    DivisionRing a
              (EchelonTransformation a)
              (EchelonTransformationColumn a)
   where
-  et@(EchelonTransformation nrs cs) *. etc@(EchelonTransformationColumn s v)
-    | nrs <= nvN   = EchelonTransformationColumn s (et*.v)
-    | nrs == nvN+1 = EchelonTransformationColumn s v'
-    | otherwise    = error "EchelonTransformation *. EchelonTransformationColumn: not defined"
+  et@(EchelonTransformation nrs cs) *. etc@(EchelonTransformationColumn s v) =
+    EchelonTransformationColumn s v'
     where
-      nvN = fromIntegral $ V.length v
+      nv = fromIntegral $ V.length v
       ncs = V.length cs
-      v' | ncs == 0  = et*.v
-         | otherwise = V.zipWith (+) (et*.v) (ETC.init $ V.head cs)
+      nrsZ = fromIntegral nrs
+
+      etv = et*.v
+      v' = case cs V.!? (nrsZ-1-nv) of
+             Nothing -> etv
+             Just c  -> V.zipWith (+) etv (ETC.init c)
 
 instance    DivisionRing a
          => MultiplicativeLeftAction
