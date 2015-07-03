@@ -1,6 +1,9 @@
 module HLinear.PLE.Hook.EchelonForm.QuickCheck
 where
 
+import Control.Monad.Trans.Class ( lift )
+import Control.Monad.Trans.State.Strict ( evalStateT )
+import Control.Monad.State ( gets, put )
 import qualified Data.Vector as V
 import Data.Vector ( Vector )
 
@@ -25,15 +28,15 @@ instance Arbitrary a => Arbitrary (EchelonForm a) where
     let lrs = fromIntegral (lrsZ :: Integer)
     let nrsDiff = fromIntegral (nrsDiffZ :: Integer)
     let ncs = fromIntegral (ncsZ :: Integer)
-  
-    EchelonForm (lrs+nrsDiff) ncs <$>
-      ( V.replicateM (fromIntegral lrs) $ do
-          NonNegative (Small oZ) <- arbitrary
-          let o = fromIntegral (oZ :: Integer)
-          let o' = min o ncs
-          EchelonFormRow o' <$>
-            V.replicateM (fromIntegral ncs - fromIntegral o') arbitrary
-      )
+    let rs = V.replicateM (fromIntegral lrs) $ do
+               NonNegative (Small oZ) <- lift arbitrary
+               o' <- min ncs <$> gets (+ fromInteger oZ)
+               put o'
+               EchelonFormRow o' <$>
+                 V.replicateM (fromIntegral ncs - fromIntegral o')
+                              (lift arbitrary)
+
+    EchelonForm (lrs+nrsDiff) ncs <$> evalStateT rs 0
 
   shrink e = shrinkRow e ++ shrinkCol e ++ shrinkEntry e 
     where

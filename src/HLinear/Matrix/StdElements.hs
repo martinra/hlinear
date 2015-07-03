@@ -65,6 +65,9 @@ blockSumCols (Matrix nrs ncs rs) (Matrix nrs' ncs' rs')
 blockMatrix :: Vector (Vector (Matrix a)) -> Matrix a
 blockMatrix = V.foldl1' blockSumCols . V.map (V.foldl1' blockSumRows)
 
+blockMatrixL :: [[Matrix a]] -> Matrix a
+blockMatrixL = blockMatrix . V.map V.fromList . V.fromList 
+
 instance AdditiveMonoid a => Monoid (Matrix a) where
   mempty = zeroMatrix 0 0
   mappend = blockSum

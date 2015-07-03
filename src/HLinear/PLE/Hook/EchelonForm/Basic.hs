@@ -10,9 +10,9 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , gcd
                       , quotRem, quot, rem
                       )
-import Control.Arrow ( first )
-import qualified Data.Vector as V
+import Data.Maybe
 import Data.Vector ( Vector(..) )
+import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural ( Natural )
 import Safe ( atMay )
@@ -41,9 +41,17 @@ pivotIxs (EchelonForm nrs ncs rs) =
       
 -- access and conversion
 
-(!) :: AdditiveMonoid a => EchelonForm a -> Int -> Vector a
-(!) (EchelonForm nrs ncs rs) ix
-  | ix >= ncsZ = error "EchelonForm.(!): out of range"
+atRow :: AdditiveMonoid a => EchelonForm a -> Int -> Vector a
+atRow (EchelonForm nrs ncs rs) ix
+  | ix >= nrsZ  = error  "EchelonForm.atRow: out of range"
+  | otherwise   = maybe (V.replicate ncsZ zero) toVector $ rs V.!? ix
+  where
+    nrsZ = fromIntegral nrs
+    ncsZ = fromIntegral ncs
+
+atCol :: AdditiveMonoid a => EchelonForm a -> Int -> Vector a
+atCol (EchelonForm nrs ncs rs) ix
+  | ix >= ncsZ = error "EchelonForm.atCol: out of range"
   | otherwise  = V.map (EFR.! ix) rs
                  V.++
                  V.replicate (nrsZ - V.length rs) zero
@@ -107,8 +115,8 @@ splitAtPivot ix ef@(EchelonForm nrs ncs rs)
   = go <$> pivotIxs ef `atMay` ix
   where
     go pivotIx@(pivotRow,pivotCol) =
-      ( EchelonForm nrs pivotColN rsLeft
-      , Matrix nrs' pivotColN $ V.map EFR.toVector rsTopRight
+      ( EchelonForm pivotRowN pivotColN rsLeft
+      , Matrix pivotRowN ncs' $ V.map EFR.toVector rsTopRight
       , EchelonForm nrs' ncs' rsBottomRight
       )
       where
@@ -119,6 +127,7 @@ splitAtPivot ix ef@(EchelonForm nrs ncs rs)
       ncsZ = fromIntegral ncs
       nrs' = fromIntegral $ nrsZ - pivotRow
       ncs' = fromIntegral $ ncsZ - pivotCol
+      pivotRowN = fromIntegral pivotRow
       pivotColN = fromIntegral pivotCol
 
 -- block sums
@@ -135,4 +144,4 @@ blockSumAtPivot
   | otherwise  = EchelonForm (nrs+nrs'') (ncs+ncs') $
                    V.zipWith EFR.sumRow rs rs'
                    V.++
-                   V.map (EFR.setLength $ fromIntegral $ nrs+nrs'') rs''
+                   V.map (EFR.setLength $ fromIntegral $ ncs+ncs'') rs''

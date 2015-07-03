@@ -26,7 +26,6 @@ import HLinear.PLE.Hook.PLE as PLE
 
 import HLinear.Test.Utils
 
-import Debug.Trace
 
 hookPLEProperties :: TestTree
 hookPLEProperties =

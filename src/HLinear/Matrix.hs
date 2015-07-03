@@ -35,9 +35,11 @@ module HLinear.Matrix
   , identityMatrix
   , diagonalMatrix
 
+  , blockSum
   , blockSumRows
   , blockSumCols
   , blockMatrix
+  , blockMatrixL
 
   , Column(Column)
   , unColumn

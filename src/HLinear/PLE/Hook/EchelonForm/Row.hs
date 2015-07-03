@@ -53,12 +53,11 @@ length :: EchelonFormRow a -> Int
 length (EchelonFormRow o r) = fromIntegral o + V.length r
 
 setLength :: Int -> EchelonFormRow a -> EchelonFormRow a
-
-setLength nrs (EchelonFormRow o r)
+setLength ncs (EchelonFormRow o r)
   | o' < 0 = error "EchelonFormRow.setLength: to long row"
   | otherwise = EchelonFormRow (fromIntegral o') r
   where
-    o' = nrs - V.length r
+    o' = ncs - V.length r
   
 -- access and conversion
 
