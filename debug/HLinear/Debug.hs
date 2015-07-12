@@ -22,7 +22,9 @@ import qualified Test.SmallCheck.Series as SCS
 import HLinear.PLE.PLE
 import HLinear.PLE.Hook.EchelonForm as EF
 import HLinear.PLE.Hook.EchelonForm.Row as EFR
-import HLinear.PLE.Hook.LeftTransformation as LT
+import HLinear.PLE.Hook.EchelonTransformation as ET
+import HLinear.PLE.Hook.EchelonTransformation.Column as ETC
+import HLinear.PLE.Hook.ReducedEchelonForm as REF
 import HLinear.Matrix as M
 import HLinear.PLE.Hook.PLE
 import HLinear.PLE.Hook.RPermute as RP
@@ -30,57 +32,47 @@ import HLinear.PLE.Hook.RPermute as RP
 
 main :: IO ()
 main = do
-  -- let m = M.Matrix 3 1 $ V.map V.singleton $ V.fromList [ (-3)%2, 4%7, 13%19 ] :: M.Matrix Rational 
-  let m = M.Matrix 3 2 $ V.fromList $ P.map V.fromList
-           [ [ (-1)%3, 7%4 ]
-           , [ 1%19, 1%11]
-           , [ 23%2, 31%2]
-           ]
-          :: Matrix Rational
-                
---           [ [ (-8691316584051) % 6161142903677,  19957000698127 % 4750520093964,   8870450429191 % 2101117833362 ]
---           , [ 46906656993842 % 1163280750529,   9710292344567 % 3159527153430,    1850344055603 % 2120802527596 ]
---           , [ 1680697930226 % 2249983546553,   (-1287234071350) % 1225658150399,    447706484129 % 65985687573 ]
---           ]
---           [ (-145231158129) % 1965837109546
---           , 2721035879353 % 614656327869
---           , (-10496232632715) % 3989053149943
---           ]
-  print m
+  let ef = EchelonForm { EF.nmbRows = 1
+                       , EF.nmbCols = 2
+                       , EF.rows = V.fromList
+                           [ EchelonFormRow { EFR.offset = 1
+                                            , EFR.row = V.fromList [1%3]}
+                           ]
+                       }
+            :: EchelonForm Rational
+
+  let (et,ef') = reduce ef
+  let efm = EF.toMatrix ef
+  let ef'm = EF.toMatrix ef'
+  let etm = ET.toMatrix et
+  let im = M.identityMatrix (EF.nmbRows ef P.- ET.nmbRows et)
+  -- let zm = M.zeroMatrix (fromIntegral $ EF.nmbRows ef P.- EF.nmbRows ef') (EF.nmbCols ef)
+
+  print $ M.blockSum etm im * efm
+  print "NN" 
+  print ef'
+  print $ ef'm
+
+--  let firstReduction = EchelonReduction
+--                         (ET.identityET $ EF.nmbRows ef)
+--                         (M.zeroMatrix (EF.nmbRows ef) 0)
+--                         (EF.zeroEF 0 0)
+--                         :: EchelonReduction Rational
+  print $ V.unfoldr reduceLastPivot ef
+  let ef1 = EchelonForm 0 1 V.empty
+  let m2  = Matrix 0 1 V.empty
+  let ef2 = EchelonForm 1 1 $ V.singleton $ EchelonFormRow 0 $ V.singleton 1
 
 
-  let Just (PLEHook p l e, m') = splitOffHook m
-  let RPermute p' = p
-  print p'
-  print l
-  print e
-  print m'
+  print ( EF.blockSumAtPivot ef1 m2 ef2 :: EchelonForm Rational )
+--  print $ firstReduction * reds V.! 0
 
-  putStrLn ""; putStrLn ""
-
-  let m'zero = if LT.nmbCols l == 1
-              then M.zeroMatrix 1 1 `mappend` m'
-              else M.zeroMatrix (M.nmbRows m) 1 `M.blockSumRows` m'
-  let pm = RP.toMatrix p :: Matrix Rational
-  let lm = LT.toMatrix l
-  let em = EF.toMatrix e
-  let d (Matrix nrs ncs _) = show [nrs,ncs]
-
-  print "P"
-  print pm
-  print "L"
-  print lm
-  print "E"
-  print em
-  print "M'"
-  print m'zero
-
-  print "M"
-  print m
-  
-  print "LM"
-  print $ lm * m
-
-  print $  lm * pm * m == m'zero + em
-
-
+-- [ EchelonReduction
+--     (EchelonTransformaion {nmbRows = 1, columns = fromList [EchelonTransformationColumn {offset = 0, init = fromList []}]})
+--     [ Matrix 0 x 1 ]
+--     (EchelonForm {nmbRows = 1, nmbCols = 1, rows = fromList [EchelonFormRow {offset = 0, row = fromList [1 % 1]}]})
+-- ,  EchelonReduction
+--     (EchelonTransformation {nmbRows = 0, columns = fromList []})
+--     [ Matrix 0 x 1 ]
+--     (EchelonForm {nmbRows = 0, nmbCols = 1, rows = fromList [EchelonFormRow {offset = 0, row = fromList [0 % 1]}]})]
+-- 
