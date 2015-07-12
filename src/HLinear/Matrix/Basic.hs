@@ -9,6 +9,7 @@ import Prelude hiding ( (+), (-), negate, subtract
                       )
 
 import Control.DeepSeq ( NFData, rnf )
+import Data.Binary
 import Data.Composition ( (.:), (.:.) )
 import Data.Maybe
 import qualified Data.Permute as P
@@ -48,6 +49,18 @@ instance NFData a => NFData (Matrix a) where
     seq (rnf nrs) $
     seq (rnf ncs) $
     seq (rnf rs) ()
+
+instance Binary a => Binary (Matrix a) where
+  put (Matrix nrs ncs rs) = do
+    put nrs
+    put ncs
+    V.forM_ rs $ V.mapM_ put
+
+  get = do
+    nrs <- get
+    ncs <- get
+    rs <- V.replicateM (fromIntegral nrs) $ V.replicateM (fromIntegral ncs) get
+    return $ Matrix nrs ncs rs
 
 -- row access
 

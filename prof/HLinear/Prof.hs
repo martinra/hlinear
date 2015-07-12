@@ -27,23 +27,12 @@ import HLinear.PLE.Hook.RPermute as RP
 import HLinear.PLE.Hook.PLE
 import HLinear.PLE.PLE
 
-exampleMatrix :: ( Fractional a, Ring a, NFData a )
-              => Natural -> Matrix a
-exampleMatrix n = seq (rnf m) m
-  where
-  nZ = fromIntegral n
-  Right m = M.fromVectors' n n $
-    V.generate nZ $ \ix ->
-    V.generate nZ $ \jx ->
-      let ix' = fromIntegral ix
-          jx' = fromIntegral jx
-          n'  = fromIntegral n
-      in (ix'^2 + 2) P./ ((n'-jx')^3 + 1)
+import HLinear.Bench.Examples ( uniformRandomMatrix, toFMPQMat )
 
-pleEvalE :: ( DecidableZero a, DivisionRing a )
-         => Matrix a -> Matrix a
-pleEvalE = echelon . ple
 
 main = do
-  let mat = exampleMatrix 200 :: Matrix FMPQ
-  seq (rnf $ pleEvalE mat) $ print "DONE"
+  m <- uniformRandomMatrix 10 20 20 :: IO (Matrix Rational)
+  let ef = echelon $ ple m
+--  print ef
+--  print "DONE"
+  print $ seq ( rnf ef ) "DONE"
