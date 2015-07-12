@@ -121,6 +121,7 @@ benchmark bench-hlinear
 executable prof-hlinear
   ghc-options:
     -O2
+  ghc-prof-options:
     -prof
     -fprof-auto
     -caf-all
