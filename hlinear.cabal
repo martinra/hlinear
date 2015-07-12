@@ -35,6 +35,9 @@ library
     HLinear.Matrix.Algebra
     HLinear.Matrix.Definition
 
+    HLinear.MultiMod.Definition
+    HLinear.MultiMod.Matrix
+
     HLinear.PLE.Hook.EchelonForm
     HLinear.PLE.Hook.EchelonForm.Algebra
     HLinear.PLE.Hook.EchelonForm.Basic
@@ -67,6 +70,7 @@ library
     , binary
     , composition
     , deepseq
+    , hflint
     , mtl
     , natural-test
     , parallel
