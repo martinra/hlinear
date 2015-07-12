@@ -61,7 +61,7 @@ instance Binary a => Binary (Matrix a) where
     ncs <- get
     rs <- V.replicateM (fromIntegral nrs) $ V.replicateM (fromIntegral ncs) get
     return $ Matrix nrs ncs rs
-
+  
 -- row access
 
 (!) :: Matrix a -> Int -> Vector a
@@ -113,10 +113,21 @@ fromVectorsUnsafe' = either undefined id .:. fromVectors'
 fromListsUnsafe = either undefined id . fromLists
 fromListsUnsafe' = either undefined id .:. fromLists'
 
--- map
+-- container functionality
 
 map :: (a -> b) -> Matrix a -> Matrix b
 map f (Matrix nrs ncs rs) = Matrix nrs ncs $ V.map (V.map f) rs
+
+zipWith :: (a -> b -> c) -> Matrix a -> Matrix b -> Matrix c
+zipWith f (Matrix nrs ncs rs) (Matrix nrs' ncs' rs')
+  | nrs /= nrs' || ncs /= ncs' = error "Matrix.zipWith: incompatible dimensions"
+  | otherwise = Matrix nrs ncs $ V.zipWith (V.zipWith f) rs rs'
+
+mapM :: Monad m => (a -> m b) -> Matrix a -> m (Matrix b)
+mapM f (Matrix nrs ncs rs) = Matrix nrs ncs <$> V.mapM (V.mapM f) rs
+
+sequence :: Monad m => Matrix (m a) -> m (Matrix a)
+sequence (Matrix nrs ncs rs) = Matrix nrs ncs <$> V.sequence (V.map V.sequence rs)
 
 -- submatrices
 
