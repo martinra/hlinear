@@ -18,7 +18,7 @@ import Prelude hiding ( (+), (-), negate, subtract
 import qualified Prelude as P
 
 import Control.Applicative ( liftA2 )
-import Control.Parallel.Strategies ( using, rpar, parListChunk )
+import Control.Parallel.Strategies ( using, rpar, rseq, parListChunk, parList )
 import Control.DeepSeq ( NFData, rnf )
 import Data.Composition ( (.:) )
 import Data.Proxy
@@ -48,10 +48,10 @@ instance Reducible Matrix FMPQ where
 
 
 type Approx f = Maybe (Modulus FMPZ, f FMPZ)
-type ApproxRefiner f = Approx f -> Approx f
+newtype ApproxRefiner f = ApproxRefiner (Approx f -> Approx f)
 
 rnfApproxRefiner :: MultiMod Matrix -> Word64 -> ApproxRefiner Matrix
-rnfApproxRefiner (MultiMod m) p =
+rnfApproxRefiner (MultiMod m) p = 
   withNModContext (fromIntegral p) $ \proxy ->
     let m' = m proxy
     in seq (rnf m') $ approxRefiner m'
@@ -61,7 +61,7 @@ approxRefiner
   .  ReifiesNModContext ctx
   => Maybe (Matrix (NMod ctx))
   -> ApproxRefiner Matrix
-approxRefiner mPt' approx =
+approxRefiner mPt' = ApproxRefiner $ \approx ->
   mPt' >>= \mPt -> Just $
     let modulusPt@(Modulus modulusPtZ) = NMod.modulusIntegral (Proxy :: Proxy ctx)
     in case approx of
@@ -78,13 +78,14 @@ approxRefiner mPt' approx =
 instance Reconstructible Matrix FMPQ where
   reconstruct isReconstruction m = mQ
     where
-    (_,mQ) = head $ dropWhile ( not . uncurry isReconstruction ) $ rationalReconstructions
+    (_,mQ) = head $ dropWhile ( not . uncurry isReconstruction ) rationalReconstructions
     rationalReconstructions = catMaybes $ flip map chinesesRemainders $ \(modulus, mat) ->
       (modulus,) <$> M.mapM (rationalReconstruct Balanced modulus) mat
-    chinesesRemainders = catMaybes $ scanl (trace "here" $ flip ($)) Nothing refiners
+    chinesesRemainders = catMaybes $ scanl (\a (ApproxRefiner r) -> r a) Nothing refiners
     refiners = map (rnfApproxRefiner m) (primesAfter 0XDFFFFFFFFFFFFFFF)
--- fixme: this hangs
---               `using` (parListChunk 20 rpar)
+-- todo: parListChunks hangs. Investigate why and implement different approach if necessary
+               `using` rseq
+
 
 mulMultiMod :: Matrix FMPQ -> Matrix FMPQ -> Matrix FMPQ
 mulMultiMod m m' = reconstruct isReconstruction $ mmod * mmod'

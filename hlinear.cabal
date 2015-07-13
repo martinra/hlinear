@@ -195,10 +195,13 @@ executable debug-hlinear
   build-depends:
       base
     , algebra-structures
+    , binary
     , composition
     , deepseq
+    , hflint
     , mtl
     , natural-test
+    , parallel
     , permutation
     , QuickCheck
     , safe
