@@ -24,6 +24,3 @@ data MultiMod f =
 
 class Reducible f a where
   reduce :: f a -> MultiMod f
-
-class Reconstructible f a where
-  reconstruct :: (Modulus FMPZ -> f a -> Bool) -> MultiMod f -> f a

@@ -76,6 +76,7 @@ library
     , parallel
     , permutation
     , QuickCheck
+    , reflection
     , safe
     , smallcheck
     , split
@@ -147,6 +148,7 @@ executable prof-hlinear
     , mtl
     , natural-test
     , permutation
+    , reflection
     , QuickCheck
     , random
     , safe
@@ -204,6 +206,7 @@ executable debug-hlinear
     , parallel
     , permutation
     , QuickCheck
+    , reflection
     , safe
     , smallcheck
     , tasty
