@@ -31,16 +31,16 @@ import HLinear.Matrix as M
 import HLinear.PLE.Hook.PLE
 import HLinear.PLE.Hook.RPermute as RP
 
-import HLinear.MultiMod.Matrix
+import HLinear.Matrix.MultiMod
 
 
 main :: IO ()
 main = do
   let Right m = M.fromLists [[1%2,3%4],[5%4,7%4]]
-  let m' = M.map fromRational m :: Matrix FMPQ
+  let m' = fmap fromRational m :: Matrix FMPQ
 
   print m
   print m'
   putStrLn ""
   print $ m * m
-  print $ mulMultiMod m' m'
+  -- print $ mulMultiMod m' m'

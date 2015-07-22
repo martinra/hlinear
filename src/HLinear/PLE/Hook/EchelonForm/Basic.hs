@@ -10,6 +10,8 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , gcd
                       , quotRem, quot, rem
                       )
+
+import Control.DeepSeq ( NFData(..) )
 import Data.Maybe
 import Data.Vector ( Vector(..) )
 import qualified Data.Vector as V
@@ -59,13 +61,19 @@ atCol (EchelonForm nrs ncs rs) ix
       nrsZ = fromIntegral nrs
       ncsZ = fromIntegral ncs
 
--- Eq and Show
+-- Eq, Show, and NFData
 
 deriving instance Show a => Show (EchelonForm a)
 
 instance ( Eq a, DecidableZero a ) => Eq (EchelonForm a) where
   (EchelonForm nrs ncs rs) == (EchelonForm nrs' ncs' rs') =
     nrs == nrs' && ncs == ncs' && rs == rs'
+
+instance NFData a => NFData (EchelonForm a) where
+  rnf (EchelonForm nrs ncs rs) =
+    seq (rnf nrs) $
+    seq (rnf ncs) $
+    seq (V.map rnf rs) ()
 
 -- conversion
 
@@ -79,13 +87,15 @@ toMatrix (EchelonForm nrs ncs rs) = Matrix nrs ncs rs'
 
 -- creation
 
-singletonLeadingOne :: MultiplicativeMonoid a
-                     => Natural -> Natural -> Vector a
-                     -> EchelonForm a
+singletonLeadingOne
+  :: MultiplicativeMonoid a
+  => Natural -> Natural -> Vector a
+  -> EchelonForm a
 singletonLeadingOne nrs o v = singleton nrs o $ one `V.cons` v
 
-singleton :: Natural -> Natural -> Vector a
-           -> EchelonForm a
+singleton
+  :: Natural -> Natural -> Vector a
+  -> EchelonForm a
 singleton nrs o v = EchelonForm nrs nv $
                       V.singleton $ EchelonFormRow o v
   where

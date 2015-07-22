@@ -33,10 +33,15 @@ library
     HLinear.BRMatrix.StdElements
 
     HLinear.Matrix.Algebra
+    HLinear.Matrix.Basic
+    HLinear.Matrix.Conversion
     HLinear.Matrix.Definition
+    HLinear.Matrix.MultiMod
+    HLinear.Matrix.SmallCheck
+    HLinear.Matrix.StdElements
 
     HLinear.MultiMod.Definition
-    HLinear.MultiMod.Matrix
+    HLinear.MultiMod.Standard
 
     HLinear.PLE.Hook.EchelonForm
     HLinear.PLE.Hook.EchelonForm.Algebra
@@ -66,11 +71,14 @@ library
     HLinear.PLE.Hook.ReducedEchelonForm
     HLinear.PLE.Hook.RPermute
 
+    HLinear.PLE.MultiMod.EchelonForm
+
   build-depends:
       base
     , algebra-structures
     , binary
     , composition
+    , containers
     , deepseq
     , hflint
     , mtl
@@ -102,6 +110,7 @@ benchmark bench-hlinear
     , algebra-structures
     , binary
     , composition
+    , containers
     , criterion
     , deepseq
     , filepath
@@ -143,6 +152,7 @@ executable prof-hlinear
     , algebra-structures
     , binary
     , composition
+    , containers
     , deepseq
     , filepath
     , hflint
@@ -172,6 +182,7 @@ test-suite test-hlinear
       base
     , algebra-structures
     , composition
+    , containers
     , deepseq
     , mtl
     , natural-test
@@ -201,6 +212,7 @@ executable debug-hlinear
     , algebra-structures
     , binary
     , composition
+    , containers
     , deepseq
     , hflint
     , mtl
