@@ -21,8 +21,7 @@ library
     HLinear.BRMatrix.RVector
     HLinear.Matrix
     HLinear.Matrix.Maybe
-    HLinear.PLE.PLE
-    HLinear.PLE.Hook
+    HLinear.PLE
 
   other-modules:
     HLinear.BRMatrix.Algebra
@@ -42,6 +41,12 @@ library
 
     HLinear.MultiMod.Definition
     HLinear.MultiMod.Standard
+
+    HLinear.PLE.Class
+
+    HLinear.PLE.FoldUnfold
+    HLinear.PLE.FoldUnfold.EchelonForm
+    HLinear.PLE.FoldUnfold.ReducedEchelonForm
 
     HLinear.PLE.Hook.EchelonForm
     HLinear.PLE.Hook.EchelonForm.Algebra
@@ -67,8 +72,6 @@ library
     HLinear.PLE.Hook.LeftTransformation.QuickCheck
     HLinear.PLE.Hook.LeftTransformation.SmallCheck
 
-    HLinear.PLE.Hook.PLE
-    HLinear.PLE.Hook.ReducedEchelonForm
     HLinear.PLE.Hook.RPermute
 
     HLinear.PLE.MultiMod.EchelonForm

@@ -4,7 +4,7 @@
   , ScopedTypeVariables
   #-}
 
-module HLinear.PLE.PLE
+module HLinear.PLE.Class
 where
 
 import Data.Permute

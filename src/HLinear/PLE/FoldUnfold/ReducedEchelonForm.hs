@@ -1,4 +1,4 @@
-module HLinear.PLE.Hook.ReducedEchelonForm
+module HLinear.PLE.FoldUnfold.ReducedEchelonForm
 where
 
 import qualified Prelude as P

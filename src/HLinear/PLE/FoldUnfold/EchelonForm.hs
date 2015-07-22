@@ -5,10 +5,7 @@
   , TupleSections
   #-}
 
--- there is an implementation for the lu decomposition in the matrix package,
--- but it seems hard to parallelize and also is only available for Rational,
--- which does not contain all fields.
-module HLinear.PLE.Hook.PLE
+module HLinear.PLE.FoldUnfold.EchelonForm
 where
 
 import qualified Prelude as P
@@ -35,7 +32,7 @@ import Data.Permute ( permute
 import Math.Structure
 import Numeric.Natural ( Natural )
 
-import HLinear.PLE.PLE
+import HLinear.PLE.Class
 import qualified HLinear.PLE.Hook.RPermute as RP
 import HLinear.PLE.Hook.RPermute ( RPermute(..) )
 import qualified HLinear.PLE.Hook.EchelonForm as EF
