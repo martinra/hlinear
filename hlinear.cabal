@@ -41,6 +41,7 @@ library
     HLinear.PLE.Hook.EchelonForm
     HLinear.PLE.Hook.EchelonForm.Algebra
     HLinear.PLE.Hook.EchelonForm.Basic
+    HLinear.PLE.Hook.EchelonForm.Container
     HLinear.PLE.Hook.EchelonForm.Definition
     HLinear.PLE.Hook.EchelonForm.QuickCheck
     HLinear.PLE.Hook.EchelonForm.Row

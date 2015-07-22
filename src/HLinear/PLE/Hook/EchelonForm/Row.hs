@@ -69,6 +69,36 @@ setLength ncs (EchelonFormRow o r)
   where
     oZ = fromIntegral o
 
+-- container
+
+instance Functor EchelonFormRow where
+  fmap f (EchelonFormRow o r) = EchelonFormRow o $ V.map f r
+
+instance Foldable EchelonFormRow where
+  foldl f a (EchelonFormRow o r) = V.foldl f a r
+  foldr f a (EchelonFormRow o r) = V.foldr f a r
+
+instance Traversable EchelonFormRow where
+  traverse f (EchelonFormRow o s) = EchelonFormRow o <$> traverse f s
+
+zipWith
+  :: ( AdditiveMonoid a, AdditiveMonoid b )
+  => (a -> b -> c) -> EchelonFormRow a -> EchelonFormRow b
+  -> EchelonFormRow c
+zipWith f e@(EchelonFormRow o r) e'@(EchelonFormRow o' r') =
+  EchelonFormRow o'' $ V.zipWith f rR rR' V.++ V.zipWith f rL rL'
+  where
+    nr = V.length r
+    nr' = V.length r'
+    maxnr = max nr nr'
+    maxl = max (length e) (length e')
+    o'' = fromIntegral $ maxl - maxnr
+
+    rR  = V.replicate (maxnr - nr) zero
+    rR'  = V.replicate (maxnr - nr') zero
+    rL = V.drop (maxnr - nr) r
+    rL' = V.drop (maxnr - nr') r'
+
 -- creation
 
 toVector :: AdditiveMonoid a => EchelonFormRow a -> Vector a
