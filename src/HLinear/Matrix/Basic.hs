@@ -115,19 +115,21 @@ fromListsUnsafe' = either undefined id .:. fromLists'
 
 -- container functionality
 
-map :: (a -> b) -> Matrix a -> Matrix b
-map f (Matrix nrs ncs rs) = Matrix nrs ncs $ V.map (V.map f) rs
+instance Functor Matrix where
+  fmap f (Matrix nrs ncs rs) = Matrix nrs ncs $ V.map (V.map f) rs
+
+instance Foldable Matrix where
+  foldl f a (Matrix nrs ncs rs) = foldl (\a' r -> foldl f a' r) a rs
+  foldr f a (Matrix nrs ncs rs) = foldr (\r a' -> foldr f a' r) a rs
+
+instance Traversable Matrix where
+  traverse f (Matrix nrs ncs rs) = Matrix nrs ncs <$> traverse (traverse f) rs
+  sequenceA (Matrix nrs ncs rs) = Matrix nrs ncs <$> sequenceA (fmap sequenceA rs)
 
 zipWith :: (a -> b -> c) -> Matrix a -> Matrix b -> Matrix c
 zipWith f (Matrix nrs ncs rs) (Matrix nrs' ncs' rs')
   | nrs /= nrs' || ncs /= ncs' = error "Matrix.zipWith: incompatible dimensions"
   | otherwise = Matrix nrs ncs $ V.zipWith (V.zipWith f) rs rs'
-
-mapM :: Monad m => (a -> m b) -> Matrix a -> m (Matrix b)
-mapM f (Matrix nrs ncs rs) = Matrix nrs ncs <$> V.mapM (V.mapM f) rs
-
-sequence :: Monad m => Matrix (m a) -> m (Matrix a)
-sequence (Matrix nrs ncs rs) = Matrix nrs ncs <$> V.sequence (V.map V.sequence rs)
 
 -- submatrices
 

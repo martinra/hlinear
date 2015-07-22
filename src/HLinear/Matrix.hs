@@ -21,10 +21,7 @@ module HLinear.Matrix
   , fromListsUnsafe
   , fromListsUnsafe'
 
-  , map
   , zipWith
-  , mapM
-  , sequence
 
   , headRows
   , tailRows
