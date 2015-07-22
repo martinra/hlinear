@@ -1,3 +1,7 @@
+{-# LANGUAGE
+    StandaloneDeriving
+  #-}
+
 module HLinear.PLE.Hook.EchelonForm.Row
 where
 
@@ -7,6 +11,8 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       , length
                       )
+
+import Control.DeepSeq
 import Control.Arrow ( first )
 import qualified Data.Vector as V
 import Data.Vector ( Vector(..) )
@@ -23,7 +29,6 @@ data EchelonFormRow a =
     { offset :: Natural
     , row :: Vector a
     }
-  deriving Show
 
 -- properties
 
@@ -32,7 +37,15 @@ pivotIx (EchelonFormRow o v) = (oZ+) <$> V.findIndex (not . isZero) v
   where
     oZ = fromIntegral o
 
--- Eq
+
+pivotIx' :: DecidableZero a => EchelonFormRow a -> Int -> Maybe Int
+pivotIx' (EchelonFormRow o v) ix = (oZ+) <$> V.findIndex (not . isZero) (V.drop (ix - oZ) v)
+  where
+    oZ = fromIntegral o
+
+-- Show, Eq, and NFData
+
+deriving instance Show a => Show (EchelonFormRow a)
 
 instance ( Eq a, DecidableZero a ) => Eq (EchelonFormRow a) where
   (EchelonFormRow o r) == (EchelonFormRow o' r') =
@@ -46,6 +59,11 @@ instance ( Eq a, DecidableZero a ) => Eq (EchelonFormRow a) where
                 in (V.empty,r, lf,rt) 
           LT -> let (lf,rt) = V.splitAt (fromIntegral o' - fromIntegral o) r
                 in (lf,rt, V.empty,r') 
+
+instance NFData a => NFData (EchelonFormRow a) where
+  rnf (EchelonFormRow o s) =
+    seq (rnf o) $
+    seq (V.map rnf s) $ ()
 
 -- length
 
@@ -100,6 +118,9 @@ zipWith f e@(EchelonFormRow o r) e'@(EchelonFormRow o' r') =
     rL' = V.drop (maxnr - nr') r'
 
 -- creation
+
+zeroEFR :: Natural -> EchelonFormRow a
+zeroEFR o = EchelonFormRow o V.empty
 
 toVector :: AdditiveMonoid a => EchelonFormRow a -> Vector a
 toVector (EchelonFormRow o r) = V.replicate (fromIntegral o) zero V.++ r

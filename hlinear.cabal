@@ -43,6 +43,7 @@ library
     HLinear.PLE.Hook.EchelonForm.Basic
     HLinear.PLE.Hook.EchelonForm.Container
     HLinear.PLE.Hook.EchelonForm.Definition
+    HLinear.PLE.Hook.EchelonForm.PivotStructure
     HLinear.PLE.Hook.EchelonForm.QuickCheck
     HLinear.PLE.Hook.EchelonForm.Row
     HLinear.PLE.Hook.EchelonForm.SmallCheck
