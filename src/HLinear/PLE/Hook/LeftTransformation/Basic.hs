@@ -14,6 +14,7 @@ import Prelude hiding ( (+), (-), negate, subtract
 
 import Control.Applicative ( (<$>) )
 import Control.Arrow ( first )
+import Control.DeepSeq ( NFData(..) )
 import Data.Maybe
 import Data.Vector ( Vector(..) )
 import qualified Data.Vector as V
@@ -23,21 +24,9 @@ import Numeric.Natural ( Natural )
 
 import HLinear.PLE.Hook.LeftTransformation.Column
 import qualified HLinear.PLE.Hook.LeftTransformation.Column as LTC
+import HLinear.PLE.Hook.LeftTransformation.Definition
 import HLinear.PLE.Hook.RPermute
 
- -- \ A vector of columns (a, [v]) which are offset by their index.
- --   It represents a transformation from the left
- --     a1     0     0   0
- --   v*a1    a2     0   0
- --   v*a1  v*a2    a3   0 
- --   v*a1  v*a2  v*a3  a4
- --   . . . .
- --
-data LeftTransformation a =
-  LeftTransformation
-    { nmbRows :: Natural
-    , columns :: Vector (LeftTransformationColumn a)
-    }
 
 nmbCols :: LeftTransformation a -> Natural
 nmbCols = fromIntegral . V.length . columns
@@ -52,7 +41,7 @@ minimizeSize (LeftTransformation nrs cs) =
     cs' = V.dropWhile isIdentityLTColumn cs
     nrs' = fromIntegral $ fromIntegral nrs - (V.length cs - V.length cs')
 
--- Eq an Show instances
+-- Eq, Show, and NFData instances
 
 deriving instance Show a => Show (LeftTransformation a)
 
@@ -68,6 +57,9 @@ instance    ( Eq a, DecidableZero a, DecidableOne a )
     in nrs == nrs' && ncs == ncs'
        &&
        V.all (uncurry (==)) (V.zip cs cs')
+
+instance NFData a => NFData (LeftTransformation a) where
+  rnf (LeftTransformation nrs cs) = seq (rnf nrs) $ seq (rnf cs) ()
 
 -- creation
 

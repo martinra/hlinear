@@ -20,6 +20,7 @@ import Test.QuickCheck.Modifiers ( NonNegative(..)
 
 import HLinear.PLE.Hook.LeftTransformation.Basic as LT
 import HLinear.PLE.Hook.LeftTransformation.Column as LTC
+import HLinear.PLE.Hook.LeftTransformation.Definition
 
 
 instance    (DecidableZero a, Arbitrary a)

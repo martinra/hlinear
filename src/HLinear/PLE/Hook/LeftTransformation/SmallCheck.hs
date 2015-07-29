@@ -16,6 +16,7 @@ import Test.Natural ()
 
 import HLinear.PLE.Hook.LeftTransformation.Basic
 import HLinear.PLE.Hook.LeftTransformation.Column
+import HLinear.PLE.Hook.LeftTransformation.Definition
 
 
 instance    (Monad m, Serial m a, DecidableZero a)

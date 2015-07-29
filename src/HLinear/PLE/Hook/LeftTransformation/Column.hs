@@ -16,6 +16,7 @@ import Prelude hiding ( (+), (-), negate, subtract
 
 import Control.Applicative ( (<$>) )
 import Control.Arrow ( first )
+import Control.DeepSeq ( NFData(..) )
 import Data.Maybe
 import Data.Vector ( Vector(..) )
 import qualified Data.Vector as V
@@ -85,7 +86,7 @@ toVector (LeftTransformationColumn o a v) =
   where
     a' = fromNonZero a
 
--- Eq and Show instancs
+-- Eq, Show, and NFData instancs
 
 deriving instance Show a => Show (LeftTransformationColumn a)
 
@@ -97,6 +98,45 @@ isIdentityLTColumn :: ( DecidableZero a, DecidableOne a )
                    => LeftTransformationColumn a -> Bool
 isIdentityLTColumn (LeftTransformationColumn _ a v) =
   isOne (fromNonZero a) && V.all isZero v
+
+instance NFData a => NFData (LeftTransformationColumn a) where
+  rnf (LeftTransformationColumn s (NonZero a) c) =
+    seq (rnf s) $ seq (rnf a) $ seq (rnf c) ()
+
+-- container
+
+instance Functor LeftTransformationColumn where
+  fmap f (LeftTransformationColumn s (NonZero a) c) =
+    LeftTransformationColumn s (NonZero $ f a) $ V.map f c
+
+instance Foldable LeftTransformationColumn where
+  foldl f b (LeftTransformationColumn s (NonZero a) r) =
+    V.foldl f b $ a `V.cons` r
+  foldr f b (LeftTransformationColumn s (NonZero a) r) =
+    V.foldr f b $ a `V.cons` r
+
+instance Traversable LeftTransformationColumn where
+  traverse f (LeftTransformationColumn s (NonZero a) c) =
+    LeftTransformationColumn s <$> (NonZero <$> f a) <*> traverse f c
+
+zipWith
+  :: ( AdditiveMonoid a, AdditiveMonoid b )
+  => (a -> b -> c) -> LeftTransformationColumn a -> LeftTransformationColumn b
+  -> LeftTransformationColumn c
+zipWith f (LeftTransformationColumn s (NonZero a) c)
+          (LeftTransformationColumn s' (NonZero a') c')
+  | s /= s' = error "LeftTransformation.zipWith: incompatible shifts"
+  | otherwise = LeftTransformationColumn s (NonZero $ f a a') $
+                  V.zipWith f cT cT' V.++ V.zipWith f cB cB'
+  where
+    nc = V.length c
+    nc' = V.length c'
+    minnc = max nc nc'
+
+    cT  = V.take minnc c
+    cT' = V.take minnc c'
+    cB  = V.replicate (nc' - minnc) zero
+    cB' = V.replicate (nc  - minnc) zero
 
 -- creation
 

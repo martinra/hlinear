@@ -29,6 +29,7 @@ import qualified HLinear.BRMatrix.RVector as RV
 import HLinear.PLE.Hook.LeftTransformation.Basic as LT
 import qualified HLinear.PLE.Hook.LeftTransformation.Column as LTC
 import HLinear.PLE.Hook.LeftTransformation.Column
+import HLinear.PLE.Hook.LeftTransformation.Definition
 import HLinear.PLE.Hook.RPermute
 
 

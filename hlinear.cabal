@@ -69,6 +69,9 @@ library
     HLinear.PLE.Hook.LeftTransformation.Algebra
     HLinear.PLE.Hook.LeftTransformation.Basic
     HLinear.PLE.Hook.LeftTransformation.Column
+    HLinear.PLE.Hook.LeftTransformation.Container
+    HLinear.PLE.Hook.LeftTransformation.Conversion
+    HLinear.PLE.Hook.LeftTransformation.Definition
     HLinear.PLE.Hook.LeftTransformation.QuickCheck
     HLinear.PLE.Hook.LeftTransformation.SmallCheck
 

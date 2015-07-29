@@ -20,6 +20,7 @@ import Numeric.Natural ( Natural )
 import HLinear.PLE.Hook.LeftTransformation.Algebra ()
 import HLinear.PLE.Hook.LeftTransformation.Basic
 import HLinear.PLE.Hook.LeftTransformation.Column as LTC
+import HLinear.PLE.Hook.LeftTransformation.Definition
 import qualified HLinear.PLE.Hook.RPermute as RP
 import HLinear.Matrix hiding ( (!), (!?) )
 import HLinear.Matrix.Definition ( Matrix(..) )
