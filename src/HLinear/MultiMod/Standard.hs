@@ -19,7 +19,7 @@ import Prelude hiding ( (+), (-), negate, subtract
 import qualified Prelude as P
 
 import Control.Applicative ( liftA2 )
-import Control.DeepSeq ( NFData, rnf )
+import Control.DeepSeq ( NFData, rnf, force )
 import Data.Composition ( (.:) )
 import Data.Proxy
 import Data.Reflection
@@ -42,9 +42,8 @@ import qualified HLinear.Matrix as M
 defaultFromApproxPrimitiveToCombined
   :: Traversable t
   => Approximation t d FMPZ -> Approximation t d FMPZ
-defaultFromApproxPrimitiveToCombined (ApproxPrimitive d (t :: t (NMod ctx))) =
-  let md = NMod.modulusIntegral (Proxy :: Proxy ctx)
-  in ApproxCombined d $ Mod md $ fmap FMPZ.fromNMod t
+defaultFromApproxPrimitiveToCombined (ApproxPrimitive d (Mod (Modulus md) t)) =
+  ApproxCombined d $ Mod (Modulus $ fromIntegral md) $ fmap FMPZ.fromFlintLimb t
 defaultFromApproxPrimitivetoCombined a = a
 
 
@@ -56,36 +55,41 @@ instance Traversable t => Reducible t FMPQ where
 
 
 defaultToApprox
-  :: ( Approximation t d FMPZ -> Approximation t d FMPZ )
-  -> ( forall ctx . ReifiesNModContext ctx => t (NMod ctx) -> d )
+  :: Functor t 
+  => ( Approximation t d FMPZ -> Approximation t d FMPZ )
+  -> ( ModGen FlintLimb t FlintLimb -> d )
   -> MultiMod t -> FlintLimb
   -> Approximation t d FMPZ
 defaultToApprox defForce defDescription (MultiMod m) p = defForce $
   withNModContext (fromIntegral p) $ \proxy ->
-    let t = m proxy
+    let t = fmap unNMod <$> m proxy
     in case t of 
-         Nothing  -> ApproxInvalid
-         Just t' -> ApproxPrimitive (defDescription t') t'
+         Nothing -> ApproxInvalid
+         Just t' -> let tmd = Mod (Modulus p) t'
+                    in  ApproxPrimitive (defDescription tmd) tmd
 
 defaultApproxAppend
-  :: ( Traversable t, Ord d )
-  => ( forall a b c . ( Ring a, Ring b ) => ( a -> b -> c ) -> t a -> t b -> t c )
+  :: forall t d 
+  .  ( Traversable t, Ord d )
+  => ( forall a b c
+       .  ( DecidableZero a, DecidableZero b
+          , DecidableOne a, DecidableOne b
+          , Ring a, Ring b )
+       => ( a -> b -> c ) -> t a -> t b -> t c )
   -> Approximation t d FMPZ -> Approximation t d FMPZ
   -> Approximation t d FMPZ
 defaultApproxAppend _ ApproxInvalid a = a
 defaultApproxAppend _ a ApproxInvalid = a
 defaultApproxAppend defZipWith
     ap@(ApproxCombined d (Mod md t))
-    ap'@(ApproxPrimitive d' (t' :: t (NMod ctx))) =
-  let ctxProxy = Proxy :: Proxy ctx
-      md' = NMod.modulusIntegral ctxProxy
-  in  case compare d d' of
-        EQ -> ApproxCombined d $ Mod (md * md') $
-                withFMPZCRTNModContext md ctxProxy $ \(_ :: Proxy ctx') ->
-                  let mCRT = defZipWith chineseRemainder t t' :: t (FMPZCRTNMod ctx')
-                  in  fmap unFMPZCRTNMod mCRT
-        GT -> ap
-        LT -> ap'
+    ap'@(ApproxPrimitive d' (Mod md' t')) =
+  case compare d d' of
+    EQ -> ApproxCombined d $ Mod ( md *  (fromIntegral <$> md') ) $
+            withFMPZCRTFlintLimbContext md md' $ \(_ :: Proxy ctx') ->
+              let mCRT = defZipWith chineseRemainder t t' :: t (FMPZCRTFlintLimb ctx')
+              in  fmap unFMPZCRTFlintLimb mCRT
+    GT -> ap
+    LT -> ap'
 defaultApproxAppend defZipWith
     ap@(ApproxCombined d (Mod md (t :: t FMPZ)))
     ap'@(ApproxCombined d' (Mod md' t')) =

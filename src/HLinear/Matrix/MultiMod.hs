@@ -28,7 +28,7 @@ import qualified HLinear.Matrix as M
 
 instance NFData a => NFData (Approximation Matrix () a) where
   rnf ApproxInvalid = ()
-  rnf (ApproxPrimitive () m) = seq (rnf m) ()
+  rnf (ApproxPrimitive () (Mod md m)) = seq (rnf md) $ seq (rnf m) ()
   rnf (ApproxCombined () (Mod md m)) = seq (rnf md) $ seq (rnf m) ()
 
 instance Approximable Matrix () where
