@@ -1,5 +1,8 @@
 module HLinear.PLE
+  ( module Decomposition
+  , module FoldUnfold
+  )
 where
 
-import HLinear.PLE.Class
-import HLinear.PLE.FoldUnfold
+import HLinear.PLE.Decomposition as Decomposition
+import HLinear.PLE.FoldUnfold as FoldUnfold
