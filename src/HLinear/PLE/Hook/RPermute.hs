@@ -1,5 +1,6 @@
 {-# LANGUAGE
-    MultiParamTypeClasses
+    GeneralizedNewtypeDeriving
+  , MultiParamTypeClasses
   #-}
 
 module HLinear.PLE.Hook.RPermute
@@ -12,6 +13,7 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       )
 
+import Control.DeepSeq ( NFData(..) )
 import qualified Data.Vector as V
 import Data.Vector ( Vector(..) )
 import Data.Permute ( Permute )
@@ -22,9 +24,29 @@ import Math.Structure
 import HLinear.Matrix
 import HLinear.BRMatrix.RVector ( RVector(RVector) )
 
+
+instance NFData Permute where
+  rnf p = seq p ()
+
 -- right permutations, i.e. action on vectors with indices ... 3 2 1
 -- instead of 1 2 3 ...
 newtype RPermute = RPermute Permute
+  deriving ( Show, NFData )
+
+instance Eq RPermute where
+  p == p' = compare p p' == EQ
+
+instance Ord RPermute where
+  compare rp@(RPermute p) rp'@(RPermute p')
+    | V.null cmps = EQ
+    | otherwise   = V.head cmps
+    where
+      np = P.size p
+      np' = P.size p'
+      maxnp = max np np'
+      cmps = V.dropWhile (==EQ) $ V.zipWith compare cp cp'
+      cp = toVectorSize maxnp rp :: Vector Int
+      cp' = toVectorSize maxnp rp' :: Vector Int
 
 rpermute :: Int -> RPermute
 rpermute n = RPermute $ P.permute n
@@ -54,6 +76,19 @@ toMatrix p = Matrix np np $
   where
     npZ = size p
     np = fromIntegral npZ 
+
+toVector :: Num a => RPermute -> Vector a
+toVector (RPermute p) = V.map (fromIntegral . P.at p) ( V.enumFromStepN (pred np) (-1) np )
+  where
+  np = P.size p 
+
+toVectorSize :: Num a => Int -> RPermute -> Vector a
+toVectorSize maxnp rp@(RPermute p) =
+  V.map fromIntegral $ V.enumFromStepN (maxnp-1) (-1) (maxnp - np)
+  V.++
+  toVector rp
+    where
+    np = P.size p 
 
 -- product structure
 
