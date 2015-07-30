@@ -9,19 +9,29 @@ import HFlint.Primes ( primesAfter )
 import HFlint.NMod ( FlintLimb )
 
 
-reconstruct :: Reconstructible f d a => (RReconst f d a -> Bool) -> MultiMod f -> f a
-reconstruct isReconstruction mf = fa
+data ReconstructionParameters =
+  ReconstructionParameters
+  { bufferSize :: Int
+  , reconstructionSkip :: Int
+  }
+
+reconstruct
+  :: Reconstructible f d a
+  => ReconstructionParameters
+  -> (RReconst f d a -> Bool)
+  -> MultiMod f -> f a
+reconstruct parameters isReconstruction mf = fa
   where
   RReconst _ _ fa = head $ dropWhile ( not . isReconstruction ) $
                     catMaybes rationalReconstructions
-  rationalReconstructions =  map fromApprox $ takeEveryNth rrSteps $
-                             scanl1 mappend approximations
+  rationalReconstructions =
+    map fromApprox $
+    takeEveryNth (reconstructionSkip parameters) $
+    scanl1 mappend approximations
+
   approximations =
      map (toApprox mf) (primesAfter $ (maxBound :: FlintLimb) `shiftR` 2)
-  --   debug trace
-  --   `using` parBuffer bufferSize rseq
-  rrSteps = 20
-  bufferSize = 3 * rrSteps
+     `using` parBuffer (bufferSize parameters) rseq
 
 takeEveryNth :: Int -> [a] -> [a]
 takeEveryNth n = takeEveryNth' (pred n)

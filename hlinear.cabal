@@ -39,14 +39,22 @@ library
     HLinear.Matrix.SmallCheck
     HLinear.Matrix.StdElements
 
+    HLinear.MultiMod
     HLinear.MultiMod.Definition
+    HLinear.MultiMod.Reconstruction
     HLinear.MultiMod.Standard
 
     HLinear.PLE.Decomposition
+    HLinear.PLE.Decomposition.Definition
+    HLinear.PLE.Decomposition.Instances
+    HLinear.PLE.Decomposition.Strategy
 
     HLinear.PLE.FoldUnfold
     HLinear.PLE.FoldUnfold.Echelonize
     HLinear.PLE.FoldUnfold.ReducedEchelonForm
+
+    HLinear.PLE.Hook
+    HLinear.PLE.Hook.Container
 
     HLinear.PLE.Hook.EchelonForm
     HLinear.PLE.Hook.EchelonForm.Algebra
@@ -77,7 +85,12 @@ library
 
     HLinear.PLE.Hook.RPermute
 
+    HLinear.PLE.MultiMod
     HLinear.PLE.MultiMod.Echelonize
+    HLinear.PLE.MultiMod.Echelonize.Definition
+    HLinear.PLE.MultiMod.Echelonize.FMPQ
+
+    HLinear.PLE.Strategy
 
   build-depends:
       base

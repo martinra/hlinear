@@ -19,7 +19,7 @@ import Data.Permute ( Permute )
 import qualified Data.Vector as V
 import Math.Structure
 
-import HLinear.PLE.Class
+import HLinear.PLE.Decomposition.Definition
 import HLinear.PLE.Hook
 import qualified HLinear.PLE.Hook.RPermute as RP
 import HLinear.PLE.Hook.RPermute ( RPermute(..) )
@@ -33,30 +33,30 @@ import qualified HLinear.Matrix as M
 import HLinear.Matrix.Conversion
 
 
-instance {-# OVERLAPPABLE #-}
+class HasPLEDecompositionFoldUnfold f a where
+  pleDecompositionFoldUnfold :: f a -> PLEDecomposition a
+
+
+instance
      ( DecidableZero a, DivisionRing a )
-  => HasPLEDecomposition Matrix a
+  => HasPLEDecompositionFoldUnfold Matrix a
   where
-  pleDecomposition m =
-    PLEDecomposition $ V.foldl (*) firstHook $
-      V.unfoldr splitOffHook m
+  pleDecompositionFoldUnfold m =
+    PLEDecomposition $ V.foldl (*) firstHook $ V.unfoldr splitOffHook m
     where
+    nrs = M.nmbRows m
+    ncs = M.nmbCols m
+
     firstHook = PLEHook
       (RP.rpermute $ fromIntegral nrs)
       (LeftTransformation nrs V.empty)
       (EchelonForm nrs ncs V.empty)
-    nrs = M.nmbRows m
-    ncs = M.nmbCols m
 
 
 instance
      (DecidableZero a, DivisionRing a)
   => MultiplicativeMagma (PLEHook a)
   where
-  -- This is partially defined. The right factor must be smaller than the
-  -- largest contribution of the LeftTransformation of the left factor.
-  -- Note that the permutation and the left matrix are represented by their
-  -- inverse. 
   (PLEHook p lt ef) * (PLEHook p' lt' ef') =
     PLEHook (p'*p) (lt' * (p' *. lt)) (ef + ef')
 
