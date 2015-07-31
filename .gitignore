@@ -4,3 +4,9 @@ dist
 .cabal-sandbox
 cabal.sandbox.config
 cabal.config
+bench_data/*
+prof-hlinear.aux
+prof-hlinear.hp
+prof-hlinear.prof
+prof-hlinear.ps
+TODO
