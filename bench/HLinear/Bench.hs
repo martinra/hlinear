@@ -29,42 +29,43 @@ import HFlint.FMPQ
 import HFlint.FMPQMat as FMPQMat
 import HFlint.NMod
 
+import HLinear.Bench.Examples
 import HLinear.Bench.Random ( uniformRandomMatrixIO )
 import HLinear.Matrix as M
-import HLinear.PLE.Hook.EchelonForm as EF
-import HLinear.PLE.Hook.LeftTransformation as LT
-import HLinear.PLE.Hook.RPermute as RP
-import HLinear.PLE.Hook.PLE
-import HLinear.PLE.PLE
+--import HLinear.PLE.Hook.EchelonForm as EF
+--import HLinear.PLE.Hook.LeftTransformation as LT
+--import HLinear.PLE.Hook.RPermute as RP
+import HLinear.PLE
 
 
 
 
-pleEvalLE :: ( DecidableZero a, DivisionRing a )
-          => Matrix a -> (Matrix a, Matrix a)
-pleEvalLE mat =
-  let pledec = ple mat
-      p = fromMatrixPermute $ permutation pledec
-      lm = left pledec
-      em = echelon pledec
-  in (lm,em)
+-- pleEvalLE :: ( DecidableZero a, DivisionRing a )
+--           => Matrix a -> (Matrix a, Matrix a)
+-- pleEvalLE mat =
+--   let ple = pleDecomposition mat
+--       (pm, lm, em) = toMatrices ple
+--   in (lm,em)
+-- 
+-- pleEvalE :: ( DecidableZero a, DivisionRing a )
+--          => Matrix a -> Matrix a
+-- pleEvalE = snd . pleEvalLE
 
-pleEvalE :: ( DecidableZero a, DivisionRing a )
-         => Matrix a -> Matrix a
-pleEvalE = echelon . ple
+trd (_,_,a) = a
+ 
 
 main :: IO ()
 main = defaultMain $ ($20) $ \matSize ->
   [
-    env ( toFMPQMat <$> uniformMatrix 10 matSize matSize ) $ \mat ->
+    env ( toFMPQMat <$> uniformRandomMatrixIO 10 matSize matSize ) $ \mat ->
     bgroup "FMPQMat"
     [ bench "rref" $ nf rref mat
     ]
 
-  , env ( M.map fromRational <$> uniformMatrix 10 matSize matSize :: IO (Matrix FMPQ) ) $ \mat ->
+  , env ( fmap fromRational <$> uniformRandomMatrixIO 10 matSize matSize :: IO (Matrix FMPQ) ) $ \mat ->
     bgroup "Rational"
-    [ bench "ple all" $ nf pleEvalLE mat
-    , bench "ple matrix only" $ nf pleEvalE mat
+    [ bench "ple all" $ nf (toMatrices . pleDecomposition) mat
+    , bench "ple matrix only" $ nf (trd . toMatrices . pleDecomposition) mat
     ]
   ]
 
