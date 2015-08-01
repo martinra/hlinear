@@ -8,8 +8,8 @@ where
 import Control.DeepSeq ( NFData(..) )
 import Math.Structure
 
-import HLinear.PLE.Hook ( PLEHook(..) )
-import qualified HLinear.PLE.Hook as H
+import HLinear.PLE.Hook.Definition ( PLEHook(..) )
+import qualified HLinear.PLE.Hook.Definition as H
 import HLinear.Matrix ( Matrix )
 
 

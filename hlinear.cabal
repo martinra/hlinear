@@ -54,7 +54,9 @@ library
     HLinear.PLE.FoldUnfold.ReducedEchelonForm
 
     HLinear.PLE.Hook
+    HLinear.PLE.Hook.Algebra
     HLinear.PLE.Hook.Container
+    HLinear.PLE.Hook.Definition
 
     HLinear.PLE.Hook.EchelonForm
     HLinear.PLE.Hook.EchelonForm.Algebra

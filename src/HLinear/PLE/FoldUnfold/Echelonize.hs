@@ -53,13 +53,6 @@ instance
       (EchelonForm nrs ncs V.empty)
 
 
-instance
-     (DecidableZero a, DivisionRing a)
-  => MultiplicativeMagma (PLEHook a)
-  where
-  (PLEHook p lt ef) * (PLEHook p' lt' ef') =
-    PLEHook (p'*p) (lt' * (p' *. lt)) (ef + ef')
-
 
 splitOffHook
   :: ( DecidableZero a, DivisionRing a )
