@@ -43,15 +43,17 @@ instance
   => HasPLEDecompositionFoldUnfold Matrix a
   where
   pleDecompositionFoldUnfold m =
-    PLEDecomposition $ V.foldl (*) firstHook $ V.unfoldr splitOffHook m
+    PLEDecomposition $ V.foldl (*) (firstHook m) $ V.unfoldr splitOffHook m
     where
+
+firstHook :: Matrix a -> PLEHook a
+firstHook m = PLEHook
+  (RP.rpermute $ fromIntegral nrs)
+  (LeftTransformation nrs V.empty)
+  (EchelonForm nrs ncs V.empty)
+  where
     nrs = M.nmbRows m
     ncs = M.nmbCols m
-
-    firstHook = PLEHook
-      (RP.rpermute $ fromIntegral nrs)
-      (LeftTransformation nrs V.empty)
-      (EchelonForm nrs ncs V.empty)
 
 
 
