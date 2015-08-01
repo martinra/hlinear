@@ -85,6 +85,7 @@ library
     HLinear.PLE.Hook.LeftTransformation.QuickCheck
     HLinear.PLE.Hook.LeftTransformation.SmallCheck
 
+    HLinear.PLE.Hook.PLMatrix
     HLinear.PLE.Hook.RPermute
 
     HLinear.PLE.MultiMod

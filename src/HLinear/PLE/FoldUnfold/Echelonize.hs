@@ -21,6 +21,7 @@ import Math.Structure
 
 import HLinear.PLE.Decomposition.Definition
 import HLinear.PLE.Hook
+import HLinear.PLE.Hook.PLMatrix
 import qualified HLinear.PLE.Hook.RPermute as RP
 import HLinear.PLE.Hook.RPermute ( RPermute(..) )
 import qualified HLinear.PLE.Hook.EchelonForm as EF
@@ -87,17 +88,3 @@ splitOffHook m@(Matrix nrs ncs rs)
           where
             plm = fromPLMatrix $ l *. (p *. PLMatrix m)
             e = EF.singletonLeadingOne (M.nmbRows m) 0 $ headRows plm
-
-
-newtype PLMatrix a = PLMatrix {fromPLMatrix :: Matrix a}
-
-instance MultiplicativeSemigroupLeftAction RPermute (PLMatrix a) where
-  p *. PLMatrix (Matrix nrs ncs rs) = PLMatrix $
-    Matrix nrs ncs $ RP.fromRPVector $ p *. RP.RPVector rs
-
-instance
-     ( DivisionRing a, DecidableZero a )
-  => MultiplicativeSemigroupLeftAction (LeftTransformation a) (PLMatrix a)
-  where
-  lt *. PLMatrix m@(Matrix nrs ncs _) = PLMatrix $ 
-    fromBRMatrixUnsafe nrs ncs $ lt *. toBRMatrix m
