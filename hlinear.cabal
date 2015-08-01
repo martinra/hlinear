@@ -93,6 +93,12 @@ library
     HLinear.PLE.MultiMod.Echelonize.Definition
     HLinear.PLE.MultiMod.Echelonize.FMPQ
 
+    HLinear.PLE.Sliced
+    HLinear.PLE.Sliced.Echelonize
+    HLinear.PLE.Sliced.Echelonize.Definition
+    HLinear.PLE.Sliced.Echelonize.Implementation
+
+
     HLinear.PLE.Strategy
 
   build-depends:
@@ -104,6 +110,7 @@ library
     , deepseq
     , hflint
     , mtl
+    , monad-par
     , natural-test
     , parallel
     , permutation
