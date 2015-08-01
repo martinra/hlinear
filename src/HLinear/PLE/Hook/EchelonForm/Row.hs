@@ -63,7 +63,7 @@ instance ( Eq a, DecidableZero a ) => Eq (EchelonFormRow a) where
 instance NFData a => NFData (EchelonFormRow a) where
   rnf (EchelonFormRow o s) =
     seq (rnf o) $
-    seq (V.map rnf s) $ ()
+    seq (V.map rnf s) ()
 
 -- length
 

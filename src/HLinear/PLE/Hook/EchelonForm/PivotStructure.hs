@@ -6,10 +6,12 @@ module HLinear.PLE.Hook.EchelonForm.PivotStructure
 where
 
 import Control.DeepSeq ( NFData )
+import Data.Maybe
 import Data.Sequence ( Seq )
 import qualified Data.Sequence as S
 import qualified Data.Vector as V
 import Math.Structure ( DecidableZero, isZero )
+import Numeric.Natural
 
 import HLinear.PLE.Hook.EchelonForm.Definition
 import qualified HLinear.PLE.Hook.EchelonForm.Row as EFR
@@ -25,7 +27,11 @@ pivotStructure (EchelonForm nrs ncs rs) = PivotStructure $ go S.empty rs 0 0
   where
     go s rs ix jx
       | V.null rs = s
-      | otherwise = 
-          case EFR.pivotIx' (V.head rs) ix of
-            Nothing  -> s
-            Just ix' -> go (s S.|> (ix',jx)) (V.tail rs) (succ ix') (succ jx)
+      | Just jx' <- EFR.pivotIx' (V.head rs) jx =
+          go (s S.|> (ix,jx')) (V.tail rs) (succ ix) (succ jx')
+      | otherwise = s
+
+rank :: DecidableZero a => EchelonForm a -> Natural
+rank (EchelonForm _ _ rs) = fromIntegral $ V.length rs - V.length zerors
+  where
+    zerors = V.takeWhile (isNothing . EFR.pivotIx) $ V.reverse rs

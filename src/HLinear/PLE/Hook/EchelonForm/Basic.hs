@@ -30,17 +30,7 @@ offset :: EchelonForm a -> Natural
 offset (EchelonForm nrs _ rs)
   | V.null rs = nrs
   | otherwise = EFR.offset $ V.head rs
-
-pivotIxs :: DecidableZero a => EchelonForm a -> [(Int,Int)]
-pivotIxs (EchelonForm nrs ncs rs) =
-  go [] (pred $ V.length rs) (fromIntegral ncs)
-  where
-    go ps ix jx
-      | ix < 0 || jx < 0 = ps
-      | otherwise = case EFR.pivotIx (rs V.! ix) of
-                      Nothing  -> go ps (pred ix) jx
-                      Just jx' -> go ((ix,jx'):ps) (pred ix) (pred jx')
-      
+                      
 -- access and conversion
 
 atRow :: AdditiveMonoid a => EchelonForm a -> Int -> Vector a
@@ -117,40 +107,52 @@ splitAt ix (EchelonForm nrs ncs rs) =
     (rsTop,rsBottom) = V.splitAt ix rs
     nrs' = fromIntegral $ nrsZ - ixB
 
-splitAtPivot
+splitAtHook
   :: ( AdditiveMonoid a, DecidableZero a )
-  => Int -> EchelonForm a
-  -> Maybe (EchelonForm a, Matrix a, EchelonForm a)
-splitAtPivot ix ef@(EchelonForm nrs ncs rs)
-  = go <$> pivotIxs ef `atMay` ix
-  where
-    go pivotIx@(pivotRow,pivotCol) =
+  => (Int,Int) -> EchelonForm a
+  -> (EchelonForm a, Matrix a, EchelonForm a)
+splitAtHook (pivotRow,pivotCol) ef@(EchelonForm nrs ncs rs)
+  | pivotRow < 0 || pivotCol < 0 =
+      splitAtHook (max 0 pivotRow, max 0 pivotCol) ef
+  | pivotRow >= nrsZ || pivotCol >= ncsZ =
+      splitAtHook (min nrsZ pivotRow, min ncsZ pivotCol) ef
+  | otherwise =
       ( EchelonForm pivotRowN pivotColN rsLeft
       , Matrix pivotRowN ncs' $ V.map EFR.toVector rsTopRight
       , EchelonForm nrs' ncs' rsBottomRight
       )
-      where
-      (rsLeft,rsRight) = V.unzip $ V.map (EFR.splitAt pivotCol) rs
-      (rsTopRight,rsBottomRight) = V.splitAt pivotRow rsRight
+    where
+    (rsLeft,rsRight) = V.unzip $ V.map (EFR.splitAt pivotCol) rs
+    (rsTopRight,rsBottomRight) = V.splitAt pivotRow rsRight
   
-      nrsZ = fromIntegral nrs
-      ncsZ = fromIntegral ncs
-      nrs' = fromIntegral $ nrsZ - pivotRow
-      ncs' = fromIntegral $ ncsZ - pivotCol
-      pivotRowN = fromIntegral pivotRow
-      pivotColN = fromIntegral pivotCol
+    nrsZ = fromIntegral nrs
+    ncsZ = fromIntegral ncs
+    nrs' = fromIntegral $ nrsZ - pivotRow
+    ncs' = fromIntegral $ ncsZ - pivotCol
+    pivotRowN = fromIntegral pivotRow
+    pivotColN = fromIntegral pivotCol
 
 -- block sums
 
-blockSumAtPivot
+blockSum
+  :: EchelonForm a -> Matrix a
+  -> EchelonForm a
+blockSum
+  (EchelonForm nrs ncs rs)
+  (Matrix nrs' ncs' rs')
+  | nrs /= nrs'   = error "EchelonForm.blockSum: incompatible number of rows"
+  | otherwise  = EchelonForm nrs (ncs+ncs') $
+                   V.zipWith EFR.sumRow rs rs'
+
+blockSumHook
   :: EchelonForm a -> Matrix a -> EchelonForm a
   -> EchelonForm a
-blockSumAtPivot
+blockSumHook
   (EchelonForm nrs ncs rs)
   (Matrix nrs' ncs' rs')
   (EchelonForm nrs'' ncs'' rs'')
-  | nrs /= nrs'   = error "EchelonForm.sumRow: incompatible number of rows"
-  | ncs' /= ncs'' = error "EchelonForm.sumRow: incompatible number of columns"
+  | nrs /= nrs'   = error "EchelonForm.blockSumAtPivot: incompatible number of rows"
+  | ncs' /= ncs'' = error "EchelonForm.blockSumAtPivot: incompatible number of columns"
   | otherwise  = EchelonForm (nrs+nrs'') (ncs+ncs') $
                    V.zipWith EFR.sumRow rs rs'
                    V.++

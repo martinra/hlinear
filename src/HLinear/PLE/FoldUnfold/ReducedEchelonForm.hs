@@ -8,13 +8,14 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       )
 
+import Data.Sequence ( ViewR(..), viewr )
 import Data.Vector ( Vector )
 import qualified Data.Vector as V
 import qualified Data.Permute as P
 import Math.Structure
 import Numeric.Natural ( Natural )
 
-import HLinear.PLE.Hook.EchelonForm ( EchelonForm(..) )
+import HLinear.PLE.Hook.EchelonForm ( EchelonForm(..), PivotStructure(..) )
 import qualified HLinear.PLE.Hook.EchelonForm as EF
 import qualified HLinear.PLE.Hook.EchelonForm.Row as EFR
 import HLinear.PLE.Hook.EchelonTransformation ( EchelonTransformation(..) )
@@ -35,13 +36,14 @@ reduce
 reduce ef =
   let EchelonReduction et' _ ef' =
         V.foldl (*) firstReduction $
-        V.unfoldr reduceLastPivot ef
+        V.unfoldr reduceLastPivot (ef, pivots)
   in  (et', ef')
   where
     firstReduction = EchelonReduction
                        (ET.identityET nrs)
                        (M.zeroMatrix nrs 0)
                        (EF.zeroEF 0 0)
+    pivots = EF.pivotStructure ef
     nrs = EF.nmbRows ef
     ncs = EF.nmbCols ef
 
@@ -55,7 +57,7 @@ instance DivisionRing a => MultiplicativeMagma (EchelonReduction a) where
     EchelonReduction
       (et'*et)
       (M.blockSumRows m' mTop)
-      (EF.blockSumAtPivot ef' mBottom ef)
+      (EF.blockSumHook ef' mBottom ef)
     where
       (mTop,mBottom) = M.splitAtCols (fromIntegral $ M.nmbRows m') (et'*.m)
 
@@ -63,25 +65,21 @@ instance DivisionRing a => MultiplicativeSemigroup (EchelonReduction a)
 
 
 reduceLastPivot
-  :: ( Show a, DivisionRing a, DecidableZero a )
-  => EchelonForm a -> Maybe (EchelonReduction a, EchelonForm a)
-reduceLastPivot ef@(EchelonForm nrs ncs rs)
+  :: ( DivisionRing a, DecidableZero a )
+  => (EchelonForm a, PivotStructure)
+  -> Maybe (EchelonReduction a, (EchelonForm a, PivotStructure))
+reduceLastPivot ( ef@(EchelonForm nrs ncs rs), PivotStructure pivots )
   | nrs == 0 && ncs == 0 = Nothing
-  | otherwise            = Just $
-      case EF.splitAtPivot 0 ef of
-        Nothing -> ( EchelonReduction
-                       (ET.identityET nrs)
-                       (Matrix 0 ncs V.empty)
-                       ef
-                   , EchelonForm 0 0 V.empty )
-        Just (efLeft, efTopRight, efBottomRight) -> 
-          ( EchelonReduction et efTopRight' efBottomRight
-          , efLeft )
-          where
-            et = ET.singleton $ V.map negate $ M.headCols efTopRight 
-            nrs'Z = fromIntegral $ EF.nmbRows efLeft
-            ncs' = EF.nmbCols efBottomRight
-            efBottomRightHead = M.Matrix 1 ncs' $ V.singleton $
-                                  efBottomRight `EF.atRow` 0
-            (efTopRight',_) = M.splitAtCols nrs'Z $
-                              et *. M.blockSumCols efTopRight efBottomRightHead
+  | pivots' :> pivot <- viewr pivots = Just $
+      let (efLeft, efTopRight, efBottomRight) = EF.splitAtHook pivot ef
+          et = ET.singleton $ V.map negate $ M.headCols efTopRight 
+          nrs'Z = fromIntegral $ EF.nmbRows efLeft
+          ncs' = EF.nmbCols efBottomRight
+          efBottomRightHead = M.Matrix 1 ncs' $ V.singleton $
+                                efBottomRight `EF.atRow` 0
+          (efTopRight',_) = M.splitAtCols nrs'Z $
+                            et *. M.blockSumCols efTopRight efBottomRightHead
+      in  ( EchelonReduction et efTopRight' efBottomRight
+          , (efLeft, PivotStructure pivots')
+          )
+  | otherwise = Nothing
