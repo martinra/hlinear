@@ -174,3 +174,23 @@ splitAtCols ix m@(Matrix nrs ncs rs)
    nrsTop = fromIntegral ix
    nrsBottom = fromIntegral $ nrsZ - ix
    (rsTop,rsBottom) = V.splitAt ix rs
+
+sliceRows :: Int -> Int -> Matrix a -> Matrix a
+sliceRows ix sz m@(Matrix nrs ncs rs)
+  | ix < 0 = sliceRows 0 (sz+ix) m
+  | ix >= nrsZ || sz < 0 = Matrix 0 ncs V.empty
+  | ix+sz > nrsZ = sliceRows ix (nrsZ-ix) m
+  | otherwise = Matrix szN ncs $ V.slice ix sz rs
+  where
+   nrsZ = fromIntegral nrs
+   szN = fromIntegral sz
+
+sliceCols :: Int -> Int -> Matrix a -> Matrix a
+sliceCols jx sz m@(Matrix nrs ncs rs)
+  | jx < 0 = sliceCols 0 (sz+jx) m
+  | jx >= ncsZ || sz < 0 = Matrix nrs 0 $ V.replicate ncsZ V.empty
+  | jx+sz > ncsZ = sliceCols jx (ncsZ-jx) m
+  | otherwise = Matrix nrs szN $ V.map (V.slice jx sz) rs
+  where
+   ncsZ = fromIntegral ncs
+   szN = fromIntegral sz

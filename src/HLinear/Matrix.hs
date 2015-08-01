@@ -30,6 +30,8 @@ module HLinear.Matrix
 
   , splitAtRows
   , splitAtCols
+  , sliceRows
+  , sliceCols
 
   , zeroMatrix
   , identityMatrix
