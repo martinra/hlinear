@@ -16,6 +16,8 @@ import Prelude hiding ( (+), (-), negate, subtract
 import qualified Prelude as P
 
 import Control.DeepSeq ( NFData(..), force )
+import Control.Monad.Identity
+import Control.Monad.Trans.Maybe
 import HFlint.FMPQ
 import HFlint.FMPZ
 import HFlint.NMod
@@ -33,26 +35,32 @@ import HLinear.PLE.Hook.LeftTransformation as LT
 import HLinear.PLE.Hook.LeftTransformation.Container as LT
 import HLinear.PLE.Hook.RPermute as RP
 import HLinear.PLE.MultiMod.Echelonize.Definition
+import HLinear.PLE.Strategy.Definition
+import HLinear.PLE.Strategy.NMod
 import HLinear.Matrix
 import HLinear.MultiMod.Definition
 import HLinear.MultiMod.Reconstruction
 import HLinear.MultiMod.Standard
 
 
-instance HasPLEDecompositionMultiMod Matrix FMPQ where
-  pleDecompositionMultiMod p m =
-    reconstruct (reconstructionParameters p) isReconstruction $
+instance
+  HasPLEDecompositionFMPQMultiMod Matrix
+  where
+  pleDecompositionMultiMod param strat m =
+    reconstruct rrParam isReconstruction $
       multiModPLE $ reduce m
 
       where
+      PLEDecompositionMultiModParameters rrParam = param
       isReconstruction (RReconst _ (Modulus md)
                        (PLEDecomposition (PLEHook _ l e))) =
         limbHeight md > 2 P.+ limbHeight l P.+ limbHeight e P.+ mht
       mht = limbHeight m
 
       multiModPLE :: MultiMod Matrix -> MultiMod PLEDecomposition
-      multiModPLE (MultiMod m) = MultiMod $ \ctx ->
-        multiModInnerPLEDecomposition p <$> m ctx
+      multiModPLE (MultiMod mat) = MultiMod $ \ctx -> do
+        mat' <- mat ctx
+        dispatchPLEStrategy (strat ctx) mat'
 
 
 instance

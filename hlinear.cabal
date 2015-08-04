@@ -47,10 +47,11 @@ library
     HLinear.PLE.Decomposition
     HLinear.PLE.Decomposition.Definition
     HLinear.PLE.Decomposition.Instances
-    HLinear.PLE.Decomposition.Strategy
 
     HLinear.PLE.FoldUnfold
     HLinear.PLE.FoldUnfold.Echelonize
+    HLinear.PLE.FoldUnfold.Echelonize.Definition
+    HLinear.PLE.FoldUnfold.Echelonize.DivisionRing
     HLinear.PLE.FoldUnfold.ReducedEchelonForm
 
     HLinear.PLE.Hook
@@ -96,10 +97,12 @@ library
     HLinear.PLE.Sliced
     HLinear.PLE.Sliced.Echelonize
     HLinear.PLE.Sliced.Echelonize.Definition
-    HLinear.PLE.Sliced.Echelonize.Implementation
-
+    HLinear.PLE.Sliced.Echelonize.DivisionRing
 
     HLinear.PLE.Strategy
+    HLinear.PLE.Strategy.Definition
+    HLinear.PLE.Strategy.FMPQ
+    HLinear.PLE.Strategy.NMod
 
   build-depends:
       base

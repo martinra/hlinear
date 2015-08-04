@@ -1,27 +1,8 @@
-{-# LANGUAGE
-    FlexibleContexts
-  , GADTs
-  , RankNTypes
-  , TypeFamilies
-  #-}
-
 module HLinear.PLE.Strategy
+  ( module Definition
+  )
 where
 
-import HLinear.Matrix ( Matrix )
-import HLinear.PLE.FoldUnfold.Echelonize
-import HLinear.PLE.MultiMod.Echelonize.Definition
-import HLinear.PLE.Sliced.Echelonize.Definition
-
-
-data PLEStrategy a where
-  FoldUnfold
-    :: HasPLEDecompositionFoldUnfold Matrix a
-    => PLEStrategy a
-  Sliced
-    :: HasPLEDecompositionSliced Matrix a
-    => PLEDecompositionSlicedParameters a -> PLEStrategy a
-  MultiMod
-    :: HasPLEDecompositionMultiMod Matrix a
-    => PLEDecompositionMultiModParameters a -> PLEStrategy a
--- | PAdic Natural
+import HLinear.PLE.Strategy.Definition as Definition
+import HLinear.PLE.Strategy.FMPQ
+import HLinear.PLE.Strategy.NMod

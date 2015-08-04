@@ -6,16 +6,19 @@
 module HLinear.PLE.Decomposition.Instances
 where
 
+import Control.Monad.Identity
 import Math.Structure ( DecidableZero, DivisionRing )
 import HFlint.FMPQ
 
 import HLinear.Matrix ( Matrix )
 import HLinear.MultiMod ( ReconstructionParameters(..) )
 import HLinear.PLE.Decomposition.Definition
-import HLinear.PLE.Decomposition.Strategy
+import HLinear.PLE.Strategy.FMPQ
+import HLinear.PLE.Strategy.NMod
 import HLinear.PLE.FoldUnfold
 import HLinear.PLE.MultiMod
-import HLinear.PLE.Strategy
+import HLinear.PLE.Sliced
+import HLinear.PLE.Strategy.Definition
 
 
 instance {-# OVERLAPPABLE #-}
@@ -27,12 +30,22 @@ instance {-# OVERLAPPABLE #-}
 instance {-# OVERLAPPING #-}
   HasPLEDecomposition Matrix FMPQ
   where
-  pleDecomposition = pleDecompositionWithStrategy $
-    MultiMod PLEDecompositionMultiModParameters
-      { multiModInnerPLEDecomposition =
-          pleDecompositionWithStrategy FoldUnfold
-      , reconstructionParameters = ReconstructionParameters
-        { bufferSize = 20
-        , reconstructionSkip = 10
-        }
-      }
+  pleDecomposition = runIdentity . dispatchPLEStrategy  strat
+    where
+      strat = PLEStrategyFMPQSliced
+              PLEDecompositionSlicedParameters
+                { slicingStrategy = SlicingBalanced
+                , slicingSizeNmb  = SlicingSize 64
+                }
+              stratMM
+
+      stratMM = PLEStrategyFMPQMultiMod
+                ( PLEDecompositionMultiModParameters
+                  ReconstructionParameters
+                  { bufferSize = 20
+                  , reconstructionSkip = 10
+                  }
+                )
+                ( const $ PLEStrategyNModLiftIdenity
+                          PLEStrategyNModFoldUnfold
+                )
