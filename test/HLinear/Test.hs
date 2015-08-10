@@ -1,18 +1,28 @@
 module Main
 where
 
-import Test.Tasty ( defaultMain
-                  , testGroup
-                  )
+import Test.Tasty
+  ( defaultMainWithIngredients
+  , testGroup
+  )
+import Test.Tasty.Ingredients.Basic
+  ( listingTests, consoleTestReporter )
+import Test.Tasty.Ingredients.Rerun
+  ( rerunningTests )
+
 
 import HLinear.Test.PLE ( pleTests )
 import HLinear.Test.BRMatrix ( brMatrixTests )
 import HLinear.Test.Matrix ( matrixTests )
 
 
-main = defaultMain $
+main :: IO ()
+main =
+  defaultMainWithIngredients
+  [ rerunningTests [ listingTests, consoleTestReporter ] ] $
   testGroup "HLinear Tests"
-  [-- matrixTests
-   --, brMatrixTests
-    pleTests
-  ]
+    [{- debug
+         matrixTests
+     --, brMatrixTests
+    ,-} pleTests
+    ]

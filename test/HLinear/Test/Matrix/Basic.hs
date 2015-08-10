@@ -1,4 +1,4 @@
-module HLinear.Test.BRMatrix.Basic
+module HLinear.Test.Matrix.Basic
 where
 
 import Prelude hiding ( (+) )
@@ -27,7 +27,7 @@ properties = testGroup "Basic properties"
   , testProperty "zeroMatrix !? ix == Nothing" $
       \ix nrs ncs ->
         isNothing
-        ( (zeroMatrix nrs ncs :: Matrix Int) !? nrs+ix )
+        ( (zeroMatrix nrs ncs :: Matrix Int) !? fromIntegral (nrs+ix) )
 
   , testPropertyMatrix "m == m" $
       \m -> (m :: Matrix Int) == m

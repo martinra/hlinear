@@ -20,22 +20,7 @@ import HLinear.Matrix
 
 properties :: TestTree
 properties = testGroup "Creation properties"
-  [
---   testPropertyBRMatrix "fromVectors' . toVectors == id" $ \m ->
---      ( let nrs = nmbRows m
---            ncs = nmbCols m
---            rs  = toVectors m
---        in fromMaybe
---           ( if m == zero
---             then m == zeroMatrix' nrs ncs
---             else m == oneMatrix' nrs (forceSize 1 1 m ! 0 V.! 0) )
---           ( (==) (m :: BRMatrix Int) <$>
---             ( fromVectors' <$> nrs <*> ncs <*> rs ) )
---      )
-
-    testProperty "zeroMatrix == zero" $
-      \nrs ncs -> zeroMatrix nrs ncs == (zero :: Matrix Int)
-  , testProperty "nmbRows/Cols .: zeroMatrix" $
+  [ testProperty "nmbRows/Cols .: zeroMatrix" $
       \nrs ncs -> ( let m = zeroMatrix nrs ncs :: Matrix Int
                     in    nmbRows m == nrs
                        && nmbCols m == ncs )

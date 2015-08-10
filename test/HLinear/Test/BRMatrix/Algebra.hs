@@ -19,8 +19,6 @@ properties = testGroup "Algebra properties" $
   (`runTestR` testPropertyMatrix) $
   fmap concat $ sequence
   [ isRng (Proxy :: Proxy (BRMatrix Integer))
-  , isRng (Proxy :: Proxy (BRMatrix Integer))
-
   , isNonUnitalAlgebra (Proxy :: Proxy Integer)
                        (Proxy :: Proxy (BRMatrix Integer))
  ]
