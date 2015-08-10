@@ -9,6 +9,7 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , (*), (/), recip, (^), (^^)
                       , gcd
                       , quotRem, quot, rem
+                      , splitAt
                       )
 
 import Control.DeepSeq ( NFData(..) )
@@ -21,8 +22,9 @@ import Safe ( atMay )
 
 import HLinear.Matrix.Definition ( Matrix(..) )
 import HLinear.PLE.Hook.EchelonForm.Definition as EF
-import HLinear.PLE.Hook.EchelonForm.Row as EFR
-
+import HLinear.PLE.Hook.EchelonForm.PivotStructure ( rank )
+import qualified HLinear.PLE.Hook.EchelonForm.Row as EFR
+import HLinear.PLE.Hook.EchelonForm.Row ( EchelonFormRow(..) )
 
 -- properties
 
@@ -36,7 +38,7 @@ offset (EchelonForm nrs _ rs)
 atRow :: AdditiveMonoid a => EchelonForm a -> Int -> Vector a
 atRow (EchelonForm nrs ncs rs) ix
   | ix >= nrsZ  = error  "EchelonForm.atRow: out of range"
-  | otherwise   = maybe (V.replicate ncsZ zero) toVector $ rs V.!? ix
+  | otherwise   = maybe (V.replicate ncsZ zero) EFR.toVector $ rs V.!? ix
   where
     nrsZ = fromIntegral nrs
     ncsZ = fromIntegral ncs
@@ -98,14 +100,21 @@ zeroEF nrs ncs = EchelonForm nrs ncs V.empty
 
 splitAt :: Int -> EchelonForm a -> (EchelonForm a, EchelonForm a)
 splitAt ix (EchelonForm nrs ncs rs) =
-  ( EchelonForm nrs ncs rsTop
+  ( EchelonForm ixBN ncs rsTop
   , EchelonForm nrs' ncs rsBottom
   )
   where
     nrsZ = fromIntegral nrs
     ixB = min nrsZ $ max 0 ix
-    (rsTop,rsBottom) = V.splitAt ix rs
+    ixBN = fromIntegral ixB
     nrs' = fromIntegral $ nrsZ - ixB
+
+    (rsTop,rsBottom) = V.splitAt ix rs
+
+truncateAtRank
+ :: DecidableZero a
+ => EchelonForm a -> EchelonForm a
+truncateAtRank e = fst $ splitAt (fromIntegral $ rank e) e
 
 splitAtHook
   :: ( AdditiveMonoid a, DecidableZero a )
@@ -135,14 +144,24 @@ splitAtHook (pivotRow,pivotCol) ef@(EchelonForm nrs ncs rs)
 -- block sums
 
 blockSum
-  :: EchelonForm a -> Matrix a
+  :: AdditiveMonoid a
+  => EchelonForm a -> Matrix a
   -> EchelonForm a
 blockSum
   (EchelonForm nrs ncs rs)
   (Matrix nrs' ncs' rs')
-  | nrs /= nrs'   = error "EchelonForm.blockSum: incompatible number of rows"
+  | nrs < nrs'   = error "EchelonForm.blockSum: incompatible number of rows"
   | otherwise  = EchelonForm nrs (ncs+ncs') $
-                   V.zipWith EFR.sumRow rs rs'
+                   V.zipWith EFR.sumRow rs1 rs'
+                   V.++
+                   V.zipWith EFR.sumRow rs2 zerors
+      where
+      nrs'Z = fromIntegral nrs'
+      ncs'Z = fromIntegral ncs'
+
+      (rs1,rs2) = V.splitAt nrs'Z rs
+      zerors = V.replicate (V.length rs2) $
+                V.replicate ncs'Z zero
 
 blockSumHook
   :: EchelonForm a -> Matrix a -> EchelonForm a

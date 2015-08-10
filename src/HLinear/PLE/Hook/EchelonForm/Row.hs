@@ -39,7 +39,10 @@ pivotIx (EchelonFormRow o v) = (oZ+) <$> V.findIndex (not . isZero) v
 
 
 pivotIx' :: DecidableZero a => EchelonFormRow a -> Int -> Maybe Int
-pivotIx' (EchelonFormRow o v) ix = (oZ+) <$> V.findIndex (not . isZero) (V.drop (ix - oZ) v)
+pivotIx' (EchelonFormRow o v) ix =
+  if ix >= oZ
+  then (ix+) <$> V.findIndex (not . isZero) (V.drop (ix-oZ) v)
+  else (oZ+) <$> V.findIndex (not . isZero) v
   where
     oZ = fromIntegral o
 
