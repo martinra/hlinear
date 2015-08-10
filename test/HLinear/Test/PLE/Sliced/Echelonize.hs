@@ -18,6 +18,7 @@ import Data.Maybe
 import Data.Proxy
 import HFlint.FMPQ
 import HFlint.FMPZ
+import HFlint.NMod
 import Math.Structure
 import Math.Structure.Tasty
 import Numeric.Natural
@@ -34,6 +35,7 @@ import HLinear.PLE.Decomposition as Decomp
 import HLinear.PLE.Hook as Hook
 import HLinear.PLE.Strategy.Definition ( PLEStrategy )
 import HLinear.PLE.Strategy.FMPQ
+import HLinear.PLE.Strategy.NMod
 
 import HLinear.Test.Utils as TU
 
@@ -66,6 +68,14 @@ pleProperties =
   , testPropertyMatrix "recombine ple decomposition" $
       recombinePLE $ PLEDecompositionSlicedParameters
                        SlicingBalanced (SlicingNmb 5)
+
+  , testPropertyMatrix "recombine ple decomposition (small prime)" $
+      recombinePLENMod 3 $ PLEDecompositionSlicedParameters
+                         SlicingBalanced (SlicingNmb 5)
+
+  , testPropertyMatrix "recombine ple decomposition (large prime)" $
+      recombinePLENMod 1125899906842679 $ PLEDecompositionSlicedParameters
+                         SlicingBalanced (SlicingNmb 5)
   ]
 
 
@@ -87,3 +97,13 @@ recombinePLE param m =
         nrs = M.nmbRows m
         ncs = M.nmbCols m
     in  nrs > 30 || ncs > 30 || m == pm * (lm * em)
+
+recombinePLENMod
+  :: FlintLimb -> PLEDecompositionSlicedParameters
+  -> Matrix FMPZ -> Bool
+recombinePLENMod p param m =
+  withNModContext p $ \(_::Proxy ctx) ->
+    let mNMod = fmap toNMod m :: Matrix (NMod ctx)
+        (pm,lm,em) = Decomp.toMatrices $
+                       pleDecompositionSliced param PLEStrategyNModFoldUnfold mNMod
+    in  mNMod == pm * (lm * em)
