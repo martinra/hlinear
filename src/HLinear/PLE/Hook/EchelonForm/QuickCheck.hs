@@ -7,11 +7,13 @@ import Control.Monad.State ( gets, put )
 import qualified Data.Vector as V
 import Data.Vector ( Vector )
 
+import Math.Structure ( DecidableZero, Ring, isZero, one )
+
 import Test.QuickCheck.Arbitrary ( Arbitrary
                                  , arbitrary
                                  , shrink
                                  )
-import Test.QuickCheck.Modifiers ( NonNegative(..)
+import Test.QuickCheck.Modifiers ( NonNegative(..), Positive(..)
                                  , Small(..)
                                  )
 
@@ -20,7 +22,8 @@ import HLinear.PLE.Hook.EchelonForm.Basic as EF
 import HLinear.PLE.Hook.EchelonForm.Row as EFR
 
 
-instance Arbitrary a => Arbitrary (EchelonForm a) where
+instance    ( Arbitrary a, Ring a, DecidableZero a )
+         => Arbitrary (EchelonForm a) where
   arbitrary = do
     NonNegative (Small lrsZ) <- arbitrary
     NonNegative (Small nrsDiffZ) <- arbitrary
@@ -29,12 +32,16 @@ instance Arbitrary a => Arbitrary (EchelonForm a) where
     let nrsDiff = fromIntegral (nrsDiffZ :: Integer)
     let ncs = fromIntegral (ncsZ :: Integer)
     let rs = V.replicateM (fromIntegral lrs) $ do
-               NonNegative (Small oZ) <- lift arbitrary
+               Positive (Small oZ) <- lift arbitrary
                o' <- min ncs <$> gets (+ fromInteger oZ)
                put o'
-               EchelonFormRow o' <$>
-                 V.replicateM (fromIntegral ncs - fromIntegral o')
-                              (lift arbitrary)
+               if ncs == o'
+                 then return $ EchelonFormRow o' V.empty
+                 else do
+                   r <- V.replicateM (fromIntegral ncs - fromIntegral o' - 1)
+                                     (lift arbitrary)
+                   r1 <- lift arbitrary
+                   return $ EchelonFormRow o' $ (if isZero r1 then one else r1) `V.cons` r
 
     EchelonForm (lrs+nrsDiff) ncs <$> evalStateT rs 0
 
