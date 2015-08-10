@@ -9,6 +9,7 @@ import Prelude hiding ( (+), (-), negate, subtract
                       )
 
 import Data.Sequence ( ViewR(..), viewr )
+import qualified Data.Sequence as S
 import Data.Vector ( Vector )
 import qualified Data.Vector as V
 import qualified Data.Permute as P
@@ -26,8 +27,6 @@ import HLinear.Matrix ( zeroMatrix
 import qualified HLinear.Matrix as M
 import HLinear.Matrix.Conversion
 import HLinear.Matrix.Definition ( Matrix(..) )
-
-import Debug.Trace
 
 
 reduce
@@ -82,4 +81,11 @@ reduceLastPivot ( ef@(EchelonForm nrs ncs rs), PivotStructure pivots )
       in  ( EchelonReduction et efTopRight' efBottomRight
           , (efLeft, PivotStructure pivots')
           )
-  | otherwise = Nothing
+  | otherwise = Just
+      ( EchelonReduction
+          ( EchelonTransformation nrs V.empty )
+          ( Matrix 0 ncs V.empty )
+          ef
+      , (EchelonForm 0 0 V.empty, PivotStructure S.empty)
+      )
+  
