@@ -55,7 +55,7 @@ instance Traversable t => Reducible t FMPQ where
 
 
 defaultToApprox
-  :: Functor t 
+  :: ( Functor t, NFData (Approximation t d FMPZ) )
   => ( Approximation t d FMPZ -> Approximation t d FMPZ )
   -> ( ModGen FlintLimb t FlintLimb -> d )
   -> MultiMod t -> FlintLimb
