@@ -31,10 +31,10 @@ instance Arbitrary a => Arbitrary (Matrix a) where
     | nrs <= 1 || ncs <= 1 = []
     | otherwise =
       map ($rs)
-      [ Matrix nrsD2 ncs . V.map (V.take $ fromIntegral nrsD2)
-      , Matrix nrsR2 ncs . V.map (V.drop $ fromIntegral nrsD2)
-      , Matrix nrs ncsD2 . V.take (fromIntegral ncsD2)
-      , Matrix nrs ncsR2 . V.drop (fromIntegral ncsD2)
+      [ Matrix nrs ncsD2 . V.map (V.take $ fromIntegral ncsD2)
+      , Matrix nrs ncsR2 . V.map (V.drop $ fromIntegral ncsD2)
+      , Matrix nrsD2 ncs . V.take (fromIntegral nrsD2)
+      , Matrix nrsR2 ncs . V.drop (fromIntegral nrsD2)
       ]
       ++
       [ Matrix nrs ncs $
