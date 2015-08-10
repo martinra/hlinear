@@ -52,7 +52,8 @@ rpermute :: Int -> RPermute
 rpermute n = RPermute $ P.permute n
 
 fromTransposition :: Int -> (Int,Int) -> RPermute
-fromTransposition n ab = RPermute $ P.swapsPermute n [ab]
+fromTransposition n (a,b) =
+  RPermute $ P.swapsPermute n [(n-1 - a, n-1 - b)]
 
 toPermute :: RPermute -> Permute
 toPermute (RPermute p) =
@@ -122,7 +123,8 @@ instance
     where
       nv = V.length v
       np = size rp
-      vp = V.generate np $ \ix -> nv-1 - (p `P.at` (np-1 - ix))
+      pi = P.inverse p
+      vp = V.generate np $ \ix -> nv-1 - (pi `P.at` (np-1 - ix))
       vp' = case compare nv np of
               EQ -> vp
               GT -> V.enumFromN 0 (nv-np) V.++ vp
