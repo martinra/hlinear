@@ -1,5 +1,7 @@
 {-# LANGUAGE
-    MultiParamTypeClasses
+    FlexibleContexts
+  , FlexibleInstances
+  , MultiParamTypeClasses
   #-}
 
 module HLinear.PLE.Hook.PLMatrix
@@ -11,13 +13,19 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       )
 
+import qualified Data.Vector as V
+import Math.Algebra.MonicExtension as Ext
 import Math.Structure
 
 import qualified HLinear.PLE.Hook.RPermute as RP
 import HLinear.PLE.Hook.RPermute ( RPermute(..) )
 import HLinear.PLE.Hook.LeftTransformation ( LeftTransformation(..) )
+import HLinear.PLE.Hook.LeftTransformation.Weak ( WeakLeftTransformation(..) )
+import qualified HLinear.PLE.Hook.LeftTransformation.Weak as WLT
 import HLinear.Matrix ( Matrix(..), headRows, tailRows )
 import HLinear.Matrix.Conversion ( fromBRMatrixUnsafe, toBRMatrix )
+import HLinear.Matrix.Extension ( ExtMatrix(..) )
+import qualified HLinear.BRMatrix.RVector as RV
 
 
 newtype PLMatrix a = PLMatrix {fromPLMatrix :: Matrix a}
@@ -32,3 +40,12 @@ instance
   where
   lt *. PLMatrix m@(Matrix nrs ncs _) = PLMatrix $ 
     fromBRMatrixUnsafe nrs ncs $ lt *. toBRMatrix m
+
+apply
+  :: DivisionRing a
+  => WeakLeftTransformation a -> Matrix a -> Matrix a
+apply wlt (Matrix nrs ncs rs) =
+  Matrix nrs ncs $
+  V.map RV.toCurrentVector $ RV.toCurrentVector $
+  WLT.apply wlt $
+  RV.RVector $ V.map RV.RVector rs
