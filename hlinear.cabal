@@ -35,6 +35,7 @@ library
     HLinear.Matrix.Basic
     HLinear.Matrix.Conversion
     HLinear.Matrix.Definition
+    HLinear.Matrix.Extension
     HLinear.Matrix.MultiMod
     HLinear.Matrix.SmallCheck
     HLinear.Matrix.StdElements
@@ -109,6 +110,7 @@ library
   build-depends:
       base
     , algebra-structures
+    , algebra-monic-extension
     , binary
     , composition
     , containers
@@ -216,6 +218,7 @@ test-suite test-hlinear
 
   build-depends:
       base
+    , algebra-monic-extension
     , algebra-structures
     , binary
     , composition
@@ -253,6 +256,7 @@ executable debug-hlinear
 
   build-depends:
       base
+    , algebra-monic-extension
     , algebra-structures
     , binary
     , composition
