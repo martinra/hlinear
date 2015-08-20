@@ -14,4 +14,4 @@ class HasPLEStrategy m a where
   data PLEStrategy m a :: *
 
   dispatchPLEStrategy
-    :: PLEStrategy m a -> Matrix a -> m (PLEDecomposition a)
+    :: PLEStrategy m a -> a -> m (PLEDecomposition a)

@@ -25,6 +25,7 @@ import Math.Structure
 import Numeric.Natural
 
 import HLinear.PLE.Decomposition.Definition
+import HLinear.PLE.Decomposition.Matrix
 import HLinear.PLE.FoldUnfold.Echelonize ()
 import HLinear.PLE.Hook
 import HLinear.PLE.Hook.EchelonForm as EF
@@ -46,27 +47,26 @@ import HLinear.MultiMod.Standard
 instance
   HasPLEDecompositionFMPQMultiMod Matrix
   where
-  pleDecompositionMultiMod param strat m =
+  pleDecompositionMultiMod param strat m = PLEDecomposition $
     reconstruct rrParam isReconstruction $
       multiModPLE $ reduce m
 
       where
       PLEDecompositionMultiModParameters rrParam = param
-      isReconstruction (RReconst _ (Modulus md)
-                       (PLEDecomposition (PLEHook _ l e))) =
+      isReconstruction (RReconst _ (Modulus md) (PLEHook _ l e)) =
         limbHeight md > 2 P.+ limbHeight l P.+ limbHeight e P.+ mht
       mht = limbHeight m
 
-      multiModPLE :: MultiMod Matrix -> MultiMod PLEDecomposition
+      multiModPLE :: MultiMod Matrix -> MultiMod PLEHook
       multiModPLE (MultiMod mat) = MultiMod $ \ctx -> do
         mat' <- mat ctx
-        dispatchPLEStrategy (strat ctx) mat'
+        unPLEDecomposition <$> dispatchPLEStrategy (strat ctx) mat'
 
 
 instance
      NFData a
   => NFData ( Approximation
-                PLEDecomposition
+                PLEHook
                 (RPermute,PivotStructure)
                 a
             )
@@ -76,18 +76,15 @@ instance
   rnf (ApproxCombined d (Mod md ple)) = seq (rnf d) $ seq (rnf md) $ seq (rnf ple) ()
 
 
-instance Approximable PLEDecomposition (RPermute,PivotStructure) where
+instance Approximable PLEHook (RPermute,PivotStructure) where
   toApprox = defaultToApprox force $
-               \(Mod _ (PLEDecomposition (PLEHook p _ e))) ->
+               \(Mod _ (PLEHook p _ e)) ->
                  (p, EF.pivotStructure e)
   approxAppend = defaultApproxAppend $
-    \f (PLEDecomposition (PLEHook p l e)) (PLEDecomposition (PLEHook p' l' e')) ->
+    \f (PLEHook p l e) (PLEHook p' l' e') ->
       if p /= p' then error "approxAppend: unequal permutations"
-      else PLEDecomposition $ PLEHook p ( LT.zipWith f l l' ) ( EF.zipWith f e e' )
+      else PLEHook p ( LT.zipWith f l l' ) ( EF.zipWith f e e' )
 
-instance Reconstructible 
-    PLEDecomposition
-    (RPermute,PivotStructure)
-    FMPQ
+instance Reconstructible PLEHook (RPermute,PivotStructure) FMPQ
   where
   fromApprox = defaultFromApprox

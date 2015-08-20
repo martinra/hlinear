@@ -46,6 +46,7 @@ library
 
     HLinear.PLE.Decomposition
     HLinear.PLE.Decomposition.Definition
+    HLinear.PLE.Decomposition.Matrix
     HLinear.PLE.Decomposition.Instances
 
     HLinear.PLE.FoldUnfold

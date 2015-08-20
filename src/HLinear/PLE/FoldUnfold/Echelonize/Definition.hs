@@ -8,7 +8,7 @@ where
 import HLinear.PLE.Decomposition.Definition
 
 
-class HasPLEDecompositionFoldUnfold f a where
+class HasPLEDecompositionFoldUnfold a where
   pleDecompositionFoldUnfold
-    :: f a -> PLEDecomposition a
+    :: a -> PLEDecomposition a
 

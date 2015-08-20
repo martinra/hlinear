@@ -23,12 +23,12 @@ import HLinear.PLE.Strategy.Definition
 
 instance {-# OVERLAPPABLE #-}
      ( DecidableZero a, DivisionRing a )
-  => HasPLEDecomposition Matrix a
+  => HasPLEDecomposition (Matrix a)
   where
   pleDecomposition = pleDecompositionFoldUnfold
 
 instance {-# OVERLAPPING #-}
-  HasPLEDecomposition Matrix FMPQ
+  HasPLEDecomposition (Matrix FMPQ)
   where
   pleDecomposition = runIdentity . dispatchPLEStrategy  strat
     where

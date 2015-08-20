@@ -28,24 +28,24 @@ import HLinear.PLE.Sliced.Echelonize.Definition
 import HLinear.PLE.Strategy.Definition
 
 
-instance HasPLEStrategy Identity FMPQ where
-  data PLEStrategy Identity FMPQ where
+instance HasPLEStrategy Identity (Matrix FMPQ) where
+  data PLEStrategy Identity (Matrix FMPQ) where
     PLEStrategyFMPQFoldUnfold 
-      :: HasPLEDecompositionFoldUnfold Matrix FMPQ
-      => PLEStrategy Identity FMPQ
+      :: HasPLEDecompositionFoldUnfold (Matrix FMPQ)
+      => PLEStrategy Identity (Matrix FMPQ)
   
     PLEStrategyFMPQSliced
-      :: HasPLEDecompositionSliced Matrix FMPQ
+      :: HasPLEDecompositionSliced (Matrix FMPQ)
       => PLEDecompositionSlicedParameters
-      -> PLEStrategy Identity FMPQ -> PLEStrategy Identity FMPQ
+      -> PLEStrategy Identity (Matrix FMPQ) -> PLEStrategy Identity (Matrix FMPQ)
   
     PLEStrategyFMPQMultiMod
       :: HasPLEDecompositionFMPQMultiMod Matrix
       => PLEDecompositionMultiModParameters
       -> (    forall ctx
            .  ReifiesNModContext ctx
-           => Proxy ctx -> PLEStrategy Maybe (NMod ctx) )
-      -> PLEStrategy Identity FMPQ
+           => Proxy ctx -> PLEStrategy Maybe (Matrix (NMod ctx)) )
+      -> PLEStrategy Identity (Matrix FMPQ)
 
 --  PLEStrategyFMPQPAdic
 --    :: PLEDecompositionPAdicParameters

@@ -20,6 +20,7 @@ import qualified Data.Vector as V
 import Math.Structure
 
 import HLinear.PLE.Decomposition.Definition
+import HLinear.PLE.Decomposition.Matrix
 import HLinear.PLE.FoldUnfold.Echelonize.Definition
 import HLinear.PLE.Hook
 import HLinear.PLE.Hook.PLMatrix
@@ -37,7 +38,7 @@ import HLinear.Matrix.Conversion
 
 instance
      ( DecidableZero a, DivisionRing a )
-  => HasPLEDecompositionFoldUnfold Matrix a
+  => HasPLEDecompositionFoldUnfold (Matrix a)
   where
   pleDecompositionFoldUnfold m =
     PLEDecomposition $ V.foldl (*) (firstHook m) $ V.unfoldr splitOffHook m

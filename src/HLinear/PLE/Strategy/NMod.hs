@@ -25,19 +25,19 @@ import HLinear.PLE.Sliced.Echelonize.Definition
 import HLinear.PLE.Strategy.Definition
 
 
-instance HasPLEStrategy Identity (NMod ctx) where
-  data PLEStrategy Identity (NMod ctx) where
+instance HasPLEStrategy Identity (Matrix (NMod ctx)) where
+  data PLEStrategy Identity (Matrix (NMod ctx)) where
     PLEStrategyNModFoldUnfold 
       :: ( ReifiesNModContext ctx
-         , HasPLEDecompositionFoldUnfold Matrix (NMod ctx) )
-      => PLEStrategy Identity (NMod ctx)
+         , HasPLEDecompositionFoldUnfold (Matrix (NMod ctx)) )
+      => PLEStrategy Identity (Matrix (NMod ctx))
   
     PLEStrategyNModSliced
       :: ( ReifiesNModContext ctx
-         , HasPLEDecompositionSliced Matrix (NMod ctx) )
+         , HasPLEDecompositionSliced (Matrix (NMod ctx)) )
       => PLEDecompositionSlicedParameters
-      -> PLEStrategy Identity (NMod ctx)
-      -> PLEStrategy Identity (NMod ctx)
+      -> PLEStrategy Identity (Matrix (NMod ctx))
+      -> PLEStrategy Identity (Matrix (NMod ctx))
 
   dispatchPLEStrategy PLEStrategyNModFoldUnfold
     = Identity . pleDecompositionFoldUnfold
@@ -45,11 +45,11 @@ instance HasPLEStrategy Identity (NMod ctx) where
     = Identity . pleDecompositionSliced param strat
 
 
-instance HasPLEStrategy Maybe (NMod ctx) where
-  data PLEStrategy Maybe (NMod ctx) where
+instance HasPLEStrategy Maybe (Matrix (NMod ctx)) where
+  data PLEStrategy Maybe (Matrix (NMod ctx)) where
     PLEStrategyNModLiftIdenity
-      :: PLEStrategy Identity (NMod ctx)
-      ->  PLEStrategy Maybe (NMod ctx)
+      :: PLEStrategy Identity (Matrix (NMod ctx))
+      ->  PLEStrategy Maybe (Matrix (NMod ctx))
 
   dispatchPLEStrategy (PLEStrategyNModLiftIdenity strat)
     = Just . runIdentity . dispatchPLEStrategy strat

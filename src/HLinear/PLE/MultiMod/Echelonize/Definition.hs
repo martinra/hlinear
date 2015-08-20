@@ -23,8 +23,8 @@ class HasPLEDecompositionFMPQMultiMod f where
     :: PLEDecompositionMultiModParameters
     -> (    forall ctx
          .  ReifiesNModContext ctx
-         => Proxy ctx -> PLEStrategy Maybe (NMod ctx) )
-    -> f FMPQ -> PLEDecomposition FMPQ
+         => Proxy ctx -> PLEStrategy Maybe (f (NMod ctx)) )
+    -> f FMPQ -> PLEDecomposition (f FMPQ)
 
 newtype PLEDecompositionMultiModParameters =
   PLEDecompositionMultiModParameters

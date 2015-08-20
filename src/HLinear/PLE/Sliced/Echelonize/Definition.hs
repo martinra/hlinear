@@ -12,11 +12,11 @@ import HLinear.PLE.Decomposition.Definition
 import HLinear.PLE.Strategy.Definition
 
 
-class HasPLEDecompositionSliced f a where
+class HasPLEDecompositionSliced a where
   pleDecompositionSliced
     :: PLEDecompositionSlicedParameters
     -> PLEStrategy Identity a
-    -> f a -> PLEDecomposition a
+    -> a -> PLEDecomposition a
 
 -- class HasPLEDecompositionMaybeSliced f a where
 --   pleDecompositionSlicedMaybe

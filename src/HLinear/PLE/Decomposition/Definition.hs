@@ -1,35 +1,12 @@
 {-# LANGUAGE
-    MultiParamTypeClasses
+    TypeFamilies
   #-}
 
 module HLinear.PLE.Decomposition.Definition
 where
 
-import Control.DeepSeq ( NFData(..) )
-import Math.Structure
 
-import HLinear.PLE.Hook.Definition ( PLEHook(..) )
-import qualified HLinear.PLE.Hook.Definition as H
-import HLinear.Matrix ( Matrix )
+data family PLEDecomposition :: * -> *
 
-
-newtype PLEDecomposition a =
-  PLEDecomposition
-  { unPLEDecomposition :: PLEHook a
-  }
-  deriving Show
-
-class HasPLEDecomposition f a where
-  pleDecomposition :: f a -> PLEDecomposition a
-
-
-instance NFData a => NFData (PLEDecomposition a) where
-  rnf (PLEDecomposition (PLEHook p l e)) =
-    seq (rnf p) $ seq (rnf l) $ seq (rnf e) ()
-
-
-toMatrices
-  :: ( DecidableZero a, DivisionRing a )
-  => PLEDecomposition a
-  -> ( Matrix a, Matrix a, Matrix a )
-toMatrices = H.toMatrices . unPLEDecomposition
+class HasPLEDecomposition a where
+  pleDecomposition :: a -> PLEDecomposition a

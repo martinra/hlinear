@@ -1,9 +1,3 @@
-{-# LANGUAGE
-    GeneralizedNewtypeDeriving
-  , StandaloneDeriving
-  , DeriveTraversable
-  #-}
-
 module HLinear.PLE.Hook.Container
 where
 
@@ -26,7 +20,3 @@ instance Foldable PLEHook where
 
 instance Traversable PLEHook where
   traverse f (PLEHook p l e) = PLEHook p <$> traverse f l <*> traverse f e
-
-deriving instance Functor PLEDecomposition
-deriving instance Foldable PLEDecomposition
-deriving instance Traversable PLEDecomposition

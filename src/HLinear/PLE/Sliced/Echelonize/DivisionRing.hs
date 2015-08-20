@@ -27,6 +27,7 @@ import Numeric.Natural
 import HLinear.Matrix ( Matrix )
 import qualified HLinear.Matrix as M
 import HLinear.PLE.Decomposition.Definition
+import HLinear.PLE.Decomposition.Matrix
 import HLinear.PLE.FoldUnfold.Echelonize ( firstHook )
 import HLinear.PLE.Hook.Definition
 import HLinear.PLE.Hook.PLMatrix
@@ -38,9 +39,9 @@ import HLinear.PLE.Strategy.Definition
 
 
 instance
-     ( HasPLEStrategy Identity a, NFData a
+     ( HasPLEStrategy Identity (Matrix a), NFData a
      , DecidableZero a, DivisionRing a )
-  => HasPLEDecompositionSliced Matrix a
+  => HasPLEDecompositionSliced (Matrix a)
   where
   pleDecompositionSliced parameters strat m = runPar $ do
     ivhook <- spawnP $ firstHook m
@@ -49,12 +50,12 @@ instance
     pleDecompositionSlicedPar strat ivhook ivms
 
 pleDecompositionSlicedPar
-  :: ( HasPLEStrategy Identity a, NFData a
+  :: ( HasPLEStrategy Identity (Matrix a), NFData a
      , DecidableZero a, DivisionRing a )
-  => PLEStrategy Identity a
+  => PLEStrategy Identity (Matrix a)
   -> IVar (PLEHook a)
   -> Vector (IVar (Matrix a))
-  -> Par (PLEDecomposition a)
+  -> Par (PLEDecomposition (Matrix a))
 pleDecompositionSlicedPar strat ivhook ivms_
   | V.null ivms_ = PLEDecomposition <$> get ivhook
   | otherwise = do

@@ -50,7 +50,7 @@ pleProperties =
                       ReconstructionParameters 20 10
             strat
               :: ReifiesNModContext ctx
-              => Proxy ctx -> PLEStrategy Maybe (NMod ctx)
+              => Proxy ctx -> PLEStrategy Maybe (Matrix (NMod ctx))
             strat = const $ PLEStrategyNModLiftIdenity PLEStrategyNModFoldUnfold
             (pm,lm,em) = Decomp.toMatrices $
                            pleDecompositionMultiMod param strat m
