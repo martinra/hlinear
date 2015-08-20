@@ -44,10 +44,14 @@ instance
   => HasPLEDecompositionSliced (Matrix a)
   where
   pleDecompositionSliced parameters strat m = runPar $ do
-    ivhook <- spawnP $ firstHook m
-    ivms <- for (slicingPositions parameters $ M.nmbCols m) $ \(ix,s) ->
+    ivhook <- spawnP $ firstHook nrs ncs
+    ivms <- for (slicingPositions parameters ncs) $ \(ix,s) ->
               spawnP $ M.sliceCols ix s m
     pleDecompositionSlicedPar strat ivhook ivms
+
+    where
+    nrs = M.nmbRows m
+    ncs = M.nmbCols m
 
 pleDecompositionSlicedPar
   :: ( HasPLEStrategy Identity (Matrix a), NFData a

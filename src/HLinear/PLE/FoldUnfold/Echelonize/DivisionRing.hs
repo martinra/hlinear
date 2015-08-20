@@ -18,6 +18,7 @@ import Prelude hiding ( (+), (-), negate, subtract
 import Data.Permute ( Permute )
 import qualified Data.Vector as V
 import Math.Structure
+import Numeric.Natural
 
 import HLinear.PLE.Decomposition.Definition
 import HLinear.PLE.Decomposition.Matrix
@@ -40,19 +41,16 @@ instance
      ( DecidableZero a, DivisionRing a )
   => HasPLEDecompositionFoldUnfold (Matrix a)
   where
-  pleDecompositionFoldUnfold m =
-    PLEDecomposition $ V.foldl (*) (firstHook m) $ V.unfoldr splitOffHook m
+  pleDecompositionFoldUnfold m@(Matrix nrs ncs _) =
+    PLEDecomposition $ V.foldl (*) (firstHook nrs ncs) $
+                       V.unfoldr splitOffHook m
     where
 
-firstHook :: Matrix a -> PLEHook a
-firstHook m = PLEHook
+firstHook :: Natural -> Natural -> PLEHook a
+firstHook nrs ncs = PLEHook
   (RP.rpermute $ fromIntegral nrs)
   (LeftTransformation nrs V.empty)
   (EchelonForm nrs ncs V.empty)
-  where
-    nrs = M.nmbRows m
-    ncs = M.nmbCols m
-
 
 
 splitOffHook
