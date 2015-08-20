@@ -47,6 +47,7 @@ library
 
     HLinear.PLE.Decomposition
     HLinear.PLE.Decomposition.Definition
+    HLinear.PLE.Decomposition.ExtMatrixFMPQ
     HLinear.PLE.Decomposition.Matrix
     HLinear.PLE.Decomposition.Instances
 
@@ -101,6 +102,7 @@ library
     HLinear.PLE.Sliced.Echelonize
     HLinear.PLE.Sliced.Echelonize.Definition
     HLinear.PLE.Sliced.Echelonize.DivisionRing
+    HLinear.PLE.Sliced.Echelonize.ExtMatrixFMPQ
     HLinear.PLE.Sliced.Echelonize.Positions
 
     HLinear.PLE.Strategy
