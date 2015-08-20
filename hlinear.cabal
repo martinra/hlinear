@@ -98,6 +98,7 @@ library
     HLinear.PLE.Sliced.Echelonize
     HLinear.PLE.Sliced.Echelonize.Definition
     HLinear.PLE.Sliced.Echelonize.DivisionRing
+    HLinear.PLE.Sliced.Echelonize.Positions
 
     HLinear.PLE.Strategy
     HLinear.PLE.Strategy.Definition

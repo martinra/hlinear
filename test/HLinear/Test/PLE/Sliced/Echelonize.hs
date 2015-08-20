@@ -43,29 +43,7 @@ import HLinear.Test.Utils as TU
 pleProperties :: TestTree
 pleProperties =
   testGroup "SlicedPLE decomposition"
-  [ testGroup "slicingPositions"
-    [ TU.testProperty "Unbalanced Number" $ \s ->
-        testSlicingPositions $
-          PLEDecompositionSlicedParameters
-            SlicingUnBalanced (SlicingNmb $ succ s)
-
-    , TU.testProperty "Unbalanced Size" $ \s ->
-        testSlicingPositions $
-          PLEDecompositionSlicedParameters
-            SlicingUnBalanced (SlicingSize $ succ s)
-  
-    , TU.testProperty "Balanced Number" $ \s ->
-        testSlicingPositions $
-          PLEDecompositionSlicedParameters
-            SlicingBalanced (SlicingNmb $ succ s)
-  
-    , TU.testProperty "Balanced Size" $ \s ->
-        testSlicingPositions $
-          PLEDecompositionSlicedParameters
-            SlicingBalanced (SlicingSize $ succ s)
-    ]
-
-  , testPropertyMatrix "recombine ple decomposition" $
+  [ testPropertyMatrix "recombine ple decomposition" $
       recombinePLE $ PLEDecompositionSlicedParameters
                        SlicingBalanced (SlicingNmb 5)
 
@@ -77,16 +55,6 @@ pleProperties =
       recombinePLENMod 1125899906842679 $ PLEDecompositionSlicedParameters
                          SlicingBalanced (SlicingNmb 5)
   ]
-
-
-testSlicingPositions :: PLEDecompositionSlicedParameters -> Natural -> Bool
-testSlicingPositions param n = checkLength && checkConsistence
-  where
-  ps = slicingPositions param $ fromIntegral n
-  checkLength = fromIntegral n == V.sum (V.map snd ps)
-  checkConsistence =
-    V.all (\(ix,ix',l) -> ix < ix' && ix'-ix == l) $
-    V.zip3 (V.map fst ps) (V.tail $ V.map fst ps) (V.map snd ps)
 
 recombinePLE
   :: PLEDecompositionSlicedParameters
