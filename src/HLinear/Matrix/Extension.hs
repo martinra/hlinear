@@ -50,16 +50,16 @@ instance IntertwinesExtension Matrix where
       nrsZ = fromIntegral nrs
       ncsZ = fromIntegral ncs
 
-  intertwineTo
+  intertwineIn
     :: forall a ctx b
     .  ( IsExtension a ctx b
        , IsExtension a ctx (Matrix b) )
     => Matrix (Extension a ctx b)
     -> Extension a ctx (Matrix b)
-  intertwineTo m@(Matrix nrs ncs _)
+  intertwineIn m@(Matrix nrs ncs _)
     | nrs == 0 || ncs == 0 = Coordinates $ V.replicate d $
                                Matrix nrs ncs $ V.replicate nrsZ V.empty
-    | otherwise = exConst $ intertwineTo' $ fmap exVec m
+    | otherwise = exConst $ intertwineIn' $ fmap exVec m
         where
         (d, (exConst, exVec)) =
           let e = m M.! 0 V.! 0 :: Extension a ctx b
@@ -68,8 +68,8 @@ instance IntertwinesExtension Matrix where
                   Coordinates _ -> (Coordinates, coordinateVector)
                   Evaluations _ -> (Evaluations, evaluationVector)
               )
-        
-        intertwineTo' (Matrix _ _ rs) = 
+
+        intertwineIn' (Matrix _ _ rs) =
           V.generate d $ \dx -> Matrix nrs ncs $
           V.generate nrsZ $ \ix ->
           V.generate ncsZ $ \jx ->

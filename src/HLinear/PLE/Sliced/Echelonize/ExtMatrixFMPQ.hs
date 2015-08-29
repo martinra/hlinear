@@ -74,7 +74,7 @@ pleDecompositionSlicedPar strat ivhook ivms_
       ivple <- spawn $ unPLEDecomposition <$> runIdentity <$>
                  dispatchPLEStrategy strat <$> get ivm
       PLEHook p l e <- get ivple
-      ivwl <- spawnP $ Ext.intertwineTo $ WLT.fromLeftTransformation l
+      ivwl <- spawnP $ Ext.intertwineIn $ WLT.fromLeftTransformation l
     
       ivr <- spawnP $ fromIntegral $ EF.rank e
       (ivems, ivms') <-
