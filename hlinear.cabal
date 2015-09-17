@@ -37,6 +37,7 @@ library
     HLinear.Matrix.Definition
     HLinear.Matrix.Extension
     HLinear.Matrix.MultiMod
+    HLinear.Matrix.QuickCheck
     HLinear.Matrix.SmallCheck
     HLinear.Matrix.StdElements
 
@@ -76,6 +77,7 @@ library
     HLinear.PLE.Hook.EchelonTransformation.Algebra
     HLinear.PLE.Hook.EchelonTransformation.Basic
     HLinear.PLE.Hook.EchelonTransformation.Column
+    HLinear.PLE.Hook.EchelonTransformation.Conversion
     HLinear.PLE.Hook.EchelonTransformation.QuickCheck
     HLinear.PLE.Hook.EchelonTransformation.SmallCheck
 
@@ -146,6 +148,7 @@ benchmark bench-hlinear
 
   build-depends:
       base
+    , algebra-monic-extension
     , algebra-structures
     , binary
     , composition
@@ -155,6 +158,7 @@ benchmark bench-hlinear
     , filepath
     , hflint
     , logict
+    , monad-par
     , mtl
     , natural-test
     , parallel
