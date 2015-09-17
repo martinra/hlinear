@@ -206,16 +206,16 @@ instance IntertwinesExtension WeakLeftTransformation where
         nrsZ = fromIntegral nrs
         ncsZ = V.length $ columns $ V.head wlt
 
-  intertwineIn
+  intertwineTo
     :: forall a ctx b
     .  ( IsExtension a ctx b
        , IsExtension a ctx (WeakLeftTransformation b) )
     => WeakLeftTransformation (Extension a ctx b)
     -> Extension a ctx (WeakLeftTransformation b)
-  intertwineIn wlt
+  intertwineTo wlt
     | ncsZ == 0 = Coordinates $ V.replicate d $
                     WeakLeftTransformation nrs V.empty
-    | otherwise = extConst $ intertwineIn' $ fmap extVec wlt
+    | otherwise = extConst $ intertwineTo' $ fmap extVec wlt
         where
         nrs = nmbRows wlt
         nrsZ = fromIntegral nrs
@@ -229,7 +229,7 @@ instance IntertwinesExtension WeakLeftTransformation where
                   Evaluations _ -> (Evaluations, evaluationVector)
               )
 
-        intertwineIn' wlt =
+        intertwineTo' wlt =
           V.generate d $ \dx -> WeakLeftTransformation nrs $
           V.generate ncsZ $ \jx -> WeakLeftTransformationColumn jx
             ( head (wlt ! jx) V.! dx )
