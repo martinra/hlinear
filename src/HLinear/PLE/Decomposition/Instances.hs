@@ -27,25 +27,25 @@ instance {-# OVERLAPPABLE #-}
   where
   pleDecomposition = pleDecompositionFoldUnfold
 
-instance {-# OVERLAPPING #-}
-  HasPLEDecomposition (Matrix FMPQ)
-  where
-  pleDecomposition = runIdentity . dispatchPLEStrategy  strat
-    where
-      strat = PLEStrategyFMPQSliced
-              PLEDecompositionSlicedParameters
-                { slicingStrategy = SlicingBalanced
-                , slicingSizeNmb  = SlicingSize 64
-                }
-              stratMM
-
-      stratMM = PLEStrategyFMPQMultiMod
-                ( PLEDecompositionMultiModParameters
-                  ReconstructionParameters
-                  { bufferSize = 20
-                  , reconstructionSkip = 10
-                  }
-                )
-                ( const $ PLEStrategyNModLiftIdenity
-                          PLEStrategyNModFoldUnfold
-                )
+-- instance {-# OVERLAPPING #-}
+--   HasPLEDecomposition (Matrix FMPQ)
+--   where
+--   pleDecomposition = runIdentity . dispatchPLEStrategy  strat
+--     where
+--       strat = PLEStrategyFMPQSliced
+--               PLEDecompositionSlicedParameters
+--                 { slicingStrategy = SlicingBalanced
+--                 , slicingSizeNmb  = SlicingSize 64
+--                 }
+--               stratMM
+-- 
+--       stratMM = PLEStrategyFMPQMultiMod
+--                 ( PLEDecompositionMultiModParameters
+--                   ReconstructionParameters
+--                   { bufferSize = 20
+--                   , reconstructionSkip = 10
+--                   }
+--                 )
+--                 ( const $ PLEStrategyNModLiftIdenity
+--                           PLEStrategyNModFoldUnfold
+--                 )

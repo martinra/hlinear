@@ -132,6 +132,23 @@ library
     , transformers
     , vector
 
+
+-- These are dependencies of other sections, which we include so that
+-- ghcmod and hdevtools run correctly
+    , criterion
+    , filepath
+    , logict
+    , monad-loops
+    , MonadRandom
+    , natural-test
+    , random
+    , random-extras
+    , random-fu
+    , tasty
+    , tasty-smallcheck
+    , time
+    , tuple
+
   hs-source-dirs:      src
   default-language:    Haskell2010
 
@@ -174,7 +191,7 @@ test-suite test-hlinear
 
 benchmark bench-hlinear
   ghc-options:
-    -O2
+    -O3
     -threaded
 
   main-is:
@@ -193,12 +210,16 @@ benchmark bench-hlinear
     , hflint
     , logict
     , monad-loops
+    , monad-par
+    , MonadRandom
     , mtl
     , natural-test
     , parallel
     , permutation
     , QuickCheck
     , random
+    , random-extras
+    , random-fu
     , reflection
     , safe
     , smallcheck
@@ -206,6 +227,7 @@ benchmark bench-hlinear
     , tasty-smallcheck
     , time
     , transformers
+    , tuple
     , vector
 
   hs-source-dirs: bench, src
