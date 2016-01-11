@@ -16,6 +16,7 @@ import HLinear.PLE.Hook.RPermute as RP
 import HLinear.Matrix ( Matrix )
 
 
+-- todo: remove underscore
 data PLEHook a =
   PLEHook
   { _permutation :: RPermute

@@ -29,10 +29,10 @@ import HLinear.Matrix.Conversion
 import HLinear.Matrix.Definition ( Matrix(..) )
 
 
-reduce
+reducedEchelonForm
   :: ( Show a, DivisionRing a, DecidableZero a )
   => EchelonForm a -> (EchelonTransformation a, EchelonForm a)
-reduce ef =
+reducedEchelonForm ef =
   let EchelonReduction et' _ ef' =
         V.foldl (*) firstReduction $
         V.unfoldr reduceLastPivot (ef, pivots)

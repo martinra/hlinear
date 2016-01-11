@@ -136,6 +136,42 @@ library
   default-language:    Haskell2010
 
 
+test-suite test-hlinear
+  main-is:        HLinear/Test.hs
+
+  build-depends:
+      base
+    , algebra-monic-extension
+    , algebra-structures
+    , binary
+    , composition
+    , containers
+    , deepseq
+    , hflint
+    , mtl
+    , monad-par
+    , natural-test
+    , parallel
+    , permutation
+    , QuickCheck
+    , reflection
+    , safe
+    , smallcheck
+    , smallcheck
+    , tasty
+    , tasty-smallcheck
+    , tasty-quickcheck
+    , tasty-hunit
+    , tasty-rerun
+    , transformers
+    , vector
+    , vector-test
+
+  hs-source-dirs: test, src
+  type:           exitcode-stdio-1.0
+  default-language: Haskell2010
+
+
 benchmark bench-hlinear
   ghc-options:
     -O2
@@ -146,6 +182,7 @@ benchmark bench-hlinear
 
   build-depends:
       base
+    , algebra-monic-extension
     , algebra-structures
     , binary
     , composition
@@ -155,13 +192,14 @@ benchmark bench-hlinear
     , filepath
     , hflint
     , logict
+    , monad-loops
     , mtl
     , natural-test
     , parallel
     , permutation
-    , reflection
     , QuickCheck
     , random
+    , reflection
     , safe
     , smallcheck
     , tasty
@@ -174,6 +212,41 @@ benchmark bench-hlinear
   type:           exitcode-stdio-1.0
   default-language: Haskell2010
 
+
+executable debug-hlinear
+  main-is:        HLinear/Debug.hs
+  ghc-options:
+    -fsimpl-tick-factor=200
+
+  build-depends:
+      base
+    , algebra-monic-extension
+    , algebra-structures
+    , binary
+    , composition
+    , containers
+    , deepseq
+    , hflint
+    , monad-par
+    , mtl
+    , natural-test
+    , parallel
+    , permutation
+    , QuickCheck
+    , random
+    , reflection
+    , safe
+    , smallcheck
+    , tasty
+    , tasty-smallcheck
+    , tasty-quickcheck
+    , tasty-hunit
+    , transformers
+    , vector
+    , vector-test
+
+  hs-source-dirs: bench, debug, src
+  default-language: Haskell2010
 
 executable prof-hlinear
   ghc-options:
@@ -213,76 +286,4 @@ executable prof-hlinear
     , vector
 
   hs-source-dirs: prof, bench, src
-  default-language: Haskell2010
-
-
-test-suite test-hlinear
-  main-is:        HLinear/Test.hs
-
-  build-depends:
-      base
-    , algebra-monic-extension
-    , algebra-structures
-    , binary
-    , composition
-    , containers
-    , deepseq
-    , hflint
-    , mtl
-    , monad-par
-    , natural-test
-    , parallel
-    , permutation
-    , QuickCheck
-    , reflection
-    , safe
-    , smallcheck
-    , smallcheck
-    , tasty
-    , tasty-smallcheck
-    , tasty-quickcheck
-    , tasty-hunit
-    , tasty-rerun
-    , transformers
-    , vector
-    , vector-test
-
-  hs-source-dirs: test, src
-  type:           exitcode-stdio-1.0
-  default-language: Haskell2010
-
-
-executable debug-hlinear
-  main-is:        HLinear/Debug.hs
-  ghc-options:
-    -fsimpl-tick-factor=200
-
-  build-depends:
-      base
-    , algebra-monic-extension
-    , algebra-structures
-    , binary
-    , composition
-    , containers
-    , deepseq
-    , hflint
-    , monad-par
-    , mtl
-    , natural-test
-    , parallel
-    , permutation
-    , QuickCheck
-    , random
-    , reflection
-    , safe
-    , smallcheck
-    , tasty
-    , tasty-smallcheck
-    , tasty-quickcheck
-    , tasty-hunit
-    , transformers
-    , vector
-    , vector-test
-
-  hs-source-dirs: bench, debug, src
   default-language: Haskell2010

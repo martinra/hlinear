@@ -70,7 +70,7 @@ recombineReducedEF :: FlintLimb -> Matrix FMPZ -> Bool
 recombineReducedEF p m = withNModContext p $ \(_ :: Proxy ctx) ->
   let mNMod = fmap toNMod m :: Matrix (NMod ctx)
       PLEHook _ _ ef = unPLEDecomposition $ pleDecompositionFoldUnfold mNMod
-      (et,ef') = reduce ef
+      (et,ef') = reducedEchelonForm ef
       efm = EF.toMatrix ef
       ef'm = EF.toMatrix ef'
       etm =  ET.toMatrix et
