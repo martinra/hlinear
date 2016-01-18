@@ -10,3 +10,5 @@ prof-hlinear.hp
 prof-hlinear.prof
 prof-hlinear.ps
 TODO
+.stack-work/
+stack.yaml

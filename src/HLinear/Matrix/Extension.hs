@@ -68,8 +68,8 @@ instance IntertwinesExtension Matrix where
                   Coordinates _ -> (Coordinates, coordinateVector)
                   Evaluations _ -> (Evaluations, evaluationVector)
               )
-        
-        intertwineTo' (Matrix _ _ rs) = 
+
+        intertwineTo' (Matrix _ _ rs) =
           V.generate d $ \dx -> Matrix nrs ncs $
           V.generate nrsZ $ \ix ->
           V.generate ncsZ $ \jx ->
