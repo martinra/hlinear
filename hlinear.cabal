@@ -253,6 +253,7 @@ executable debug-hlinear
     , containers
     , deepseq
     , hflint
+    , monad-loops
     , monad-par
     , mtl
     , natural-test
@@ -260,6 +261,8 @@ executable debug-hlinear
     , permutation
     , QuickCheck
     , random
+    , random-fu
+    , random-extras
     , reflection
     , safe
     , smallcheck
@@ -274,42 +277,42 @@ executable debug-hlinear
   hs-source-dirs: bench, debug, src
   default-language: Haskell2010
 
-executable prof-hlinear
-  ghc-options:
-    -O2
-  ghc-prof-options:
-    -prof
-    -fprof-auto
-    -caf-all
-    -rtsopts
-    "-with-rtsopts=-p -s -i0.01"
-
-  main-is:
-    HLinear/Prof.hs
-
-  build-depends:
-      base
-    , algebra-structures
-    , binary
-    , composition
-    , containers
-    , deepseq
-    , filepath
-    , hflint
-    , logict
-    , mtl
-    , natural-test
-    , permutation
-    , reflection
-    , QuickCheck
-    , random
-    , safe
-    , smallcheck
-    , transformers
-    , tasty
-    , tasty-smallcheck
-    , time
-    , vector
-
-  hs-source-dirs: prof, bench, src
-  default-language: Haskell2010
+-- executable prof-hlinear
+--   ghc-options:
+--     -O2
+--   ghc-prof-options:
+--     -prof
+--     -fprof-auto
+--     -caf-all
+--     -rtsopts
+--     "-with-rtsopts=-p -s -i0.01"
+-- 
+--   main-is:
+--     HLinear/Prof.hs
+-- 
+--   build-depends:
+--       base
+--     , algebra-structures
+--     , binary
+--     , composition
+--     , containers
+--     , deepseq
+--     , filepath
+--     , hflint
+--     , logict
+--     , mtl
+--     , natural-test
+--     , permutation
+--     , reflection
+--     , QuickCheck
+--     , random
+--     , safe
+--     , smallcheck
+--     , transformers
+--     , tasty
+--     , tasty-smallcheck
+--     , time
+--     , vector
+-- 
+--   hs-source-dirs: prof, bench, src
+--   default-language: Haskell2010
