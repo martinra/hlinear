@@ -102,7 +102,7 @@ main = defaultMain
 --    pleEchelonMatrixFMPQ = sel3 . pleMatricesFMPQ
     pleReducedEchelonMatrixFMPQ =
          EF.toMatrix . snd . REF.reducedEchelonForm
-       . Hk._echelon . unPLEDecomposition . pleDecomposition
+       . Hk.echelonForm . unPLEDecomposition . pleDecomposition
 
 --     bgroupHlinear mat =
 --       [

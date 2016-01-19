@@ -16,12 +16,11 @@ import HLinear.PLE.Hook.RPermute as RP
 import HLinear.Matrix ( Matrix )
 
 
--- todo: remove underscore
 data PLEHook a =
   PLEHook
-  { _permutation :: RPermute
-  , _left        :: LeftTransformation a
-  , _echelon     :: EchelonForm a
+  { permutation        :: RPermute
+  , leftTransformation :: LeftTransformation a
+  , echelonForm        :: EchelonForm a
   }
   deriving Show
 
