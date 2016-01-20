@@ -22,7 +22,6 @@ import Data.Proxy
 import Data.Reflection
 import Data.Vector ( Vector )
 import qualified Data.Vector as V
-import Math.Algebra.MonicExtension
 import Math.Structure
 import Numeric.Natural
 
@@ -30,8 +29,6 @@ import HLinear.PLE.Hook.LeftTransformation.Definition
  ( LeftTransformation(LeftTransformation) )
 import HLinear.PLE.Hook.LeftTransformation.Column
  ( LeftTransformationColumn(LeftTransformationColumn) )
-import HLinear.BRMatrix.RVector ( RVector(RVector) )
-import qualified HLinear.BRMatrix.RVector as RV
 
 
  -- \ A vector of columns (a, [v]) which are offset by their index.
@@ -96,26 +93,6 @@ fromLeftTransformation
 fromLeftTransformation (LeftTransformation nrs cs) =
   WeakLeftTransformation nrs $ V.map fromLeftTransformationColumn cs
 
--- application to RVector
-
-apply
-  :: ( DivisionRing a, LinearSemiringLeftAction a b )
-  => WeakLeftTransformation a -> RVector b -> RVector b
-apply lt@(WeakLeftTransformation nrs cs) (RVector v) = RVector $
-    V.foldr' applyCol v $ V.drop nrsDiff cs
-    where
-    nv = V.length v
-    nrsDiff = fromIntegral nrs - nv
-
-    -- this assumes that vn is longer than v'
-    {-# INLINE applyCol #-}
-    applyCol c@(WeakLeftTransformationColumn s' a' v') vn =
-       V.init vn1 `V.snoc` av
-       V.++
-       V.zipWith (\bl br -> bl*.av + br) v' vn2
-         where
-         av = a' *. V.last vn1
-         (vn1,vn2) = V.splitAt (V.length vn - V.length v') vn
 
 instance Functor WeakLeftTransformation where
   fmap f (WeakLeftTransformation nrs cs) =
@@ -170,69 +147,3 @@ instance
 instance
      ( LinearSemiringLeftAction a b, AdditiveSemigroup b )
   => LinearSemiringLeftAction a (WeakLeftTransformation b)
-
-
-instance IntertwinesExtension WeakLeftTransformation where
-  intertwineFrom
-    :: forall a ctx b
-    .  ( IsExtension a ctx b
-       , IsExtension a ctx (WeakLeftTransformation b) )
-    => Extension a ctx (WeakLeftTransformation b)
-    -> WeakLeftTransformation (Extension a ctx b)
-
-  intertwineFrom
-    (Coordinates wlt) = WeakLeftTransformation nrs $
-      V.generate ncsZ $ \jx -> WeakLeftTransformationColumn jx
-        ( Coordinates $ V.generate d $ \dx -> head (wlt V.! dx ! jx) )
-        ( V.generate (nrsZ-jx-1) $ \ix -> Coordinates $
-            V.generate d $ \dx -> tail (wlt V.! dx ! jx) V.! ix
-        )
-      where
-        d = degree (reflect (Proxy :: Proxy ctx))
-        nrs = nmbRows $ V.head wlt
-        nrsZ = fromIntegral nrs
-        ncsZ = V.length $ columns $ V.head wlt
-
-  intertwineFrom
-    (Evaluations wlt) = WeakLeftTransformation nrs $
-      V.generate ncsZ $ \jx -> WeakLeftTransformationColumn jx
-        ( Evaluations $ V.generate d $ \dx ->  head (wlt V.! dx ! jx) )
-        ( V.generate (nrsZ-jx-1) $ \ix -> Evaluations $
-            V.generate d $ \dx -> tail (wlt V.! dx !jx) V.! ix
-        )
-      where
-        d = degree (reflect (Proxy :: Proxy ctx))
-        nrs = nmbRows $ V.head wlt
-        nrsZ = fromIntegral nrs
-        ncsZ = V.length $ columns $ V.head wlt
-
-  intertwineTo
-    :: forall a ctx b
-    .  ( IsExtension a ctx b
-       , IsExtension a ctx (WeakLeftTransformation b) )
-    => WeakLeftTransformation (Extension a ctx b)
-    -> Extension a ctx (WeakLeftTransformation b)
-  intertwineTo wlt
-    | ncsZ == 0 = Coordinates $ V.replicate d $
-                    WeakLeftTransformation nrs V.empty
-    | otherwise = extConst $ intertwineTo' $ fmap extVec wlt
-        where
-        nrs = nmbRows wlt
-        nrsZ = fromIntegral nrs
-        ncsZ = V.length $ columns wlt
-
-        (d, (extConst, extVec)) =
-          let e = head (wlt ! 0) :: Extension a ctx b
-          in  ( degree (reflect (Proxy :: Proxy ctx))
-              , case e of
-                  Coordinates _ -> (Coordinates, coordinateVector)
-                  Evaluations _ -> (Evaluations, evaluationVector)
-              )
-
-        intertwineTo' wlt =
-          V.generate d $ \dx -> WeakLeftTransformation nrs $
-          V.generate ncsZ $ \jx -> WeakLeftTransformationColumn jx
-            ( head (wlt ! jx) V.! dx )
-            ( V.generate (nrsZ-jx-1) $ \ix ->
-                tail (wlt ! jx) V.! ix V.! dx
-            )

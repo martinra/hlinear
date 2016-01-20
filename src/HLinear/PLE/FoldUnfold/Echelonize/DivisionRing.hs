@@ -31,10 +31,8 @@ import qualified HLinear.PLE.Hook.EchelonForm as EF
 import HLinear.PLE.Hook.EchelonForm ( EchelonForm(..) )
 import qualified HLinear.PLE.Hook.LeftTransformation as LT
 import HLinear.PLE.Hook.LeftTransformation ( LeftTransformation(..) )
-import qualified HLinear.BRMatrix as BRM
 import HLinear.Matrix ( Matrix(..), headRows, tailRows )
 import qualified HLinear.Matrix as M
-import HLinear.Matrix.Conversion
 
 
 instance

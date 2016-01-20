@@ -1,9 +1,6 @@
 module HLinear.Matrix
   ( Matrix(..)
 
-  , toBRMatrix
-  , fromBRMatrix
-
   , (!)
   , (!?)
 
@@ -52,7 +49,6 @@ import qualified Prelude
 
 import HLinear.Matrix.Algebra
 import HLinear.Matrix.Basic
-import HLinear.Matrix.Conversion
 import HLinear.Matrix.Definition
 import HLinear.Matrix.StdElements
 

@@ -18,8 +18,8 @@ import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural
 
-import HLinear.Matrix.Conversion
 import HLinear.Matrix.Definition
+
 
 instance Eq a => Eq (Matrix a) where
   (Matrix nrs ncs rs) == (Matrix nrs' ncs' rs') =

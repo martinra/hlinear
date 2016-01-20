@@ -18,11 +18,10 @@ import qualified Data.Vector as V
 import Data.Vector ( Vector(..) )
 import Data.Permute ( Permute )
 import qualified Data.Permute as P
-
 import Math.Structure
 
 import HLinear.Matrix
-import HLinear.BRMatrix.RVector ( RVector(RVector) )
+import HLinear.PLE.Hook.PLMatrix
 
 
 instance NFData Permute where
@@ -117,9 +116,9 @@ newtype RPVector a = RPVector {fromRPVector :: Vector a}
 
 -- this is partially defined (i.e. for internal use only)
 instance
-  MultiplicativeSemigroupLeftAction RPermute (RPVector a)
+  MultiplicativeSemigroupLeftAction RPermute (PLVector a)
   where
-  rp@(RPermute p) *. (RPVector v) = RPVector $ V.backpermute v vp'
+  rp@(RPermute p) *. (PLVector v) = PLVector $ V.backpermute v vp'
     where
       nv = V.length v
       np = size rp
@@ -130,4 +129,12 @@ instance
               GT -> V.enumFromN 0 (nv-np) V.++ vp
               LT -> error "RPermute *. lVector: permutation to large"
 
-instance MultiplicativeLeftAction RPermute (RPVector a)
+instance MultiplicativeLeftAction RPermute (PLVector a)
+
+
+instance MultiplicativeSemigroupLeftAction RPermute (PLMatrix a) where
+  p *. PLMatrix (Matrix nrs ncs rs) = PLMatrix $
+    Matrix nrs ncs $ fromPLVector $ p *. PLVector rs
+
+instance MultiplicativeLeftAction RPermute (PLMatrix a)
+

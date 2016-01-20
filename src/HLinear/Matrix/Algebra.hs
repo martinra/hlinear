@@ -68,7 +68,7 @@ instance    ( Rng a, AdditiveMonoid b
          => MultiplicativeSemigroupLeftAction (Matrix a) (Column b)
   where
   (Matrix nrs ncs rs) *. Column v
-    | ncs /= nv = error $ "Matrix *. Column: incompatible dimensions"
+    | ncs /= nv = error "Matrix *. Column: incompatible dimensions"
     | ncs == 0 = Column $ V.replicate nrsZ zero
     | otherwise = Column $ 
       (`V.map` rs) $ \r -> V.foldl1' (+) $ V.zipWith (*.) r v

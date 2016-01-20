@@ -17,25 +17,14 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:
-    HLinear.BRMatrix
-    HLinear.BRMatrix.RVector
     HLinear.Matrix
     HLinear.Matrix.Maybe
     HLinear.PLE
 
   other-modules:
-    HLinear.BRMatrix.Algebra
-    HLinear.BRMatrix.Basic
-    HLinear.BRMatrix.Definition
-    HLinear.BRMatrix.QuickCheck
-    HLinear.BRMatrix.SmallCheck
-    HLinear.BRMatrix.StdElements
-
     HLinear.Matrix.Algebra
     HLinear.Matrix.Basic
-    HLinear.Matrix.Conversion
     HLinear.Matrix.Definition
-    HLinear.Matrix.Extension
     HLinear.Matrix.MultiMod
     HLinear.Matrix.QuickCheck
     HLinear.Matrix.SmallCheck
@@ -48,7 +37,6 @@ library
 
     HLinear.PLE.Decomposition
     HLinear.PLE.Decomposition.Definition
-    HLinear.PLE.Decomposition.ExtMatrixFMPQ
     HLinear.PLE.Decomposition.Matrix
     HLinear.PLE.Decomposition.Instances
 
@@ -104,7 +92,6 @@ library
     HLinear.PLE.Sliced.Echelonize
     HLinear.PLE.Sliced.Echelonize.Definition
     HLinear.PLE.Sliced.Echelonize.DivisionRing
-    HLinear.PLE.Sliced.Echelonize.ExtMatrixFMPQ
     HLinear.PLE.Sliced.Echelonize.Positions
 
     HLinear.PLE.Strategy
@@ -115,7 +102,6 @@ library
   build-depends:
       base
     , algebra-structures
-    , algebra-monic-extension
     , binary
     , composition
     , containers
@@ -160,7 +146,6 @@ test-suite test-hlinear
 
   build-depends:
       base
-    , algebra-monic-extension
     , algebra-structures
     , binary
     , composition
@@ -203,7 +188,6 @@ benchmark bench-hlinear
 
   build-depends:
       base
-    , algebra-monic-extension
     , algebra-structures
     , binary
     , composition
@@ -246,7 +230,6 @@ executable debug-hlinear
 
   build-depends:
       base
-    , algebra-monic-extension
     , algebra-structures
     , binary
     , composition

@@ -25,7 +25,6 @@ import HLinear.Matrix ( zeroMatrix
                       , headRows, tailRows
                       )
 import qualified HLinear.Matrix as M
-import HLinear.Matrix.Conversion
 import HLinear.Matrix.Definition ( Matrix(..) )
 
 

@@ -31,6 +31,7 @@ import Test.QuickCheck.Arbitrary ( Arbitrary
                                  )
 import Test.QuickCheck.Modifiers ( NonNegative(..) )
 
+import HLinear.PLE.Hook.PLMatrix
 import HLinear.PLE.Hook.RPermute as RP
 import HLinear.Matrix.Algebra ( Column(..), unColumn )
 
@@ -192,4 +193,4 @@ instance MultiplicativeSemigroupLeftAction
     | RP.size p > V.length v =
         error "RPermute *. LeftTransformationColumn: permutation too large"
     | otherwise = LeftTransformationColumn s a $
-                    RP.fromRPVector $ p *. RPVector v
+                    fromPLVector $ p *. PLVector v

@@ -17,19 +17,20 @@ import Prelude hiding ( (+), (-), negate, subtract
 
 import Control.Applicative ( (<$>) )
 import Control.Arrow ( first )
+import Control.Monad.Reader ( runReader )
 import Data.Maybe
 import Data.Vector ( Vector(..) )
 import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural ( Natural )
 
-import HLinear.BRMatrix.Definition
-import HLinear.BRMatrix.RVector
-import qualified HLinear.BRMatrix.RVector as RV
+import HLinear.Matrix ( Matrix(..) )
+import qualified HLinear.Matrix.Algebra as M
 import HLinear.PLE.Hook.LeftTransformation.Basic as LT
 import qualified HLinear.PLE.Hook.LeftTransformation.Column as LTC
 import HLinear.PLE.Hook.LeftTransformation.Column
 import HLinear.PLE.Hook.LeftTransformation.Definition
+import HLinear.PLE.Hook.PLMatrix
 import HLinear.PLE.Hook.RPermute
 
 
@@ -109,10 +110,10 @@ instance    ( DivisionRing a, DecidableZero a )
 instance  {-# INCOHERENT #-}
             ( DivisionRing a, DecidableZero a, LinearSemiringLeftAction a b )
          => MultiplicativeSemigroupLeftAction
-              (LeftTransformation a) (RVector b)
+              (LeftTransformation a) (PLVector b)
   where
   -- we fill the vector v with zeros from the top
-  lt@(LeftTransformation nrs cs) *. (RVector v) = RVector $
+  lt@(LeftTransformation nrs cs) *. (PLVector v) = PLVector $
     V.foldr' applyCol v $ V.drop nrsDiff cs
     where
     nv = V.length v
@@ -129,7 +130,7 @@ instance  {-# INCOHERENT #-}
          (vn1,vn2) = V.splitAt (V.length vn - V.length v') vn
 
 instance    ( DivisionRing a, DecidableZero a, LeftModule a b )
-         => MultiplicativeLeftAction (LeftTransformation a) (RVector b)
+         => MultiplicativeLeftAction (LeftTransformation a) (PLVector b)
 
 -- action on LeftTransformationColumn
 
@@ -148,7 +149,7 @@ instance    ( DivisionRing a, DecidableZero a )
       nza1recip = fromNonZero $ maybe one (recip . LTC.headNonZero) c1
 
       a' = maybe a ((*a) . LTC.headNonZero) c1
-      ltv = toCurrentVector $ lt *. RVector v
+      ltv = fromPLVector $ lt *. PLVector v
       v' = case c1 of
              Just c1' -> V.zipWith (\bc bv -> bc + bv*nza1recip)
                            (LTC.tail c1') ltv
@@ -159,15 +160,50 @@ instance    ( DivisionRing a, DecidableZero a )
              (LeftTransformation a)
              (LeftTransformationColumn a)
 
--- action on BRMatrix
+-- action on Matrix
 
 instance    ( DivisionRing a, DecidableZero a )
          => MultiplicativeSemigroupLeftAction
-              (LeftTransformation a) (BRMatrix a)
+              (LeftTransformation a) (PLMatrix a)
   where
-  lt *. (BRMatrix nrs' ncs' rs') =
-    BRMatrix nrs' ncs' $ lt *. rs'
+  lt *. (PLMatrix (Matrix nrs ncs rs)) = PLMatrix $
+    Matrix nrs ncs $ flip runReader ncs $ M.unMRow $
+      V.sequence $ fromPLVector $ lt *. PLVector (V.map return rs)
 
 instance    ( DivisionRing a, DecidableZero a ) 
          => MultiplicativeLeftAction
-              (LeftTransformation a) (BRMatrix a)
+              (LeftTransformation a) (PLMatrix a)
+
+-- apply
+--   :: DivisionRing a
+--   => WeakLeftTransformation a -> Matrix a -> Matrix a
+-- apply wlt (Matrix nrs ncs rs) =
+--   Matrix nrs ncs $
+--   V.map RV.toCurrentVector $ RV.toCurrentVector $
+--   WLT.apply wlt $
+--   RV.RVector $ V.map RV.RVector rs
+-- 
+-- 
+-- 
+-- -- fixme: this should be applied to PLVector
+-- -- application to RVector
+-- 
+-- apply
+--   :: ( DivisionRing a, LinearSemiringLeftAction a b )
+--   => WeakLeftTransformation a -> RVector b -> RVector b
+-- apply lt@(WeakLeftTransformation nrs cs) (RVector v) = RVector $
+--     V.foldr' applyCol v $ V.drop nrsDiff cs
+--     where
+--     nv = V.length v
+--     nrsDiff = fromIntegral nrs - nv
+-- 
+--     -- this assumes that vn is longer than v'
+--     {-# INLINE applyCol #-}
+--     applyCol c@(WeakLeftTransformationColumn s' a' v') vn =
+--        V.init vn1 `V.snoc` av
+--        V.++
+--        V.zipWith (\bl br -> bl*.av + br) v' vn2
+--          where
+--          av = a' *. V.last vn1
+--          (vn1,vn2) = V.splitAt (V.length vn - V.length v') vn
+-- 
