@@ -42,10 +42,7 @@ import HLinear.Matrix as M
 import HLinear.PLE.Hook as Hk
 import HLinear.PLE.Hook.EchelonForm as EF
 import HLinear.PLE.ReducedEchelonForm as REF
---import HLinear.PLE.Hook.LeftTransformation as LT
---import HLinear.PLE.Hook.RPermute as RP
 import HLinear.PLE
-
 
 main :: IO ()
 main = defaultMain
@@ -74,17 +71,12 @@ main = defaultMain
   ]
 
   where
-    matSize = 200
+    matSize = 50
     snum = 10
-    nden = 5 
-    sden = 4 
+    nden = 5
+    sden = 4
 
-    uQQMatrix = uniformRandomMatrixQQbd matSize matSize snum nden sden
-    -- uQQbdMatrix = uniformRandomMatrixQQbdLE matSize matSize snum nden sden
-
-    uQQbdMatrix = return $ increasingFractionsMatrix matSize matSize
---    uFpMatrix :: Proxy ctxProxy -> IO ( Matrix (NMod ctxProxy) )
---    uFpMatrix _ = uniformRandomMatrixFp matSize matSize 
+    uQQbdMatrix = uniformRandomMatrixQQbdLE matSize matSize snum nden sden
 
     bgroupFlint :: FMPQMat -> [Benchmark]
     bgroupFlint mat =
@@ -93,26 +85,9 @@ main = defaultMain
 
     bgroupHlinearFMPQ mat =
       [
---        bench "ple matrices"   $ nf pleMatricesFMPQ mat
---      , bench "echelon matrix" $ nf pleEchelonMatrixFMPQ mat
         bench "rref matrix"    $ nf pleReducedEchelonMatrixFMPQ mat
       ]
 
---    pleMatricesFMPQ = Hk.toMatrices . unPLEDecomposition . pleDecomposition
---    pleEchelonMatrixFMPQ = sel3 . pleMatricesFMPQ
     pleReducedEchelonMatrixFMPQ =
          EF.toMatrix . snd . REF.reducedEchelonForm
        . Hk.echelonForm . unPLEDecomposition . pleDecomposition
-
---     bgroupHlinear mat =
---       [
--- --        bench "ple matrices"   $ nf pleMatrices mat
--- --      , bench "echelon matrix" $ nf pleEchelonMatrix mat
---         bench "rref matrix"    $ nf pleReducedEchelonMatrix mat
---       ]
--- 
---     pleMatrices = Hk.toMatrices . unPLEDecomposition . pleDecomposition
---     pleEchelonMatrix = sel3 . pleMatrices
---     pleReducedEchelonMatrix =
---          EF.toMatrix . snd . REF.reducedEchelonForm
---        . Hk._echelon . unPLEDecomposition . pleDecomposition

@@ -184,17 +184,19 @@ benchmark bench-hlinear
     -threaded
 
   main-is:
-    HLinear/Bench.hs
+    HLinear/ClockBench.hs
 
   build-depends:
       base
     , algebra-structures
     , binary
+    , clock
     , composition
     , containers
     , criterion
     , deepseq
     , filepath
+    , formatting
     , hflint
     , logict
     , monad-loops
