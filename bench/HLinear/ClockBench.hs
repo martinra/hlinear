@@ -16,7 +16,8 @@ import Prelude hiding ( (+), (-), negate, subtract
 import Control.DeepSeq ( NFData )
 -- import Control.Exception ( tryJust )
 import Control.Exception
-import Control.Monad ( guard )
+-- import Control.Monad ( guard )
+import Control.Monad
 import qualified Data.Binary as B
 import Data.Maybe
 import Data.Proxy
@@ -51,22 +52,24 @@ import HLinear.PLE
 
 
 main :: IO ()
-main = do
-  let matSize = 100
+main = replicateM_ 100 $ do
+  let matSize = 39
       snum = 10
       nden = 5
       sden = 4
-  uQQbdMatrix <- uniformRandomMatrixQQbdLE matSize matSize snum nden sden
-  let flintMat = toFMPQMat uQQbdMatrix
-      hlinearMat = fmap fromRational uQQbdMatrix :: Matrix FMPQ
       pleReducedEchelonMatrixFMPQ =
            EF.toMatrix . snd . REF.reducedEchelonForm
          . Hk.echelonForm . unPLEDecomposition . pleDecomposition
+  uQQbdMatrix <- uniformRandomMatrixQQbdLE matSize matSize snum nden sden
+  let flintMat = toFMPQMat uQQbdMatrix
+      hlinearMat = fmap fromRational uQQbdMatrix :: Matrix FMPQ
   start <- getTime Monotonic
   evaluate (rref flintMat)
   end <- getTime Monotonic
   fprint timeSpecs start end
+  putStr ",  "
   start <- getTime Monotonic
   evaluate (pleReducedEchelonMatrixFMPQ hlinearMat)
   end <- getTime Monotonic
   fprint timeSpecs start end
+  putStrLn ""
