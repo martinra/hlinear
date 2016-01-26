@@ -53,15 +53,21 @@ main = defaultMain
 --    env ( toFMPQMat <$> uQQMatrix ) $ \mat ->
 --    bgroup "FMPQMat" (bgroupFlint mat)
 
-    env ( toFMPQMat <$> uQQbdMatrix ) $ \mat ->
-    bgroup "FMPQMat bounded denominator" (bgroupFlint mat)
+--    env ( toFMPQMat <$> uQQbdMatrix ) $ \mat ->
+--    bgroup "FMPQMat (bounded denominator)" (bgroupFlint mat)
+
+    env ( toFMPQMat <$> incQQMatrix ) $ \mat ->
+    bgroup "FMPQMat (increasing fractions)" (bgroupFlint mat)
 
 --  , env ( fmap fromRational <$> uQQMatrix :: IO (Matrix FMPQ) ) $ \mat ->
 --    bgroup "Matrix FMPQ" (bgroupHlinearFMPQ mat)
 
-  , env ( fmap fromRational <$> uQQbdMatrix :: IO (Matrix FMPQ) ) $ \mat ->
-    bgroup "Matrix FMPQ (bounded denominator)" (bgroupHlinearFMPQ mat)
+--  , env ( fmap fromRational <$> uQQbdMatrix :: IO (Matrix FMPQ) ) $ \mat ->
+--    bgroup "Matrix FMPQ (bounded denominator)" (bgroupHlinearFMPQ mat)
 
+  , env ( fmap fromRational <$> incQQMatrix :: IO (Matrix FMPQ) ) $ \mat ->
+    bgroup "Matrix FMPQ (increasing fractions)" (bgroupHlinearFMPQ mat)
+--
 --  , env ( uQQMatrix :: IO (Matrix Rational) ) $ \mat ->
 --    bgroup "Matrix Rational" (bgroupHlinear mat)
 
@@ -79,10 +85,10 @@ main = defaultMain
     nden = 5 
     sden = 4 
 
-    uQQMatrix = uniformRandomMatrixQQbd matSize matSize snum nden sden
+--    uQQMatrix = uniformRandomMatrixQQbd matSize matSize snum nden sden
     -- uQQbdMatrix = uniformRandomMatrixQQbdLE matSize matSize snum nden sden
 
-    uQQbdMatrix = return $ increasingFractionsMatrix matSize matSize
+    incQQMatrix = increasingFractionsMatrix matSize matSize
 --    uFpMatrix :: Proxy ctxProxy -> IO ( Matrix (NMod ctxProxy) )
 --    uFpMatrix _ = uniformRandomMatrixFp matSize matSize 
 
@@ -96,13 +102,18 @@ main = defaultMain
 --        bench "ple matrices"   $ nf pleMatricesFMPQ mat
 --      , bench "echelon matrix" $ nf pleEchelonMatrixFMPQ mat
         bench "rref matrix"    $ nf pleReducedEchelonMatrixFMPQ mat
+      , bench "rrefff matrix"    $ nf pleReducedEchelonFFMatrixFMPQ mat
       ]
 
 --    pleMatricesFMPQ = Hk.toMatrices . unPLEDecomposition . pleDecomposition
 --    pleEchelonMatrixFMPQ = sel3 . pleMatricesFMPQ
     pleReducedEchelonMatrixFMPQ =
          EF.toMatrix . snd . REF.reducedEchelonForm
-       . Hk.echelonForm . unPLEDecomposition . pleDecomposition
+       . Hk.echelonForm . unPLEDecomposition . pleDecompositionFoldUnfold
+
+    pleReducedEchelonFFMatrixFMPQ =
+         EF.toMatrix . snd . REF.reducedEchelonForm
+       . Hk.echelonForm . unPLEDecomposition . pleDecompositionFoldUnfoldFractionFree
 
 --     bgroupHlinear mat =
 --       [
