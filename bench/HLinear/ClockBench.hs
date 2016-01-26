@@ -32,6 +32,8 @@ import Formatting
 import Formatting.Clock
 import System.Clock
 import Test.QuickCheck
+import Options
+import Control.Applicative
 
 import HFlint.FMPQ
 import HFlint.FMPQMat as FMPQMat
@@ -51,9 +53,22 @@ import HLinear.PLE.ReducedEchelonForm as REF
 import HLinear.PLE
 
 
+data MainOptions = MainOptions
+  { optMatSize :: Integer
+  -- , optRepetitions :: Int
+  }
+
+
+instance Options MainOptions where
+  defineOptions = pure MainOptions
+    <*> simpleOption "matsize" 10 "size of matrices"
+    -- <*> simpleOption "reps" 1 "number of repetitions"
+
+
 main :: IO ()
-main = replicateM_ 100 $ do
-  let matSize = 39
+-- main = replicateM_ 100 $ do
+main = runCommand $ \opts args -> do
+  let matSize = fromInteger (optMatSize opts) :: Natural
       snum = 10
       nden = 5
       sden = 4

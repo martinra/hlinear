@@ -204,6 +204,7 @@ benchmark bench-hlinear
     , MonadRandom
     , mtl
     , natural-test
+    , options
     , parallel
     , permutation
     , QuickCheck
