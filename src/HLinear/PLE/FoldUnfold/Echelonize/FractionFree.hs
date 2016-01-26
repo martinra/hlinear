@@ -18,6 +18,7 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       )
 
+import Control.Arrow ( (&&&) )
 import Data.Permute ( Permute )
 import Data.Vector ( Vector )
 import qualified Data.Vector as V
@@ -107,9 +108,12 @@ splitOffHook (MatrixFractionFree m@(Matrix nrs ncs rs) den)
           pivotRecip = recip $ NonZero $ fromNumerator pivot :: NonZero FMPQ
           pivotTail = V.tail pivotRow
 
-          bottomRows = V.tail $ V.update rs $ V.singleton (pIx,V.head rs)
-          bottomHeads = V.map V.head bottomRows
-          bottomTails = V.map V.tail bottomRows
+          bottomRows =
+            if pIx == 0
+            then V.tail rs
+            else V.update (V.tail rs) $ V.singleton (pred pIx,V.head rs)
+          (bottomHeads,bottomTails) =
+            V.unzip $ V.map (V.head &&& V.tail) bottomRows
 
           p = RP.fromTransposition (fromIntegral nrs) (0,pIx)
           lt = LeftTransformation nrs $ V.singleton $
@@ -122,7 +126,6 @@ splitOffHook (MatrixFractionFree m@(Matrix nrs ncs rs) den)
                        ( V.tail pivotRow )
 
           matRows = V.zipWith
-                      ( \h t -> V.zipWith (\pv te -> (pivot*te - h*pv) `quot` fromNonZero den) pivotTail t )
+                      ( \h t -> V.zipWith (\pv te -> (pivot*te - h*pv) `divexactFMPZ` fromNonZero den) pivotTail t )
                       bottomHeads bottomTails
 
--- todo: what about divexact??
