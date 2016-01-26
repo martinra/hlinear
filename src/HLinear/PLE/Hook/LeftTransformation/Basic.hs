@@ -66,6 +66,13 @@ instance NFData a => NFData (LeftTransformation a) where
 identityLT :: Natural -> LeftTransformation a
 identityLT nrs = LeftTransformation nrs V.empty
 
+fromDiagonal :: Vector (NonZero a) -> LeftTransformation a
+fromDiagonal ds = LeftTransformation nrs $ flip V.imap ds $ \ix d ->
+                    LeftTransformationColumn ix d V.empty
+  where
+    nrsZ = V.length ds 
+    nrs = fromIntegral nrsZ
+
 -- subtransformations
 
 splitAt :: Int -> LeftTransformation a

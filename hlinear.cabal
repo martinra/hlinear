@@ -44,6 +44,7 @@ library
     HLinear.PLE.FoldUnfold.Echelonize
     HLinear.PLE.FoldUnfold.Echelonize.Definition
     HLinear.PLE.FoldUnfold.Echelonize.DivisionRing
+    HLinear.PLE.FoldUnfold.Echelonize.FractionFree
     HLinear.PLE.FoldUnfold.ReducedEchelonForm
 
     HLinear.PLE.Hook

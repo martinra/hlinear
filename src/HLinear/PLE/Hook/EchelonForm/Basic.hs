@@ -74,10 +74,13 @@ toMatrix (EchelonForm nrs ncs rs) = Matrix nrs ncs rs'
   where
     hrs = V.map EFR.row rs
     rs' = V.map EFR.toVector rs V.++ zeros
-    zeros = V.replicate ((fromIntegral nrs) - V.length rs)
+    zeros = V.replicate (fromIntegral nrs - V.length rs)
                         (V.replicate (fromIntegral ncs) zero)
 
 -- creation
+
+zeroEF :: Natural -> Natural -> EchelonForm a
+zeroEF nrs ncs = EchelonForm nrs ncs V.empty
 
 singletonLeadingOne
   :: MultiplicativeMonoid a
@@ -92,9 +95,6 @@ singleton nrs o v = EchelonForm nrs nv $
                       V.singleton $ EchelonFormRow o v
   where
     nv = fromIntegral $ V.length v
-
-zeroEF :: Natural -> Natural -> EchelonForm a
-zeroEF nrs ncs = EchelonForm nrs ncs V.empty
 
 -- submatrices
 

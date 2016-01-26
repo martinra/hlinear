@@ -28,11 +28,12 @@ import HLinear.Matrix ( Matrix )
 import qualified HLinear.Matrix as M
 import HLinear.PLE.Decomposition.Definition
 import HLinear.PLE.Decomposition.Matrix
-import HLinear.PLE.FoldUnfold.Echelonize ( firstHook )
+import HLinear.PLE.Hook ()
 import HLinear.PLE.Hook.Definition
 import HLinear.PLE.Hook.PLMatrix
 import qualified HLinear.PLE.Hook.RPermute as RP
 import qualified HLinear.PLE.Hook.EchelonForm as EF
+import qualified HLinear.PLE.Hook.LeftTransformation as LT
 import HLinear.PLE.Sliced.Echelonize.Definition
 import HLinear.PLE.Sliced.Echelonize.Positions
 import HLinear.PLE.Strategy.Definition
@@ -44,7 +45,7 @@ instance
   => HasPLEDecompositionSliced (Matrix a)
   where
   pleDecompositionSliced parameters strat m = runPar $ do
-    ivhook <- spawnP $ firstHook nrs ncs
+    ivhook <- spawnP $ PLEHook one (LT.identityLT nrs) (EF.zeroEF nrs ncs)
     ivms <- for (slicingPositions parameters ncs) $ \(ix,s) ->
               spawnP $ M.sliceCols ix s m
     pleDecompositionSlicedPar strat ivhook ivms

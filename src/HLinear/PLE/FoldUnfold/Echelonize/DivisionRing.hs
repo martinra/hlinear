@@ -7,6 +7,8 @@
   #-}
 
 module HLinear.PLE.FoldUnfold.Echelonize.DivisionRing
+  ( 
+  )
 where
 
 import Prelude hiding ( (+), (-), negate, subtract
@@ -40,16 +42,9 @@ instance
   => HasPLEDecompositionFoldUnfold (Matrix a)
   where
   pleDecompositionFoldUnfold m@(Matrix nrs ncs _) =
-    PLEDecomposition $ V.foldl (*) (firstHook nrs ncs) $
-                       V.unfoldr splitOffHook m
-    where
-
-firstHook :: Natural -> Natural -> PLEHook a
-firstHook nrs ncs = PLEHook
-  (RP.rpermute $ fromIntegral nrs)
-  (LeftTransformation nrs V.empty)
-  (EchelonForm nrs ncs V.empty)
-
+    PLEDecomposition $ V.foldl (*)
+                       ( PLEHook one (LT.identityLT nrs) (EF.zeroEF nrs ncs) )
+                       ( V.unfoldr splitOffHook m )
 
 splitOffHook
   :: ( DecidableZero a, DivisionRing a )
