@@ -132,9 +132,6 @@ splitOffHook (MatrixFractionFree m@(Matrix nrs ncs rs) den)
           matRows = V.zipWith
                       ( \h t -> V.zipWith (\pv te -> mulSubMulDiv pivot te h pv (fromNonZero den)) pivotTail t )
                       bottomHeads bottomTails
---          matRows = V.zipWith
---                      ( \h t -> V.zipWith (\pv te -> (pivot*te - h*pv) `divexactFMPZ` fromNonZero den) pivotTail t )
---                      bottomHeads bottomTails
 
           mulSubMulDiv :: FMPZ -> FMPZ -> FMPZ -> FMPZ -> FMPZ -> FMPZ
           mulSubMulDiv a a' b b' c = unsafePerformIO $
