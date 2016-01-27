@@ -24,9 +24,13 @@ import Data.Vector ( Vector )
 import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural
+import System.IO.Unsafe ( unsafePerformIO )
 
 import HFlint.FMPQ
 import HFlint.FMPZ
+import HFlint.FMPZ.FFI ( fmpz_mul, fmpz_submul, fmpz_divexact )
+import HFlint.Internal ( withFlint, withNewFlint_ )
+
 
 import HLinear.PLE.Decomposition.Definition
 import HLinear.PLE.Decomposition.Matrix
@@ -126,6 +130,20 @@ splitOffHook (MatrixFractionFree m@(Matrix nrs ncs rs) den)
                        ( V.tail pivotRow )
 
           matRows = V.zipWith
-                      ( \h t -> V.zipWith (\pv te -> (pivot*te - h*pv) `divexactFMPZ` fromNonZero den) pivotTail t )
+                      ( \h t -> V.zipWith (\pv te -> mulSubMulDiv pivot te h pv (fromNonZero den)) pivotTail t )
                       bottomHeads bottomTails
+--          matRows = V.zipWith
+--                      ( \h t -> V.zipWith (\pv te -> (pivot*te - h*pv) `divexactFMPZ` fromNonZero den) pivotTail t )
+--                      bottomHeads bottomTails
 
+          mulSubMulDiv :: FMPZ -> FMPZ -> FMPZ -> FMPZ -> FMPZ -> FMPZ
+          mulSubMulDiv a a' b b' c = unsafePerformIO $
+            withNewFlint_ $ \dptr  ->
+            withFlint a   $ \aptr  ->
+            withFlint a'  $ \a'ptr ->
+            withFlint b   $ \bptr  ->
+            withFlint b'  $ \b'ptr ->
+            withFlint c   $ \cptr  -> do
+              fmpz_mul dptr aptr a'ptr
+              fmpz_submul dptr bptr b'ptr
+              fmpz_divexact dptr dptr cptr
