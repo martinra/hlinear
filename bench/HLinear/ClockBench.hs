@@ -72,9 +72,9 @@ main = runCommand $ \opts args -> do
       snum = 10
       nden = 5
       sden = 4
-      pleReducedEchelonMatrixFMPQ =
+      pleReducedEchelonFFMatrixFMPQ =
            EF.toMatrix . snd . REF.reducedEchelonForm
-         . Hk.echelonForm . unPLEDecomposition . pleDecomposition
+         . Hk.echelonForm . unPLEDecomposition . pleDecompositionFoldUnfoldFractionFree
   uQQbdMatrix <- uniformRandomMatrixQQbdLE matSize matSize snum nden sden
   let flintMat = toFMPQMat uQQbdMatrix
       hlinearMat = fmap fromRational uQQbdMatrix :: Matrix FMPQ
@@ -84,7 +84,7 @@ main = runCommand $ \opts args -> do
   fprint timeSpecs start end
   putStr ",  "
   start <- getTime Monotonic
-  evaluate (pleReducedEchelonMatrixFMPQ hlinearMat)
+  evaluate (pleReducedEchelonFFMatrixFMPQ hlinearMat)
   end <- getTime Monotonic
   fprint timeSpecs start end
   putStrLn ""
