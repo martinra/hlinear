@@ -38,19 +38,27 @@ import HLinear.Matrix as M
 
 
 increasingFractionsMatrix
-  :: ( Fractional a, Ring a )
-  => Natural -> Natural -> Matrix a
-increasingFractionsMatrix nrs ncs = m
+  :: ( Binary a, Fractional a, Ring a )
+  => Natural -> Natural -> IO (Matrix a)
+increasingFractionsMatrix nrs ncs = do
+  B.encodeFile fileName m
+  eitherMat <- tryJust ( guard . isDoesNotExistError ) $ B.decodeFile fileName
+  case eitherMat of
+    Left _   -> return m
+    Right m' -> return m'
+
   where
-  nrsZ = fromIntegral nrs
-  ncsZ = fromIntegral ncs
-  Right m = M.fromVectors' nrs ncs $
-    V.generate nrsZ $ \ix ->
-    V.generate ncsZ $ \jx ->
-      let ixQ = fromIntegral ix
-          jxQ = fromIntegral jx
-          ncsQ = fromIntegral ncs
-      in (ixQ^2 + 2) P./ ((ncsQ-jxQ)^3 + 1)
+    fileName = "." </> "bench_data" </> "mat_inc23_nrs" ++ show nrs ++ "_ncs" ++ show ncs <.> "mat"
+
+    nrsZ = fromIntegral nrs
+    ncsZ = fromIntegral ncs
+    m = M.fromVectorsUnsafe' nrs ncs $
+      V.generate nrsZ $ \ix ->
+      V.generate ncsZ $ \jx ->
+        let ixQ = fromIntegral ix
+            jxQ = fromIntegral jx
+            ncsQ = fromIntegral ncs
+        in (ixQ^2 + 2) P./ ((ncsQ-jxQ)^3 + 1)
 
 
 loadOrCreate :: Binary a => RVar a -> FilePath -> IO a
