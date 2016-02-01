@@ -17,6 +17,7 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       )
 
+import Control.Arrow ( (&&&) )
 import Data.Permute ( Permute )
 import qualified Data.Vector as V
 import Math.Structure
@@ -42,9 +43,10 @@ instance
   => HasPLEDecompositionFoldUnfold (Matrix a)
   where
   pleDecompositionFoldUnfold m@(Matrix nrs ncs _) =
-    PLEDecomposition $ V.foldl (*)
-                       ( PLEHook one (LT.identityLT nrs) (EF.zeroEF nrs ncs) )
-                       ( V.unfoldr splitOffHook m )
+    PLEDecomposition $
+      V.foldl (*)
+      ( PLEHook one (LT.identityLT nrs) (EF.zeroEF nrs ncs) )
+      ( V.unfoldr splitOffHook m )
 
 splitOffHook
   :: ( DecidableZero a, DivisionRing a )
@@ -53,29 +55,32 @@ splitOffHook m@(Matrix nrs ncs rs)
   | nrs == 0 || ncs == 0 = Nothing
   | otherwise            = Just $
       case V.findIndex ((not . isZero) . V.head) rs of
-        Nothing -> ( fromEchelonForm $ EchelonForm nrs ncs V.empty
-                   , Matrix nrs (pred ncs) rsTails
-                   )
-        Just pIx -> pleFromPLM p l $ Matrix nrs (pred ncs) rsTails
+        Nothing  -> ( PLEHook one (LT.identityLT nrs) $ EF.zeroEF nrs ncs
+                    , Matrix nrs (pred ncs) $ V.map V.tail rs
+                    )
+        Just pIx -> ( PLEHook p lt ef
+                    , Matrix (pred nrs) (pred ncs) matRows
+                    )
           where
-          pivotRecip = recip $ nonZero $ V.head (rs V.! pIx)
-          negCol = V.map negate $
-            V.generate (fromIntegral nrs - 1) $ \ix ->
-              V.head $ (V.! if ix < pIx then ix else ix+1) rs
+          pivotRow = rs V.! pIx
+          pivot = V.head pivotRow
+          pivotRecip = recip $ NonZero pivot
+          pivotTailRecip = V.map (fromNonZero pivotRecip *) $ V.tail pivotRow
+
+          bottomRows =
+            if pIx == 0
+            then V.tail rs
+            else V.update (V.tail rs) $ V.singleton (pred pIx,V.head rs)
+          (bottomHeads,bottomTails) =
+            V.unzip $ V.map (V.head &&& V.tail) bottomRows
  
           p = RP.fromTransposition (fromIntegral nrs) (0,pIx)
-          l = LeftTransformation nrs $ V.singleton $
-              LT.LeftTransformationColumn 0 pivotRecip negCol
+          lt = LeftTransformation nrs $ V.singleton $
+                 LT.LeftTransformationColumn 0
+                   pivotRecip
+                   ( V.map negate bottomHeads )
+          ef = EF.singletonLeadingOne nrs 0 pivotTailRecip
           
-      where
-        rsTails = V.map V.tail rs
-
-        fromEchelonForm ef@(EchelonForm nrs _ _) = PLEHook
-            (RP.rpermute $ fromIntegral nrs)
-            (LeftTransformation nrs V.empty)
-            ef
-
-        pleFromPLM p l m = ( PLEHook p l e, tailRows plm )
-          where
-            plm = fromPLMatrix $ l *. (p *. PLMatrix m)
-            e = EF.singletonLeadingOne (M.nmbRows m) 0 $ headRows plm
+          matRows = V.zipWith
+                      ( \h t -> V.zipWith (\pv te -> te - h * pv) pivotTailRecip t )
+                      bottomHeads bottomTails
