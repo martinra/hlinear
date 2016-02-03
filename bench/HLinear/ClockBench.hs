@@ -72,6 +72,9 @@ main = runCommand $ \opts args -> do
       snum = 10
       nden = 5
       sden = 4
+      -- pleReducedEchelonMatrixFMPQ =
+      --      EF.toMatrix . snd . REF.reducedEchelonForm
+      --    . Hk.echelonForm . unPLEDecomposition . pleDecomposition
       pleReducedEchelonFFMatrixFMPQ =
            EF.toMatrix . snd . REF.reducedEchelonForm
          . Hk.echelonForm . unPLEDecomposition . pleDecompositionFoldUnfoldFractionFree
