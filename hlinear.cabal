@@ -101,7 +101,7 @@ library
 
   build-depends:
       base
-    , algebra-structures
+    , algebraic-structures
     , binary
     , composition
     , containers
@@ -146,7 +146,7 @@ test-suite test-hlinear
 
   build-depends:
       base
-    , algebra-structures
+    , algebraic-structures
     , binary
     , composition
     , containers
@@ -188,7 +188,7 @@ benchmark bench-hlinear
 
   build-depends:
       base
-    , algebra-structures
+    , algebraic-structures
     , binary
     , composition
     , containers
@@ -230,7 +230,7 @@ executable debug-hlinear
 
   build-depends:
       base
-    , algebra-structures
+    , algebraic-structures
     , binary
     , composition
     , containers
@@ -275,7 +275,7 @@ executable debug-hlinear
 -- 
 --   build-depends:
 --       base
---     , algebra-structures
+--     , algebraic-structures
 --     , binary
 --     , composition
 --     , containers
