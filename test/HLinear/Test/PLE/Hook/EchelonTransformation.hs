@@ -25,7 +25,6 @@ import Test.Vector
 import HLinear.PLE.Hook
 import HLinear.PLE.Hook.EchelonTransformation as ET
 import HLinear.PLE.Hook.EchelonTransformation.Column as ETC
-import HLinear.Matrix.Conversion
 import qualified HLinear.Matrix as M
 
 import HLinear.Test.Utils
@@ -92,14 +91,14 @@ echelonTransformationProperties =
           ( Proxy ::  Proxy (EchelonTransformation Rational) )
           ( Proxy ::  Proxy (Vector Rational) )
       ]
-    ) 
+    )
     ++
     [ testPropertyMatrixSC "toMatrix * toInverseMatrix" $
         \et -> let m = toMatrix (et :: EchelonTransformation Rational)
                    mi = toInverseMatrix et
                    nrs = fromIntegral $ ET.nmbRows et
                in m * mi == M.identityMatrix nrs
-    , 
+    ,
       testPropertyMatrixSC "et *. toInverseMatrix et equals identity" $
         \et -> let mi = toInverseMatrix (et :: EchelonTransformation Rational)
                    nrs = fromIntegral $ ET.nmbRows et

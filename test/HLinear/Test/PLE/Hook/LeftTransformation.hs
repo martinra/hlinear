@@ -23,9 +23,6 @@ import Test.Vector
 
 import HLinear.PLE.Hook
 import HLinear.PLE.Hook.LeftTransformation as LT
-import HLinear.BRMatrix.RVector ( RVector(..) )
-import qualified HLinear.BRMatrix as BRM
-import HLinear.Matrix.Conversion
 import qualified HLinear.Matrix as M
 
 import HLinear.Test.Utils
@@ -75,39 +72,9 @@ leftTransformationUnitTests =
 leftTransformationProperties :: TestTree
 leftTransformationProperties =
   testGroup "Properties" $
-    [ QC.testProperty "toMatrix *. vector == *. vector" $
-        \lt v -> let m = toMatrix (lt :: LeftTransformation Rational)
-                     nrsDiff = V.length v - fromIntegral (nmbRows lt)
-                     (v1,v2) = V.splitAt nrsDiff v
-                     mv2 = m *. ( V.replicate (-nrsDiff) 0 V.++ v2 )
-                     mv = v1 V.++ V.drop (-nrsDiff) mv2
-                 in lt *. RVector (v :: V.Vector Rational) == RVector mv
-
-    , QC.testProperty "*. LeftTransformation Column" $
-        \lt ltc -> let _ = lt :: LeftTransformation Rational
-                       _ = ltc :: LeftTransformationColumn Rational
-                       toRVector = RVector . toVector
-                   in toRVector (lt *. ltc) == lt *. toRVector ltc
-    ]
-    ++
-    ( (`runTestR` testPropertyMatrixSC ) $
-      fmap concat $ sequence
-      [ isMultiplicativeGroup
-          ( Proxy :: Proxy (LeftTransformation Rational) )
-      , isMultiplicativeLeftAction
-          ( Proxy ::  Proxy (LeftTransformation Rational) )
-          ( Proxy ::  Proxy (RVector Rational) )
-      ]
-    ) 
-    ++
     [ testPropertyMatrixSC "toMatrix * toInverseMatrix" $
         \lt -> let m = toMatrix (lt :: LeftTransformation Rational)
                    mi = toInverseMatrix lt
                    nrs = fromIntegral $ LT.nmbRows lt
                in m * mi == M.identityMatrix nrs
-    , 
-      testPropertyMatrixSC "lt *. toInverseMatrix lt equals identity" $
-        \lt -> let mi = toBRMatrix $ toInverseMatrix (lt :: LeftTransformation Rational)
-                   nrs = fromIntegral $ LT.nmbRows lt
-               in lt *. mi == BRM.identityMatrix nrs
     ]

@@ -34,7 +34,6 @@ import HLinear.PLE.Hook.EchelonForm.Container ()
 import HLinear.PLE.Hook.EchelonTransformation as ET
 import HLinear.PLE.FoldUnfold.Echelonize ( pleDecompositionFoldUnfold )
 import HLinear.PLE.FoldUnfold.ReducedEchelonForm as REF
-import HLinear.Matrix.Conversion
 import qualified HLinear.Matrix as M
 
 import HLinear.Test.Utils
@@ -63,7 +62,7 @@ reducedEchelonFormProperties =
       recombineReducedEF 3
 
   , testPropertyMatrix "recombine reducedEchelonForm (large prime)" $
-      recombineReducedEF 1125899906842679 
+      recombineReducedEF 1125899906842679
   ]
 
 recombineReducedEF :: FlintLimb -> Matrix FMPZ -> Bool

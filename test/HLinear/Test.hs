@@ -12,7 +12,6 @@ import Test.Tasty.Ingredients.Rerun
 
 
 import HLinear.Test.PLE ( pleTests )
-import HLinear.Test.BRMatrix ( brMatrixTests )
 import HLinear.Test.Matrix ( matrixTests )
 
 
