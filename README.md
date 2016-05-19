@@ -48,6 +48,7 @@ stack build
 stack test
 ```
 The log file with the test results can be found at .stack-work/logs/hlinear-0.0.1-test.log
+
 12. Run a simple benchmark:
 ```
 stack bench
