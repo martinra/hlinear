@@ -12,38 +12,38 @@ Features:
 ## Installation
 
 1. Install [stack](https://haskellstack.org).
-1. Install [git](https://git-scm.com).
-1. Install [flint](https://flintlib.org).
-1. Create a working directory for HLinear and its dependencies:
+2. Install [git](https://git-scm.com).
+3. Install [flint](https://flintlib.org).
+4. Create a working directory for HLinear and its dependencies:
 ```
 mkdir hlinear-all
 ```
-1. Get natural-test:
+5. Get [natural-test](https://github.com/martinra/natural-test):
 ```
 git clone https://github.com/martinra/natural-test.git
 ```
-1. Get vector-test:
+6. Get [vector-test](https://github.com/martinra/vector-test):
 ```
 git clone https://github.com/martinra/vector-test.git
 ```
-1. Get algebraic-structures:
+7. Get [algebraic-structures](https://github.com/martinra/algebraic-structures):
 ```
 git clone https://github.com/martinra/algebraic-structures.git
 ```
-1. Get hflint:
+8. Get [hflint](https://github.com/martinra/hflint):
 ```
 git clone https://github.com/martinra/hflint.git
 ```
-1. Get hlinear:
+9. Get HLinear:
 ```
 git clone https://github.com/martinra/hflint.git
 ```
-1. Build hlinear:
+10. Build HLinear:
 ```
 cd hlinear
 stack build
 ```
-1. Test hlinear:
+11. Test HLinear:
 ```
 stack test
 ```
