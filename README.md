@@ -16,7 +16,7 @@ Features:
 3. Install [flint](https://flintlib.org).
 4. Create a working directory for HLinear and its dependencies:
 ```
-mkdir hlinear-all
+mkdir hlinear-all; cd hlinear-all
 ```
 5. Get [natural-test](https://github.com/martinra/natural-test):
 ```
@@ -36,7 +36,7 @@ git clone https://github.com/martinra/hflint.git
 ```
 9. Get HLinear:
 ```
-git clone https://github.com/martinra/hflint.git
+git clone https://github.com/martinra/hlinear.git
 ```
 10. Build HLinear:
 ```
