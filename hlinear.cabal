@@ -3,7 +3,7 @@
 
 name:                hlinear
 version:             0.0.1
-synopsis:            Linear Algebra over Fields
+synopsis:            Exact dense linear algebra
 -- description:
 license:             GPL-3
 license-file:        LICENSE
@@ -269,10 +269,10 @@ executable debug-hlinear
 --     -caf-all
 --     -rtsopts
 --     "-with-rtsopts=-p -s -i0.01"
--- 
+--
 --   main-is:
 --     HLinear/Prof.hs
--- 
+--
 --   build-depends:
 --       base
 --     , algebraic-structures
@@ -296,6 +296,6 @@ executable debug-hlinear
 --     , tasty-smallcheck
 --     , time
 --     , vector
--- 
+--
 --   hs-source-dirs: prof, bench, src
 --   default-language: Haskell2010
