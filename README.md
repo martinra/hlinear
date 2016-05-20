@@ -73,6 +73,13 @@ main = do
   print em
 ```
 
+Output:
+```
+echelon form:
+[ 1/1 2/1 3/1 ]
+[ 0/1 1/1 2/1 ]
+```
+
 
 ## License
 
