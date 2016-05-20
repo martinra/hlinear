@@ -20,6 +20,12 @@ library
     HLinear.Matrix
     HLinear.Matrix.Maybe
     HLinear.PLE
+    HLinear.PLE.FoldUnfold
+    HLinear.PLE.Decomposition
+    HLinear.PLE.Hook
+    HLinear.PLE.Hook.EchelonForm
+    HLinear.PLE.Hook.RPermute
+    HLinear.PLE.Hook.LeftTransformation
 
   other-modules:
     HLinear.Matrix.Algebra
@@ -35,23 +41,19 @@ library
     HLinear.MultiMod.Reconstruction
     HLinear.MultiMod.Standard
 
-    HLinear.PLE.Decomposition
     HLinear.PLE.Decomposition.Definition
     HLinear.PLE.Decomposition.Matrix
     HLinear.PLE.Decomposition.Instances
 
-    HLinear.PLE.FoldUnfold
     HLinear.PLE.FoldUnfold.Echelonize
     HLinear.PLE.FoldUnfold.Echelonize.Definition
     HLinear.PLE.FoldUnfold.Echelonize.DivisionRing
     HLinear.PLE.FoldUnfold.ReducedEchelonForm
 
-    HLinear.PLE.Hook
     HLinear.PLE.Hook.Algebra
     HLinear.PLE.Hook.Container
     HLinear.PLE.Hook.Definition
 
-    HLinear.PLE.Hook.EchelonForm
     HLinear.PLE.Hook.EchelonForm.Algebra
     HLinear.PLE.Hook.EchelonForm.Basic
     HLinear.PLE.Hook.EchelonForm.Container
@@ -69,7 +71,6 @@ library
     HLinear.PLE.Hook.EchelonTransformation.QuickCheck
     HLinear.PLE.Hook.EchelonTransformation.SmallCheck
 
-    HLinear.PLE.Hook.LeftTransformation
     HLinear.PLE.Hook.LeftTransformation.Algebra
     HLinear.PLE.Hook.LeftTransformation.Basic
     HLinear.PLE.Hook.LeftTransformation.Column
@@ -81,7 +82,6 @@ library
     HLinear.PLE.Hook.LeftTransformation.Weak
 
     HLinear.PLE.Hook.PLMatrix
-    HLinear.PLE.Hook.RPermute
 
     HLinear.PLE.MultiMod
     HLinear.PLE.MultiMod.Echelonize
