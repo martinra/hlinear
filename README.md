@@ -57,16 +57,20 @@ The log file with the benchmark results can be found at .stack-work/logs/hlinear
 
 ## How to use
 
+This is just a sketchy illustration of how to interact with HLinear from Haskell.
+For details and code you can immediately start adapting to your needs, see [HLinear-example](https://github.com/aghitza/hlinear-example).
+
 ```
-stack ghci
-> import HFlint.FMPQ
-> import HLinear.Matrix as M
-> import HLinear.PLE.FoldUnfold as FU
-> import HLinear.PLE.Decomposition as D
-> import HLinear.PLE.Hook as Hk
-> let m = M.fromListsUnsafe [[1, 2, 3], [4, 5, 6]] :: Matrix FMPQ
-> let hk = D.unPLEDecomposition $ FU.pleDecompositionFoldUnfold m
-> Hk.toMatrices hk
+(...various imports...)
+
+main :: IO ()
+main = do
+  let m = M.fromListsUnsafe [[1,2,3],[4,5,6]] :: Matrix FMPQ
+      hk = D.unPLEDecomposition $ FU.pleDecompositionFoldUnfold m
+      e = Hk.echelonForm hk
+      em = EF.toMatrix e
+  putStrLn "echelon form:"
+  print em
 ```
 
 
