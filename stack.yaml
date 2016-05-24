@@ -6,10 +6,18 @@ resolver: lts-5.16
 # Local packages, usually specified by relative directory name
 packages:
 - '.'
-- '../algebraic-structures'
-- '../hflint'
-- '../natural-test'
-- '../vector-test'
+- location:
+        git: https://github.com/martinra/natural-test.git
+        commit: c950ee97dd287e0fbfe79b8e0394c407e2928ee8
+- location:
+        git: https://github.com/martinra/vector-test.git
+        commit: dca07e04faa570848bdf2b5207d5ed8996ef1264
+- location:
+        git: https://github.com/martinra/algebraic-structures.git
+        commit: 9be501381c6eb136c365957ed1478c3c9ce8777c
+- location:
+        git: https://github.com/martinra/hflint.git
+        commit: a6906394df998561d4a2be672acf685c8746a4d8
 
 # Packages to be pulled from upstream that are not in the resolver (e.g., acme-missiles-0.3)
 extra-deps: [ permutation-0.5.0.5
