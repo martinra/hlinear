@@ -12,3 +12,7 @@ class HasPLEDecompositionFoldUnfold a where
   pleDecompositionFoldUnfold
     :: a -> PLEDecomposition a
 
+class HasPLEDecompositionFoldUnfoldFractionFree a where
+  pleDecompositionFoldUnfoldFractionFree
+    :: a -> PLEDecomposition a
+

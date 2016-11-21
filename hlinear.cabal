@@ -48,6 +48,7 @@ library
     HLinear.PLE.FoldUnfold.Echelonize
     HLinear.PLE.FoldUnfold.Echelonize.Definition
     HLinear.PLE.FoldUnfold.Echelonize.DivisionRing
+    HLinear.PLE.FoldUnfold.Echelonize.FractionFree
     HLinear.PLE.FoldUnfold.ReducedEchelonForm
 
     HLinear.PLE.Hook.Algebra
@@ -140,7 +141,6 @@ library
   hs-source-dirs:      src
   default-language:    Haskell2010
 
-
 test-suite test-hlinear
   main-is:        HLinear/Test.hs
 
@@ -184,17 +184,19 @@ benchmark bench-hlinear
     -threaded
 
   main-is:
-    HLinear/Bench.hs
+    HLinear/ClockBench.hs
 
   build-depends:
       base
     , algebraic-structures
     , binary
+    , clock
     , composition
     , containers
     , criterion
     , deepseq
     , filepath
+    , formatting
     , hflint
     , logict
     , monad-loops
@@ -202,6 +204,7 @@ benchmark bench-hlinear
     , MonadRandom
     , mtl
     , natural-test
+    , options
     , parallel
     , permutation
     , QuickCheck
@@ -260,42 +263,50 @@ executable debug-hlinear
   hs-source-dirs: bench, debug, src
   default-language: Haskell2010
 
--- executable prof-hlinear
---   ghc-options:
---     -O2
---   ghc-prof-options:
---     -prof
---     -fprof-auto
---     -caf-all
---     -rtsopts
---     "-with-rtsopts=-p -s -i0.01"
---
---   main-is:
---     HLinear/Prof.hs
---
---   build-depends:
---       base
---     , algebraic-structures
---     , binary
---     , composition
---     , containers
---     , deepseq
---     , filepath
---     , hflint
---     , logict
---     , mtl
---     , natural-test
---     , permutation
---     , reflection
---     , QuickCheck
---     , random
---     , safe
---     , smallcheck
---     , transformers
---     , tasty
---     , tasty-smallcheck
---     , time
---     , vector
---
---   hs-source-dirs: prof, bench, src
---   default-language: Haskell2010
+executable prof-hlinear
+  ghc-options:
+    -O2
+  ghc-prof-options:
+    -prof
+    -fprof-auto
+    -caf-all
+    -rtsopts
+    "-with-rtsopts=-p -s -i0.01"
+
+  main-is:
+    HLinear/Prof.hs
+
+  build-depends:
+      base
+    , algebra-structures
+    , binary
+    , composition
+    , containers
+    , criterion
+    , deepseq
+    , filepath
+    , hflint
+    , logict
+    , monad-loops
+    , monad-par
+    , MonadRandom
+    , mtl
+    , natural-test
+    , parallel
+    , permutation
+    , QuickCheck
+    , random
+    , random-extras
+    , random-fu
+    , reflection
+    , safe
+    , smallcheck
+    , tasty
+    , tasty-smallcheck
+    , time
+    , transformers
+    , tuple
+    , vector
+
+  hs-source-dirs: prof, bench, src
+  default-language: Haskell2010
