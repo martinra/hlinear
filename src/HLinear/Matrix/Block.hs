@@ -18,7 +18,9 @@ import qualified HLinear.Matrix.Basic as M
 import HLinear.Matrix.Definition
 
 
+--------------------------------------------------------------------------------
 -- block sums and the associated monoid structure
+--------------------------------------------------------------------------------
 
 blockSum :: (AdditiveMonoid a)
          => Matrix a -> Matrix a -> Matrix a
@@ -51,7 +53,9 @@ instance AdditiveMonoid a => Monoid (Matrix a) where
   mempty = M.zero 0 0
   mappend = blockSum
 
+--------------------------------------------------------------------------------
 -- submatrices
+--------------------------------------------------------------------------------
 
 headRows :: Matrix a -> Vector a
 headRows (Matrix _ _ rs) = V.head rs

@@ -34,21 +34,18 @@ instance Eq a => Eq (Matrix a) where
 instance Show a => Show (Matrix a) where
   show (Matrix 0 ncs rs) = "[ Matrix 0 x " ++ show ncs ++ " ]"
   show (Matrix nrs 0 rs) = "[ Matrix " ++ show nrs ++ " x 0 ]"
-  show (Matrix _ _ rs) = showMatrixAsRows rs
-
-showMatrixAsRows :: Show a => Vector (Vector a) -> String
-showMatrixAsRows rs =
-  V.foldl1 (\r r' -> r ++ "\n" ++ r') $ V.map show' shownEntries
-    where
-    shownEntries = V.map (V.map show) rs
-    maxLength = V.maximum $ V.map (V.maximum . V.map length) shownEntries
-    show' r= "[ " ++ rShown ++ " ]"
+  show (Matrix _ _ rs) =
+    V.foldl1 (\r r' -> r ++ "\n" ++ r') $ V.map show' shownEntries
       where
-      rShown = V.foldl1 (\a a' -> a ++ " " ++ a') $ V.map center r
-    center s = replicate n ' ' ++ s ++ replicate n' ' '
-      where
-      n = (maxLength - length s) `div` 2
-      n' = maxLength - n - length s
+      shownEntries = V.map (V.map show) rs
+      maxLength = V.maximum $ V.map (V.maximum . V.map length) shownEntries
+      show' r= "[ " ++ rShown ++ " ]"
+        where
+        rShown = V.foldl1 (\a a' -> a ++ " " ++ a') $ V.map center r
+      center s = replicate n ' ' ++ s ++ replicate n' ' '
+        where
+        n = (maxLength - length s) `div` 2
+        n' = maxLength - n - length s
 
 instance NFData a => NFData (Matrix a) where
   rnf (Matrix nrs ncs rs) =
@@ -68,7 +65,9 @@ instance Binary a => Binary (Matrix a) where
     rs <- V.replicateM (fromIntegral nrs) $ V.replicateM (fromIntegral ncs) get
     return $ Matrix nrs ncs rs
   
+--------------------------------------------------------------------------------
 -- row access
+--------------------------------------------------------------------------------
 
 (!) :: Matrix a -> Int -> Vector a
 (!) = fromJust .: (!?)
@@ -137,6 +136,10 @@ one ::
   => Natural -> Matrix a
 one = diagonal . (`V.replicate` MS.one) . fromIntegral
 
+--------------------------------------------------------------------------------
+-- predicates
+--------------------------------------------------------------------------------
+
 isZero ::
      DecidableZero a
   => Matrix a -> Bool
@@ -151,7 +154,9 @@ isOne (Matrix _ _ vs) =
       if ix == jx then MS.isOne else MS.isZero
   )) vs
 
+--------------------------------------------------------------------------------
 -- construction of matrices from vectors or lists
+--------------------------------------------------------------------------------
 
 fromVectors :: Vector (Vector a) -> Either String (Matrix a)
 fromVectors rs = 
@@ -182,7 +187,9 @@ fromVectorsUnsafe' = either undefined id .:. fromVectors'
 fromListsUnsafe = either undefined id . fromLists
 fromListsUnsafe' = either undefined id .:. fromLists'
 
+--------------------------------------------------------------------------------
 -- container functionality
+--------------------------------------------------------------------------------
 
 instance Functor Matrix where
   fmap f (Matrix nrs ncs rs) = Matrix nrs ncs $ V.map (V.map f) rs
