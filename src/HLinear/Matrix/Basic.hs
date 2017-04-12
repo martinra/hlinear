@@ -94,16 +94,20 @@ instance MultiplicativeSemigroupLeftAction P.Permute (Matrix a) where
 instance MultiplicativeLeftAction P.Permute (Matrix a) where
 
 instance MultiplicativeSemigroupRightAction P.Permute (Matrix a) where
+  -- note: since we let permutations act from the left by default,
+  -- the right action use the inverse of p
   (Matrix nrs ncs rs) .* p =
     case compare np ncsZ of
       EQ -> Matrix nrs ncs $ 
-              V.map (\r -> V.backpermute r $ V.generate np $ \ix -> p `P.at` ix) rs
+              V.map (`V.backpermute` pinvVector) rs
       GT -> error "Matrix .* Permute: permutation size too big"
       -- fixme: let all permutations of size <= ncs act
       LT -> error "Matrix .* Permute: not implemented"
     where
       np = P.size p
       ncsZ = fromIntegral ncs
+      pinv = recip p
+      pinvVector = V.generate np $ \ix -> pinv `P.at` ix
 
 instance MultiplicativeRightAction P.Permute (Matrix a) where
 

@@ -7,18 +7,13 @@
 module HLinear.Utility.Permute
 where
 
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
+import Prelude hiding ( (+), (-), (*), recip )
 
 import Data.Permute
 import Math.Structure
-import Numeric.Natural
 
--- we let permutations act from the left
 instance MultiplicativeMagma Permute where
+  -- note: we let permutations act from the left
   p * p' = 
     let n = size p
         n' = size p'
