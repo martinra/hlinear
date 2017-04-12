@@ -1,3 +1,7 @@
+{-# LANGUAGE
+    MultiParamTypeClasses
+  #-}
+
 module HLinear.Matrix.Basic
 where
 
@@ -19,6 +23,7 @@ import qualified Math.Structure as MS
 import Math.Structure hiding ( one, zero, isOne, isZero )
 import Numeric.Natural
 
+import HLinear.Utility.Permute
 import HLinear.Matrix.Definition
 
 
@@ -71,17 +76,37 @@ instance Binary a => Binary (Matrix a) where
 (!?) :: Matrix a -> Int -> Maybe (Vector a)
 (!?) = (V.!?) . rows
 
--- permutation of rows
+--------------------------------------------------------------------------------
+-- Permutation of rows and columns
+--------------------------------------------------------------------------------
 
-permuteRows :: P.Permute -> Matrix a -> Matrix a
-permuteRows p (Matrix nrs ncs rs)
-  | np /= nrsZ = error $ "Matrix.permuteRow: permutation size " ++
-                         "does not match number of rows"
-  | otherwise  = Matrix nrs ncs $
-                   V.backpermute rs $ V.generate np $ \ix -> p `P.at` ix
-  where
-    np = P.size p
-    nrsZ = fromIntegral nrs
+instance MultiplicativeSemigroupLeftAction P.Permute (Matrix a) where
+  p *. (Matrix nrs ncs rs) =
+    case compare np nrsZ of
+      EQ -> Matrix nrs ncs $
+              V.backpermute rs $ V.generate np $ \ix -> p `P.at` ix
+      GT -> error "Permute *. Matrix: permutation size too big"
+      -- fixme: let all permutations of size <= nrs act
+      LT -> error "Permute *. Matrix: not implemented"
+    where
+      np = P.size p
+      nrsZ = fromIntegral nrs
+
+instance MultiplicativeLeftAction P.Permute (Matrix a) where
+
+instance MultiplicativeSemigroupRightAction P.Permute (Matrix a) where
+  (Matrix nrs ncs rs) .* p =
+    case compare np ncsZ of
+      EQ -> Matrix nrs ncs $ 
+              V.map (\r -> V.backpermute r $ V.generate np $ \ix -> p `P.at` ix) rs
+      GT -> error "Matrix .* Permute: permutation size too big"
+      -- fixme: let all permutations of size <= ncs act
+      LT -> error "Matrix .* Permute: not implemented"
+    where
+      np = P.size p
+      ncsZ = fromIntegral ncs
+
+instance MultiplicativeRightAction P.Permute (Matrix a) where
 
 --------------------------------------------------------------------------------
 -- creation

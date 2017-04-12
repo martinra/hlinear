@@ -68,6 +68,8 @@ library
 
     HLinear.PLE.Hook.PLMatrix
 
+    HLinear.Utility.Permute
+
   build-depends:
       base
     , algebraic-structures
