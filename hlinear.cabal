@@ -31,15 +31,9 @@ library
     HLinear.Matrix.Algebra
     HLinear.Matrix.Basic
     HLinear.Matrix.Definition
-    HLinear.Matrix.MultiMod
     HLinear.Matrix.QuickCheck
     HLinear.Matrix.SmallCheck
     HLinear.Matrix.StdElements
-
-    HLinear.MultiMod
-    HLinear.MultiMod.Definition
-    HLinear.MultiMod.Reconstruction
-    HLinear.MultiMod.Standard
 
     HLinear.PLE.Decomposition.Definition
     HLinear.PLE.Decomposition.Matrix
@@ -83,17 +77,6 @@ library
     HLinear.PLE.Hook.LeftTransformation.Weak
 
     HLinear.PLE.Hook.PLMatrix
-
-    HLinear.PLE.MultiMod
-    HLinear.PLE.MultiMod.Echelonize
-    HLinear.PLE.MultiMod.Echelonize.Definition
-    HLinear.PLE.MultiMod.Echelonize.FMPQ
-
-    HLinear.PLE.Sliced
-    HLinear.PLE.Sliced.Echelonize
-    HLinear.PLE.Sliced.Echelonize.Definition
-    HLinear.PLE.Sliced.Echelonize.DivisionRing
-    HLinear.PLE.Sliced.Echelonize.Positions
 
     HLinear.PLE.Strategy
     HLinear.PLE.Strategy.Definition

@@ -21,7 +21,6 @@ import HFlint.NMod
 import HLinear.Matrix ( Matrix )
 import HLinear.PLE.Decomposition.Definition
 import HLinear.PLE.FoldUnfold.Echelonize.Definition
-import HLinear.PLE.Sliced.Echelonize.Definition
 import HLinear.PLE.Strategy.Definition
 
 
@@ -32,17 +31,8 @@ instance HasPLEStrategy Identity (Matrix (NMod ctx)) where
          , HasPLEDecompositionFoldUnfold (Matrix (NMod ctx)) )
       => PLEStrategy Identity (Matrix (NMod ctx))
   
-    PLEStrategyNModSliced
-      :: ( ReifiesNModContext ctx
-         , HasPLEDecompositionSliced (Matrix (NMod ctx)) )
-      => PLEDecompositionSlicedParameters
-      -> PLEStrategy Identity (Matrix (NMod ctx))
-      -> PLEStrategy Identity (Matrix (NMod ctx))
-
   dispatchPLEStrategy PLEStrategyNModFoldUnfold
     = Identity . pleDecompositionFoldUnfold
-  dispatchPLEStrategy (PLEStrategyNModSliced param strat)
-    = Identity . pleDecompositionSliced param strat
 
 
 instance HasPLEStrategy Maybe (Matrix (NMod ctx)) where
