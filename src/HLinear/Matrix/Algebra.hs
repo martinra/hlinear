@@ -23,8 +23,9 @@ import Numeric.Natural
 
 import HLinear.Matrix.Definition
 
-
+--------------------------------------------------------------------------------
 -- additive structure
+--------------------------------------------------------------------------------
 
 instance AdditiveMagma a => AdditiveMagma (Matrix a) where
   (Matrix nrs ncs rs) + (Matrix nrs' ncs' rs')
@@ -36,7 +37,9 @@ instance AdditiveSemigroup a => AdditiveSemigroup (Matrix a)
 
 instance Abelian a => Abelian (Matrix a)
 
+--------------------------------------------------------------------------------
 -- action of base ring
+--------------------------------------------------------------------------------
 
 instance    MultiplicativeSemigroup a
          => MultiplicativeSemigroupLeftAction a (Matrix a)
@@ -59,7 +62,9 @@ instance    MultiplicativeMonoid a
 
 instance Semiring a => LinearSemiringRightAction a (Matrix a)
 
--- action on column vectors
+--------------------------------------------------------------------------------
+-- column vectors
+--------------------------------------------------------------------------------
 
 newtype Column a = Column {unColumn :: Vector a}
 
@@ -80,7 +85,9 @@ instance Rng a => MultiplicativeSemigroupLeftAction (Matrix a) (Vector a)
   where
   m *. v = unColumn $ (m *.) $ Column v
 
+--------------------------------------------------------------------------------
 -- rows of matrices (with given length)
+--------------------------------------------------------------------------------
 
 -- to define zero of rows we use the reader monoad to ensure dimension
 -- restrictions
@@ -126,7 +133,9 @@ instance    Semiring a
 
 instance Semiring a => LinearSemiringLeftAction a (MRow (Vector a))
 
+--------------------------------------------------------------------------------
 -- multiplicative structure
+--------------------------------------------------------------------------------
 
 instance Rng a => MultiplicativeMagma (Matrix a) where
   m@(Matrix nrs ncs rs) * (Matrix nrs' ncs' rs')
@@ -136,7 +145,9 @@ instance Rng a => MultiplicativeMagma (Matrix a) where
 
 instance Rng a => MultiplicativeSemigroup (Matrix a)
 
+--------------------------------------------------------------------------------
 -- algebra structure
+--------------------------------------------------------------------------------
 
 instance Rng a => Distributive (Matrix a)
 instance Rng a => Semiring (Matrix a)
