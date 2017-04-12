@@ -1,3 +1,8 @@
+{-# LANGUAGE
+    MultiParamTypeClasses
+  , FunctionalDependencies
+  #-}
+
 module HLinear.Matrix.Definition
 where
 
@@ -16,3 +21,6 @@ data Matrix a =
          , nmbCols :: !Natural
          , rows    :: Vector (Vector a)
          }
+
+class IsMatrix a b where
+  toMatrix :: a -> Matrix b

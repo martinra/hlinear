@@ -6,9 +6,7 @@
   , TupleSections
   #-}
 
-module HLinear.PLE.FoldUnfold.Echelonize.DivisionRing
-  ( 
-  )
+module HLinear.PLE.FoldUnfold.DivisionRing
 where
 
 import Prelude hiding ( (+), (-), negate, subtract
@@ -23,9 +21,6 @@ import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural
 
-import HLinear.PLE.Decomposition.Definition
-import HLinear.PLE.Decomposition.Matrix
-import HLinear.PLE.FoldUnfold.Echelonize.Definition
 import HLinear.PLE.Hook
 import HLinear.PLE.Hook.PLMatrix
 import qualified HLinear.PLE.Hook.RPermute as RP
@@ -38,15 +33,15 @@ import HLinear.Matrix ( Matrix(..), headRows, tailRows )
 import qualified HLinear.Matrix as M
 
 
-instance
-     ( DecidableZero a, DivisionRing a )
-  => HasPLEDecompositionFoldUnfold (Matrix a)
-  where
-  pleDecompositionFoldUnfold m@(Matrix nrs ncs _) =
-    PLEDecomposition $
-      V.foldl (*)
-      ( PLEHook one (LT.identityLT nrs) (EF.zeroEF nrs ncs) )
-      ( V.unfoldr splitOffHook m )
+
+pleFoldUnfold
+  :: ( DecidableZero a, DivisionRing a )
+  => Matrix a -> PLEHook a
+pleFoldUnfold m@(Matrix nrs ncs _) =
+  V.foldl (*)
+  ( PLEHook one (LT.identityLT nrs) (EF.zeroEF nrs ncs) )
+  ( V.unfoldr splitOffHook m )
+
 
 splitOffHook
   :: ( DecidableZero a, DivisionRing a )

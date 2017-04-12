@@ -1,7 +1,6 @@
 module HLinear.PLE.Hook.Container
 where
 
-import HLinear.PLE.Decomposition.Definition
 import HLinear.PLE.Hook
 import HLinear.PLE.Hook.EchelonForm.Container
 import HLinear.PLE.Hook.LeftTransformation.Container

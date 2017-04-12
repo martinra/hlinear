@@ -7,9 +7,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TupleSections #-}
 
-module HLinear.PLE.FoldUnfold.Echelonize.FractionFree
-  (
-  )
+module HLinear.PLE.FoldUnfold.FractionFree
 where
 
 import Prelude hiding ( (+), (-), negate, subtract
@@ -32,9 +30,6 @@ import HFlint.FMPZ.FFI ( fmpz_mul, fmpz_submul, fmpz_divexact )
 import HFlint.Internal ( withFlint, withNewFlint_ )
 
 
-import HLinear.PLE.Decomposition.Definition
-import HLinear.PLE.Decomposition.Matrix
-import HLinear.PLE.FoldUnfold.Echelonize.Definition
 import HLinear.PLE.Hook
 import HLinear.PLE.Hook.PLMatrix
 import qualified HLinear.PLE.Hook.RPermute as RP
@@ -81,16 +76,15 @@ data MatrixFractionFree a n d where
     => Matrix n -> d -> MatrixFractionFree a n d
 
 
-instance HasPLEDecompositionFoldUnfoldFractionFree (Matrix FMPQ) where
-  pleDecompositionFoldUnfoldFractionFree m@(Matrix nrs ncs rs) =
-    PLEDecomposition $
-      V.foldl (*)
-      ( PLEHook one
-                ( LT.fromDiagonal $ V.map (NonZero . fromDenominator) ds )
-                ( EF.zeroEF nrs ncs) )
-      ( V.unfoldr splitOffHook (MatrixFractionFree mnum one) )
-    where
-      (mnum :: Matrix FMPZ, ds :: Vector (NonZero FMPZ)) = toFractionFreeMatrixRowwise m
+pleFoldUnfold :: Matrix FMPQ -> PLEHook FMPQ
+pleFoldUnfold m@(Matrix nrs ncs rs) =
+    V.foldl (*)
+    ( PLEHook one
+              ( LT.fromDiagonal $ V.map (NonZero . fromDenominator) ds )
+              ( EF.zeroEF nrs ncs) )
+    ( V.unfoldr splitOffHook (MatrixFractionFree mnum one) )
+  where
+    (mnum :: Matrix FMPZ, ds :: Vector (NonZero FMPZ)) = toFractionFreeMatrixRowwise m
 
 splitOffHook
   :: MatrixFractionFree FMPQ FMPZ (NonZero FMPZ)

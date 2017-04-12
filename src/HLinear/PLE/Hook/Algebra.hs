@@ -11,7 +11,6 @@ import Data.Permute ( Permute )
 import qualified Data.Vector as V
 import Math.Structure
 
-import HLinear.PLE.Decomposition.Definition
 import HLinear.PLE.Hook.Definition
 import HLinear.PLE.Hook.RPermute ()
 import HLinear.PLE.Hook.EchelonForm ()

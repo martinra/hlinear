@@ -19,8 +19,7 @@ library
   exposed-modules:
     HLinear.Matrix
     HLinear.PLE
-    HLinear.PLE.FoldUnfold
-    HLinear.PLE.Decomposition
+    HLinear.PLE.HasPLE
     HLinear.PLE.Hook
     HLinear.PLE.Hook.EchelonForm
     HLinear.PLE.Hook.RPermute
@@ -34,14 +33,8 @@ library
     HLinear.Matrix.SmallCheck
     HLinear.Matrix.StdElements
 
-    HLinear.PLE.Decomposition.Definition
-    HLinear.PLE.Decomposition.Matrix
-    HLinear.PLE.Decomposition.Instances
-
-    HLinear.PLE.FoldUnfold.Echelonize
-    HLinear.PLE.FoldUnfold.Echelonize.Definition
-    HLinear.PLE.FoldUnfold.Echelonize.DivisionRing
-    HLinear.PLE.FoldUnfold.Echelonize.FractionFree
+    HLinear.PLE.FoldUnfold.DivisionRing
+    HLinear.PLE.FoldUnfold.FractionFree
     HLinear.PLE.FoldUnfold.ReducedEchelonForm
 
     HLinear.PLE.Hook.Algebra
@@ -61,7 +54,6 @@ library
     HLinear.PLE.Hook.EchelonTransformation.Algebra
     HLinear.PLE.Hook.EchelonTransformation.Basic
     HLinear.PLE.Hook.EchelonTransformation.Column
-    HLinear.PLE.Hook.EchelonTransformation.Conversion
     HLinear.PLE.Hook.EchelonTransformation.QuickCheck
     HLinear.PLE.Hook.EchelonTransformation.SmallCheck
 
@@ -69,18 +61,12 @@ library
     HLinear.PLE.Hook.LeftTransformation.Basic
     HLinear.PLE.Hook.LeftTransformation.Column
     HLinear.PLE.Hook.LeftTransformation.Container
-    HLinear.PLE.Hook.LeftTransformation.Conversion
     HLinear.PLE.Hook.LeftTransformation.Definition
     HLinear.PLE.Hook.LeftTransformation.QuickCheck
     HLinear.PLE.Hook.LeftTransformation.SmallCheck
     HLinear.PLE.Hook.LeftTransformation.Weak
 
     HLinear.PLE.Hook.PLMatrix
-
-    HLinear.PLE.Strategy
-    HLinear.PLE.Strategy.Definition
-    HLinear.PLE.Strategy.FMPQ
-    HLinear.PLE.Strategy.NMod
 
   build-depends:
       base

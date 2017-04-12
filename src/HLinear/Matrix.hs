@@ -1,5 +1,6 @@
 module HLinear.Matrix
   ( Matrix(..)
+  , IsMatrix(..)
 
   , (!)
   , (!?)

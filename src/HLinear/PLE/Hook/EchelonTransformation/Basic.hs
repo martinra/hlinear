@@ -1,5 +1,7 @@
 {-# LANGUAGE
-    StandaloneDeriving
+    FlexibleInstances
+  , MultiParamTypeClasses
+  , StandaloneDeriving
   #-}
 
 module HLinear.PLE.Hook.EchelonTransformation.Basic
@@ -12,11 +14,13 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       )
 
+import Control.DeepSeq ( NFData(..) )
 import Data.Vector ( Vector(..) )
 import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural ( Natural )
 
+import HLinear.Matrix ( Matrix(..), IsMatrix(..) )
 import HLinear.PLE.Hook.EchelonTransformation.Column
 import qualified HLinear.PLE.Hook.EchelonTransformation.Column as ETC
 import HLinear.PLE.Hook.RPermute
@@ -48,7 +52,9 @@ minimizeSize (EchelonTransformation nrs cs) =
     cs' = V.dropWhile isIdentityColumn cs
     nrs' = fromIntegral $ fromIntegral nrs - (V.length cs - V.length cs')
 
--- Eq an Show instances
+--------------------------------------------------------------------------------
+-- Eq, Show, and NFData instances
+--------------------------------------------------------------------------------
 
 deriving instance Show a => Show (EchelonTransformation a)
 
@@ -65,6 +71,11 @@ instance    ( Eq a, DecidableZero a, DecidableOne a )
        &&
        V.all (uncurry (==)) (V.zip cs cs')
 
+instance NFData a => NFData (EchelonTransformation a) where
+  rnf (EchelonTransformation nrs cs) =
+    seq (rnf nrs) $
+    seq (V.map rnf cs) ()
+
 -- creation
 
 singleton :: Vector a -> EchelonTransformation a
@@ -75,6 +86,20 @@ singleton v = EchelonTransformation nrs $ V.singleton $
 
 identityET :: Natural -> EchelonTransformation a
 identityET nrs = EchelonTransformation nrs V.empty
+
+-- conversion
+
+instance Ring a => IsMatrix (EchelonTransformation a) a where
+  toMatrix (EchelonTransformation nrs cs) =
+    Matrix nrs nrs $
+      V.generate nrsZ $ \ix ->
+      V.generate nrsZ $ \jx ->
+        case compare ix jx of
+          LT -> maybe zero (!ix) $ cs V.!? (nrsZ-1-jx)
+          EQ -> one
+          GT -> zero
+    where
+    nrsZ = fromIntegral nrs
 
 -- subtransformations
 

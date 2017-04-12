@@ -1,5 +1,7 @@
 {-# LANGUAGE
-    StandaloneDeriving
+    FlexibleInstances
+  , MultiParamTypeClasses
+  , StandaloneDeriving
   #-}
 
 module HLinear.PLE.Hook.EchelonForm.Basic
@@ -20,7 +22,7 @@ import Math.Structure
 import Numeric.Natural ( Natural )
 import Safe ( atMay )
 
-import HLinear.Matrix.Definition ( Matrix(..) )
+import HLinear.Matrix.Definition ( Matrix(..), IsMatrix(..) )
 import HLinear.PLE.Hook.EchelonForm.Definition as EF
 import HLinear.PLE.Hook.EchelonForm.PivotStructure ( rank )
 import qualified HLinear.PLE.Hook.EchelonForm.Row as EFR
@@ -69,13 +71,13 @@ instance NFData a => NFData (EchelonForm a) where
 
 -- conversion
 
-toMatrix :: AdditiveMonoid a => EchelonForm a -> Matrix a
-toMatrix (EchelonForm nrs ncs rs) = Matrix nrs ncs rs'
-  where
-    hrs = V.map EFR.row rs
-    rs' = V.map EFR.toVector rs V.++ zeros
-    zeros = V.replicate (fromIntegral nrs - V.length rs)
-                        (V.replicate (fromIntegral ncs) zero)
+instance AdditiveMonoid a => IsMatrix (EchelonForm a) a where
+  toMatrix (EchelonForm nrs ncs rs) = Matrix nrs ncs rs'
+    where
+      hrs = V.map EFR.row rs
+      rs' = V.map EFR.toVector rs V.++ zeros
+      zeros = V.replicate (fromIntegral nrs - V.length rs)
+                          (V.replicate (fromIntegral ncs) zero)
 
 -- creation
 

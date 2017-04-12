@@ -1,5 +1,6 @@
 {-# LANGUAGE
-    GeneralizedNewtypeDeriving
+    FlexibleInstances
+  , GeneralizedNewtypeDeriving
   , MultiParamTypeClasses
   #-}
 
@@ -68,14 +69,14 @@ at (RPermute p) n ix = n-1 - P.at p (n-1 - ix)
 
 
 -- todo: check for Permute.at 
-toMatrix :: Ring a => RPermute -> Matrix a
-toMatrix p = Matrix np np $
-                V.generate npZ $ \ix ->
-                V.generate npZ $ \jx ->
-                  if at p npZ jx == ix then one else zero
-  where
-    npZ = size p
-    np = fromIntegral npZ 
+instance Ring a => IsMatrix RPermute a where
+  toMatrix p = Matrix np np $
+                  V.generate npZ $ \ix ->
+                  V.generate npZ $ \jx ->
+                    if at p npZ jx == ix then one else zero
+    where
+      npZ = size p
+      np = fromIntegral npZ 
 
 toVector :: Num a => RPermute -> Vector a
 toVector (RPermute p) = V.map (fromIntegral . P.at p) ( V.enumFromStepN (pred np) (-1) np )

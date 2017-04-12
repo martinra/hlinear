@@ -16,6 +16,7 @@ import qualified Data.Permute as P
 import Math.Structure
 import Numeric.Natural ( Natural )
 
+import HLinear.PLE.Hook.Definition ( RREF(..) )
 import HLinear.PLE.Hook.EchelonForm ( EchelonForm(..), PivotStructure(..) )
 import qualified HLinear.PLE.Hook.EchelonForm as EF
 import qualified HLinear.PLE.Hook.EchelonForm.Row as EFR
@@ -29,13 +30,13 @@ import HLinear.Matrix.Definition ( Matrix(..) )
 
 
 reducedEchelonForm
-  :: ( Show a, DivisionRing a, DecidableZero a )
-  => EchelonForm a -> (EchelonTransformation a, EchelonForm a)
+  :: ( DivisionRing a, DecidableZero a )
+  => EchelonForm a -> RREF a
 reducedEchelonForm ef =
   let EchelonReduction et' _ ef' =
         V.foldl (*) firstReduction $
         V.unfoldr reduceLastPivot (ef, pivots)
-  in  (et', ef')
+  in  RREF et' ef'
   where
     firstReduction = EchelonReduction
                        (ET.identityET nrs)

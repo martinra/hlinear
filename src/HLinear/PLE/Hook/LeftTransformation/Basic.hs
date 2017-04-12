@@ -1,5 +1,7 @@
 {-# LANGUAGE
-    StandaloneDeriving
+    FlexibleInstances
+  , MultiParamTypeClasses
+  , StandaloneDeriving
   #-}
 
 module HLinear.PLE.Hook.LeftTransformation.Basic
@@ -22,6 +24,7 @@ import Math.Structure
 import Numeric.Natural ( Natural )
 
 
+import HLinear.Matrix ( Matrix(..), IsMatrix(..) )
 import HLinear.PLE.Hook.LeftTransformation.Column
 import qualified HLinear.PLE.Hook.LeftTransformation.Column as LTC
 import HLinear.PLE.Hook.LeftTransformation.Definition
@@ -72,6 +75,34 @@ fromDiagonal ds = LeftTransformation nrs $ flip V.imap ds $ \ix d ->
   where
     nrsZ = V.length ds 
     nrs = fromIntegral nrsZ
+
+-- todo: rename singleton
+fromVector' :: DecidableZero a
+            => Vector a -> LeftTransformation a
+fromVector' v = LeftTransformation nrs $ V.singleton $
+                  LeftTransformationColumn 0 a c
+  where
+  nrs = fromIntegral $ V.length v
+  a = nonZero $ V.head v
+  c = V.tail v
+
+--------------------------------------------------------------------------------
+-- conversion
+--------------------------------------------------------------------------------
+
+instance Ring a => IsMatrix (LeftTransformation a) a where
+  toMatrix (LeftTransformation nrs cs) =
+    Matrix nrs nrs $
+      V.generate nrs' $ \ix ->
+      V.generate nrs' $ \jx ->
+        let a = maybe one LTC.head $ cs V.!? jx
+        in
+        case compare ix jx of
+          LT -> zero
+          EQ -> a
+          GT -> maybe zero ((*a) . (!ix)) $ cs V.!? jx
+    where
+    nrs' = fromIntegral nrs
 
 -- subtransformations
 

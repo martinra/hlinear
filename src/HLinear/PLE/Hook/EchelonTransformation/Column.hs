@@ -12,6 +12,7 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       )
 
+import Control.DeepSeq ( NFData(..) )
 import Data.Vector ( Vector(..) )
 import qualified Data.Vector as V
 import Math.Structure
@@ -65,13 +66,20 @@ toVector
 toVector (EchelonTransformationColumn o v) =
   v `V.snoc` one V.++ V.replicate (fromIntegral o) zero
 
--- Eq and Show instancs
+--------------------------------------------------------------------------------
+-- Eq, Show, and NFData instancs
+--------------------------------------------------------------------------------
 
 deriving instance Show a => Show (EchelonTransformationColumn a)
 
 instance Eq a => Eq (EchelonTransformationColumn a) where
   (EchelonTransformationColumn o v) == (EchelonTransformationColumn o' v') =
     o == o' && (`V.all` V.zip v v') (uncurry (==))
+
+instance NFData a => NFData (EchelonTransformationColumn a) where
+  rnf (EchelonTransformationColumn o v) =
+    seq (rnf o) $
+    seq (V.map rnf v) ()
 
 isIdentityColumn
   :: ( DecidableZero a, DecidableOne a )
