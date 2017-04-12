@@ -18,7 +18,6 @@ cabal-version:       >=1.10
 library
   exposed-modules:
     HLinear.Matrix
-    HLinear.Matrix.Maybe
     HLinear.PLE
     HLinear.PLE.FoldUnfold
     HLinear.PLE.Decomposition
