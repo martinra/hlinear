@@ -2,6 +2,8 @@
     FlexibleInstances
   , FlexibleContexts
   , MultiParamTypeClasses
+  , Rank2Types
+  , ScopedTypeVariables
   #-}
 
 module HLinear.Matrix.Algebra
@@ -16,6 +18,8 @@ import Prelude hiding ( (+), (-), negate, subtract
 import Control.Applicative ( liftA, liftA2 )
 import Control.Monad
 import Control.Monad.Reader
+import Data.Proxy
+import Data.Reflection
 import Data.Vector ( Vector )
 import qualified Data.Vector as V
 import Math.Structure
@@ -89,49 +93,40 @@ instance Rng a => MultiplicativeSemigroupLeftAction (Matrix a) (Vector a)
 -- rows of matrices (with given length)
 --------------------------------------------------------------------------------
 
--- to define zero of rows we use the reader monoad to ensure dimension
--- restrictions
-newtype MRow a = MRow {unMRow :: Reader Natural a}
+newtype Row ctx a = Row { unRow :: Vector a }
 
-instance Functor MRow where
-  fmap f = MRow . fmap f . unMRow
-
-instance Applicative MRow where
-  pure = return
-  (<*>) = ap
-  
-instance Monad MRow where
-  return = MRow . return
-  m >>= k = MRow $ unMRow m >>= unMRow . k
+withRowLength
+  :: Natural
+  -> (forall ctx. Reifies ctx Natural => Proxy ctx -> a)
+  -> a
+withRowLength = reify 
 
 
-instance AdditiveMagma a => AdditiveMagma (MRow (Vector a)) where
-    (+)= liftA2 $ V.zipWith (+)
+instance AdditiveMagma a => AdditiveMagma (Row ctx a) where
+    (Row r) + (Row r') = Row $ V.zipWith (+) r r'
 
-instance AdditiveSemigroup a => AdditiveSemigroup (MRow (Vector a))
+instance Abelian a => Abelian (Row ctx a)
 
-instance AdditiveMonoid a => AdditiveMonoid (MRow (Vector a))
+instance AdditiveSemigroup a => AdditiveSemigroup (Row ctx a)
+
+
+instance ( Reifies ctx Natural, AdditiveMonoid a )
+      => AdditiveMonoid (Row ctx a)
   where
-  zero = do
-    n <- MRow $ fromIntegral <$> ask
-    return $ V.replicate n zero
+  zero = zeroRow
+    where
+      zeroRow :: Row ctx a
+      zeroRow = Row $ V.replicate (fromIntegral $ reflect (Proxy::Proxy ctx)) zero
 
-instance DecidableZero a => DecidableZero (MRow (Vector a))
+instance ( Reifies ctx Natural, DecidableZero a )
+      => DecidableZero (Row ctx a)
   where
-  -- well-definedness of this depends havily on the semantics of the Reader
-  -- argument
-  isZero = runReader undefined . liftA (V.map isZero) . unMRow
+  isZero = V.all isZero . unRow
 
-instance Abelian a => Abelian (MRow (Vector a))
+instance Semiring a => MultiplicativeSemigroupLeftAction a (Row ctx a) where
+  (*.) a = Row . V.map (a*) . unRow
 
-
-instance    Semiring a
-         => MultiplicativeSemigroupLeftAction
-              a (MRow (Vector a))
-  where
-  a *. r = V.map (a*) <$> r
-
-instance Semiring a => LinearSemiringLeftAction a (MRow (Vector a))
+instance Semiring a => LinearSemiringLeftAction a (Row ctx a)
 
 --------------------------------------------------------------------------------
 -- multiplicative structure
@@ -140,8 +135,12 @@ instance Semiring a => LinearSemiringLeftAction a (MRow (Vector a))
 instance Rng a => MultiplicativeMagma (Matrix a) where
   m@(Matrix nrs ncs rs) * (Matrix nrs' ncs' rs')
     | ncs /= nrs' = error "Matrix * Matrix: incompatible dimensions"
-    | otherwise = Matrix nrs ncs' $ flip runReader ncs' $ unMRow $
-                    V.sequence $ unColumn $ m *. (Column $ V.map return rs')
+    | otherwise = Matrix nrs ncs' $ withRowLength ncs' go
+        where
+          go :: forall ctx. Reifies ctx Natural
+             => Proxy ctx -> Vector (Vector a)
+          go _ = V.map unRow $ unColumn $
+                   m *. (Column $ V.map Row rs' :: Column (Row ctx a))
 
 instance Rng a => MultiplicativeSemigroup (Matrix a)
 

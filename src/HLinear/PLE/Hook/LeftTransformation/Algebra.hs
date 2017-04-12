@@ -15,23 +15,22 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       )
 
-import Control.Applicative ( (<$>) )
-import Control.Arrow ( first )
-import Control.Monad.Reader ( runReader )
 import Data.Maybe
+import Data.Proxy
+import Data.Reflection
 import Data.Vector ( Vector(..) )
-import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural ( Natural )
+import qualified Data.Vector as V
 
 import HLinear.Matrix ( Matrix(..) )
-import qualified HLinear.Matrix.Algebra as M
 import HLinear.PLE.Hook.LeftTransformation.Basic as LT
-import qualified HLinear.PLE.Hook.LeftTransformation.Column as LTC
 import HLinear.PLE.Hook.LeftTransformation.Column
 import HLinear.PLE.Hook.LeftTransformation.Definition
 import HLinear.PLE.Hook.PLMatrix
 import HLinear.PLE.Hook.RPermute
+import qualified HLinear.Matrix.Algebra as M
+import qualified HLinear.PLE.Hook.LeftTransformation.Column as LTC
 
 
 -- partially defined permutation action
@@ -166,9 +165,12 @@ instance    ( DivisionRing a, DecidableZero a )
          => MultiplicativeSemigroupLeftAction
               (LeftTransformation a) (PLMatrix a)
   where
-  lt *. (PLMatrix (Matrix nrs ncs rs)) = PLMatrix $
-    Matrix nrs ncs $ flip runReader ncs $ M.unMRow $
-      V.sequence $ fromPLVector $ lt *. PLVector (V.map return rs)
+  lt *. (PLMatrix (Matrix nrs ncs rs)) =
+    PLMatrix $ Matrix nrs ncs $ M.withRowLength ncs go
+      where
+        go :: forall ctx. Reifies ctx Natural => Proxy ctx -> Vector (Vector a)
+        go _ = V.map M.unRow $ fromPLVector $
+                 lt *. (PLVector $ V.map M.Row rs :: PLVector (M.Row ctx a))
 
 instance    ( DivisionRing a, DecidableZero a ) 
          => MultiplicativeLeftAction
