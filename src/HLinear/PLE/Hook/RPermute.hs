@@ -21,7 +21,7 @@ import Data.Permute ( Permute )
 import qualified Data.Permute as P
 import Math.Structure
 
-import HLinear.Matrix
+import HLinear.Matrix hiding ( zero, one )
 import HLinear.PLE.Hook.PLMatrix
 
 

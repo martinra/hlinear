@@ -31,7 +31,7 @@ library
     HLinear.Matrix.Definition
     HLinear.Matrix.QuickCheck
     HLinear.Matrix.SmallCheck
-    HLinear.Matrix.StdElements
+    HLinear.Matrix.Block
 
     HLinear.PLE.FoldUnfold.DivisionRing
     HLinear.PLE.FoldUnfold.FractionFree

@@ -15,7 +15,8 @@ import Data.Maybe
 import qualified Data.Permute as P
 import Data.Vector ( Vector )
 import qualified Data.Vector as V
-import Math.Structure
+import qualified Math.Structure as MS
+import Math.Structure hiding ( one, zero, isOne, isZero )
 import Numeric.Natural
 
 import HLinear.Matrix.Definition
@@ -82,6 +83,49 @@ permuteRows p (Matrix nrs ncs rs)
     np = P.size p
     nrsZ = fromIntegral nrs
 
+--------------------------------------------------------------------------------
+-- creation
+--------------------------------------------------------------------------------
+
+diagonal ::
+     AdditiveMonoid a
+  => Vector a -> Matrix a
+diagonal ds =
+  Matrix nrs nrs $
+    (`V.imap` ds) $ \ix d ->
+    V.generate nrsZ $ \jx ->
+      if ix==jx then d else MS.zero
+  where
+    nrsZ = V.length ds
+    nrs = fromIntegral nrsZ
+
+zero ::
+     AdditiveMonoid a
+  => Natural -> Natural -> Matrix a
+zero nrs ncs =
+  Matrix nrs ncs $
+    V.replicate (fromIntegral nrs) $
+    V.replicate (fromIntegral ncs) MS.zero
+
+one ::
+     ( AdditiveMonoid a, MultiplicativeMonoid a )
+  => Natural -> Matrix a
+one = diagonal . (`V.replicate` MS.one) . fromIntegral
+
+isZero ::
+     DecidableZero a
+  => Matrix a -> Bool
+isZero (Matrix _ _ vs) = V.all (V.all MS.isZero) vs
+
+isOne ::
+     ( DecidableZero a, DecidableOne a )
+  => Matrix a -> Bool
+isOne (Matrix _ _ vs) =
+  V.and $ V.imap (\ix ->
+    V.and . V.imap (\jx ->
+      if ix == jx then MS.isOne else MS.isZero
+  )) vs
+
 -- construction of matrices from vectors or lists
 
 fromVectors :: Vector (Vector a) -> Either String (Matrix a)
@@ -130,67 +174,3 @@ zipWith :: (a -> b -> c) -> Matrix a -> Matrix b -> Matrix c
 zipWith f (Matrix nrs ncs rs) (Matrix nrs' ncs' rs')
   | nrs /= nrs' || ncs /= ncs' = error "Matrix.zipWith: incompatible dimensions"
   | otherwise = Matrix nrs ncs $ V.zipWith (V.zipWith f) rs rs'
-
--- submatrices
-
-headRows :: Matrix a -> Vector a
-headRows (Matrix _ _ rs) = V.head rs
-
-tailRows :: Matrix a -> Matrix a
-tailRows (Matrix nrs ncs rs) = Matrix (pred nrs) ncs $ V.tail rs
-
-headCols :: Matrix a -> Vector a
-headCols (Matrix _ _ rs) = V.map V.head rs
-
-tailCols :: Matrix a -> Matrix a
-tailCols (Matrix nrs ncs rs) = Matrix nrs (pred ncs) $ V.map V.tail rs
-
-
-splitAtRows :: Int -> Matrix a -> (Matrix a, Matrix a)
-splitAtRows ix m@(Matrix nrs ncs rs)
-  | ix < 0     = (zeroM, m)
-  | ix >= ncsZ = (m, zeroM)
-  | otherwise  = (Matrix nrs ncsLeft rsLeft, Matrix nrs ncsRight rsRight)
-  where
-   nrsZ = fromIntegral nrs
-   ncsZ = fromIntegral ncs
-
-   zeroM = Matrix nrs 0 $ V.replicate nrsZ V.empty
-
-   ncsLeft = fromIntegral ix
-   ncsRight = fromIntegral $ ncsZ - ix
-   (rsLeft,rsRight) = V.unzip $ V.map (V.splitAt ix) rs
-
-splitAtCols :: Int -> Matrix a -> (Matrix a, Matrix a)
-splitAtCols ix m@(Matrix nrs ncs rs)
-  | ix < 0     = (zeroM, m)
-  | ix >= nrsZ = (m, zeroM)
-  | otherwise  = (Matrix nrsTop ncs rsTop, Matrix nrsBottom ncs rsBottom)
- where
-   nrsZ = fromIntegral nrs
-
-   zeroM = Matrix 0 ncs V.empty
-
-   nrsTop = fromIntegral ix
-   nrsBottom = fromIntegral $ nrsZ - ix
-   (rsTop,rsBottom) = V.splitAt ix rs
-
-sliceRows :: Int -> Int -> Matrix a -> Matrix a
-sliceRows ix sz m@(Matrix nrs ncs rs)
-  | ix < 0 = sliceRows 0 (sz+ix) m
-  | ix >= nrsZ || sz < 0 = Matrix 0 ncs V.empty
-  | ix+sz > nrsZ = sliceRows ix (nrsZ-ix) m
-  | otherwise = Matrix szN ncs $ V.slice ix sz rs
-  where
-   nrsZ = fromIntegral nrs
-   szN = fromIntegral sz
-
-sliceCols :: Int -> Int -> Matrix a -> Matrix a
-sliceCols jx sz m@(Matrix nrs ncs rs)
-  | jx < 0 = sliceCols 0 (sz+jx) m
-  | jx >= ncsZ || sz < 0 = Matrix nrs 0 $ V.replicate ncsZ V.empty
-  | jx+sz > ncsZ = sliceCols jx (ncsZ-jx) m
-  | otherwise = Matrix nrs szN $ V.map (V.slice jx sz) rs
-  where
-   ncsZ = fromIntegral ncs
-   szN = fromIntegral sz

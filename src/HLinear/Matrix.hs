@@ -31,9 +31,11 @@ module HLinear.Matrix
   , sliceRows
   , sliceCols
 
-  , zeroMatrix
-  , identityMatrix
-  , diagonalMatrix
+  , zero
+  , isZero
+  , one
+  , isOne
+  , diagonal
 
   , blockSum
   , blockSumRows
@@ -51,7 +53,7 @@ import qualified Prelude
 import HLinear.Matrix.Algebra
 import HLinear.Matrix.Basic
 import HLinear.Matrix.Definition
-import HLinear.Matrix.StdElements
+import HLinear.Matrix.Block
 
 import HLinear.Matrix.QuickCheck
 import HLinear.Matrix.SmallCheck

@@ -22,9 +22,7 @@ import qualified HLinear.PLE.Hook.EchelonForm as EF
 import qualified HLinear.PLE.Hook.EchelonForm.Row as EFR
 import HLinear.PLE.Hook.EchelonTransformation ( EchelonTransformation(..) )
 import qualified HLinear.PLE.Hook.EchelonTransformation as ET
-import HLinear.Matrix ( zeroMatrix
-                      , headRows, tailRows
-                      )
+import HLinear.Matrix ( headRows, tailRows )
 import qualified HLinear.Matrix as M
 import HLinear.Matrix.Definition ( Matrix(..) )
 
@@ -40,7 +38,7 @@ reducedEchelonForm ef =
   where
     firstReduction = EchelonReduction
                        (ET.identityET nrs)
-                       (M.zeroMatrix nrs 0)
+                       (M.zero nrs 0)
                        (EF.zeroEF 0 0)
     pivots = EF.pivotStructure ef
     nrs = EF.nmbRows ef
