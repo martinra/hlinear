@@ -33,7 +33,7 @@ import Test.QuickCheck.Modifiers ( NonNegative(..) )
 
 import HLinear.PLE.Hook.PLMatrix
 import HLinear.PLE.Hook.RPermute as RP
-import HLinear.Matrix.Algebra ( Column(..), unColumn )
+import HLinear.Matrix.Algebra ( Column(..), fromColumn )
 
 
 data LeftTransformationColumn a =

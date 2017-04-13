@@ -169,7 +169,7 @@ instance    ( DivisionRing a, DecidableZero a )
     PLMatrix $ Matrix nrs ncs $ M.withRowLength ncs go
       where
         go :: forall ctx. Reifies ctx Natural => Proxy ctx -> Vector (Vector a)
-        go _ = V.map M.unRow $ fromPLVector $
+        go _ = V.map M.fromRow $ fromPLVector $
                  lt *. (PLVector $ V.map M.Row rs :: PLVector (M.Row ctx a))
 
 instance    ( DivisionRing a, DecidableZero a ) 

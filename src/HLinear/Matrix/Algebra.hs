@@ -70,7 +70,7 @@ instance Semiring a => LinearSemiringRightAction a (Matrix a)
 -- column vectors
 --------------------------------------------------------------------------------
 
-newtype Column a = Column {unColumn :: Vector a}
+newtype Column a = Column {fromColumn :: Vector a}
 
 instance    ( Rng a, AdditiveMonoid b
             , LinearSemiringLeftAction a b )
@@ -87,13 +87,13 @@ instance    ( Rng a, AdditiveMonoid b
 
 instance Rng a => MultiplicativeSemigroupLeftAction (Matrix a) (Vector a)
   where
-  m *. v = unColumn $ (m *.) $ Column v
+  m *. v = fromColumn $ (m *.) $ Column v
 
 --------------------------------------------------------------------------------
 -- rows of matrices (with given length)
 --------------------------------------------------------------------------------
 
-newtype Row ctx a = Row { unRow :: Vector a }
+newtype Row ctx a = Row { fromRow :: Vector a }
 
 withRowLength
   :: Natural
@@ -121,10 +121,10 @@ instance ( Reifies ctx Natural, AdditiveMonoid a )
 instance ( Reifies ctx Natural, DecidableZero a )
       => DecidableZero (Row ctx a)
   where
-  isZero = V.all isZero . unRow
+  isZero = V.all isZero . fromRow
 
 instance Semiring a => MultiplicativeSemigroupLeftAction a (Row ctx a) where
-  (*.) a = Row . V.map (a*) . unRow
+  (*.) a = Row . V.map (a*) . fromRow
 
 instance Semiring a => LinearSemiringLeftAction a (Row ctx a)
 
@@ -139,7 +139,7 @@ instance Rng a => MultiplicativeMagma (Matrix a) where
         where
           go :: forall ctx. Reifies ctx Natural
              => Proxy ctx -> Vector (Vector a)
-          go _ = V.map unRow $ unColumn $
+          go _ = V.map fromRow $ fromColumn $
                    m *. (Column $ V.map Row rs' :: Column (Row ctx a))
 
 instance Rng a => MultiplicativeSemigroup (Matrix a)

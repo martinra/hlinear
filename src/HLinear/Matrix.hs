@@ -42,7 +42,7 @@ module HLinear.Matrix
   , blockMatrixL
 
   , Column(Column)
-  , unColumn
+  , fromColumn
   )
 where
 
