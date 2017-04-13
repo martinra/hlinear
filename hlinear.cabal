@@ -66,8 +66,6 @@ library
     HLinear.PLE.Hook.LeftTransformation.SmallCheck
     HLinear.PLE.Hook.LeftTransformation.Weak
 
-    HLinear.PLE.Hook.PLMatrix
-
     HLinear.Utility.Permute
 
   build-depends:

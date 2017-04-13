@@ -22,7 +22,6 @@ import Math.Structure
 import Numeric.Natural
 
 import HLinear.PLE.Hook
-import HLinear.PLE.Hook.PLMatrix
 import qualified HLinear.PLE.Hook.RPermute as RP
 import HLinear.PLE.Hook.RPermute ( RPermute(..) )
 import qualified HLinear.PLE.Hook.EchelonForm as EF

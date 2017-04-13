@@ -21,12 +21,9 @@ import Data.Permute ( Permute )
 import qualified Data.Permute as P
 import Math.Structure
 
+import HLinear.Utility.Permute
 import HLinear.Matrix hiding ( zero, one )
-import HLinear.PLE.Hook.PLMatrix
 
-
-instance NFData Permute where
-  rnf p = seq p ()
 
 -- right permutations, i.e. action on vectors with indices ... 3 2 1
 -- instead of 1 2 3 ...
@@ -67,8 +64,6 @@ size (RPermute p) = P.size p
 at :: RPermute -> Int -> Int -> Int
 at (RPermute p) n ix = n-1 - P.at p (n-1 - ix)
 
-
--- todo: check for Permute.at 
 instance Ring a => IsMatrix RPermute a where
   toMatrix p = Matrix np np $
                   V.generate npZ $ \ix ->
@@ -79,9 +74,10 @@ instance Ring a => IsMatrix RPermute a where
       np = fromIntegral npZ 
 
 toVector :: Num a => RPermute -> Vector a
-toVector (RPermute p) = V.map (fromIntegral . P.at p) ( V.enumFromStepN (pred np) (-1) np )
-  where
-  np = P.size p 
+toVector (RPermute p) = V.map (fromIntegral . P.at p) $
+  V.enumFromStepN (pred np) (-1) np
+    where
+      np = P.size p 
 
 toVectorSize :: Num a => Int -> RPermute -> Vector a
 toVectorSize maxnp rp@(RPermute p) =
@@ -89,9 +85,11 @@ toVectorSize maxnp rp@(RPermute p) =
   V.++
   toVector rp
     where
-    np = P.size p 
+      np = P.size p 
 
+--------------------------------------------------------------------------------
 -- product structure
+--------------------------------------------------------------------------------
 
 instance MultiplicativeMagma RPermute where
   rp@(RPermute p) * rp'@(RPermute p') =
@@ -111,15 +109,14 @@ instance DecidableOne RPermute where
 instance MultiplicativeGroup RPermute where
   recip (RPermute p) = RPermute $ P.inverse p
 
--- action on vectors
+--------------------------------------------------------------------------------
+-- action on vectors and matrices
+--------------------------------------------------------------------------------
 
-newtype RPVector a = RPVector {fromRPVector :: Vector a}
-
--- this is partially defined (i.e. for internal use only)
 instance
-  MultiplicativeSemigroupLeftAction RPermute (PLVector a)
+  MultiplicativeSemigroupLeftAction RPermute (Vector a)
   where
-  rp@(RPermute p) *. (PLVector v) = PLVector $ V.backpermute v vp'
+  rp@(RPermute p) *. v = V.backpermute v vp'
     where
       nv = V.length v
       np = size rp
@@ -127,15 +124,13 @@ instance
       vp = V.generate np $ \ix -> nv-1 - (pi `P.at` (np-1 - ix))
       vp' = case compare nv np of
               EQ -> vp
-              GT -> V.enumFromN 0 (nv-np) V.++ vp
-              LT -> error "RPermute *. lVector: permutation to large"
+              GT -> V.enumFromN 0 (nv-np) `mappend` vp
+              LT -> error "RPermute *. Vector: permutation to large"
 
-instance MultiplicativeLeftAction RPermute (PLVector a)
+instance MultiplicativeLeftAction RPermute (Vector a)
 
 
-instance MultiplicativeSemigroupLeftAction RPermute (PLMatrix a) where
-  p *. PLMatrix (Matrix nrs ncs rs) = PLMatrix $
-    Matrix nrs ncs $ fromPLVector $ p *. PLVector rs
+instance MultiplicativeSemigroupLeftAction RPermute (Matrix a) where
+  p *. (Matrix nrs ncs rs) = Matrix nrs ncs $ p *. rs
 
-instance MultiplicativeLeftAction RPermute (PLMatrix a)
-
+instance MultiplicativeLeftAction RPermute (Matrix a)

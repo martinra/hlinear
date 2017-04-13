@@ -9,8 +9,14 @@ where
 
 import Prelude hiding ( (+), (-), (*), recip )
 
+import Control.DeepSeq ( NFData(..) )
 import Data.Permute
 import Math.Structure
+
+
+instance NFData Permute where
+  rnf p = seq p ()
+
 
 instance MultiplicativeMagma Permute where
   -- note: we let permutations act from the left

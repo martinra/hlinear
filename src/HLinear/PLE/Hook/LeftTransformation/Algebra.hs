@@ -27,7 +27,6 @@ import HLinear.Matrix ( Matrix(..) )
 import HLinear.PLE.Hook.LeftTransformation.Basic as LT
 import HLinear.PLE.Hook.LeftTransformation.Column
 import HLinear.PLE.Hook.LeftTransformation.Definition
-import HLinear.PLE.Hook.PLMatrix
 import HLinear.PLE.Hook.RPermute
 import qualified HLinear.Matrix.Algebra as M
 import qualified HLinear.PLE.Hook.LeftTransformation.Column as LTC
@@ -100,19 +99,21 @@ instance    ( DivisionRing a, DecidableZero a )
           LeftTransformation (fromIntegral $ succ $ V.length c) $
                              V.singleton $ LeftTransformationColumn 0 a c
 
+--------------------------------------------------------------------------------
 -- action on RVector
+--------------------------------------------------------------------------------
 
 -- incoherent against
 -- instance Semiring a =>
---   MultiplicativeSemigroupLeftAction a (RVector a)
+--   MultiplicativeSemigroupLeftAction a (Vector a)
 -- should not occur: LinearSemiringLeftAction a (LeftTransformation a)
 instance  {-# INCOHERENT #-}
             ( DivisionRing a, DecidableZero a, LinearSemiringLeftAction a b )
          => MultiplicativeSemigroupLeftAction
-              (LeftTransformation a) (PLVector b)
+              (LeftTransformation a) (Vector b)
   where
   -- we fill the vector v with zeros from the top
-  lt@(LeftTransformation nrs cs) *. (PLVector v) = PLVector $
+  lt@(LeftTransformation nrs cs) *. v =
     V.foldr' applyCol v $ V.drop nrsDiff cs
     where
     nv = V.length v
@@ -129,9 +130,11 @@ instance  {-# INCOHERENT #-}
          (vn1,vn2) = V.splitAt (V.length vn - V.length v') vn
 
 instance    ( DivisionRing a, DecidableZero a, LeftModule a b )
-         => MultiplicativeLeftAction (LeftTransformation a) (PLVector b)
+         => MultiplicativeLeftAction (LeftTransformation a) (Vector b)
 
+--------------------------------------------------------------------------------
 -- action on LeftTransformationColumn
+--------------------------------------------------------------------------------
 
 instance    ( DivisionRing a, DecidableZero a )
          => MultiplicativeSemigroupLeftAction
@@ -148,33 +151,33 @@ instance    ( DivisionRing a, DecidableZero a )
       nza1recip = fromNonZero $ maybe one (recip . LTC.headNonZero) c1
 
       a' = maybe a ((*a) . LTC.headNonZero) c1
-      ltv = fromPLVector $ lt *. PLVector v
       v' = case c1 of
              Just c1' -> V.zipWith (\bc bv -> bc + bv*nza1recip)
-                           (LTC.tail c1') ltv
-             Nothing  -> ltv
+                           (LTC.tail c1') (lt *. v)
+             Nothing  -> lt *. v
 
 instance    ( DivisionRing a, DecidableZero a )
          => MultiplicativeLeftAction
              (LeftTransformation a)
              (LeftTransformationColumn a)
 
--- action on Matrix
+--------------------------------------------------------------------------------
+-- action on matrices
+--------------------------------------------------------------------------------
 
 instance    ( DivisionRing a, DecidableZero a )
          => MultiplicativeSemigroupLeftAction
-              (LeftTransformation a) (PLMatrix a)
+              (LeftTransformation a) (Matrix a)
   where
-  lt *. (PLMatrix (Matrix nrs ncs rs)) =
-    PLMatrix $ Matrix nrs ncs $ M.withRowLength ncs go
+  lt *. (Matrix nrs ncs rs) =
+    Matrix nrs ncs $ M.withRowLength ncs go
       where
         go :: forall ctx. Reifies ctx Natural => Proxy ctx -> Vector (Vector a)
-        go _ = V.map M.fromRow $ fromPLVector $
-                 lt *. (PLVector $ V.map M.Row rs :: PLVector (M.Row ctx a))
+        go _ = V.map M.fromRow $ lt *. (V.map M.Row rs :: Vector (M.Row ctx a))
 
 instance    ( DivisionRing a, DecidableZero a ) 
          => MultiplicativeLeftAction
-              (LeftTransformation a) (PLMatrix a)
+              (LeftTransformation a) (Matrix a)
 
 -- apply
 --   :: DivisionRing a
@@ -185,10 +188,6 @@ instance    ( DivisionRing a, DecidableZero a )
 --   WLT.apply wlt $
 --   RV.RVector $ V.map RV.RVector rs
 -- 
--- 
--- 
--- -- fixme: this should be applied to PLVector
--- -- application to RVector
 -- 
 -- apply
 --   :: ( DivisionRing a, LinearSemiringLeftAction a b )
