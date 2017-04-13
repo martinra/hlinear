@@ -20,7 +20,8 @@ import Control.DeepSeq ( NFData(..) )
 import Data.Maybe
 import Data.Vector ( Vector(..) )
 import qualified Data.Vector as V
-import Math.Structure
+import Math.Structure hiding ( one, isOne )
+import qualified Math.Structure as MS
 import Numeric.Natural ( Natural )
 
 
@@ -86,7 +87,9 @@ toVector (LeftTransformationColumn o a v) =
   where
     a' = fromNonZero a
 
+--------------------------------------------------------------------------------
 -- Eq, Show, and NFData instancs
+--------------------------------------------------------------------------------
 
 deriving instance Show a => Show (LeftTransformationColumn a)
 
@@ -94,16 +97,19 @@ instance Eq a => Eq (LeftTransformationColumn a) where
   (LeftTransformationColumn s a v) == (LeftTransformationColumn s' a' v') =
     s == s' && a == a' && (`V.all` V.zip v v') (uncurry (==))
 
-isIdentityLTColumn :: ( DecidableZero a, DecidableOne a )
-                   => LeftTransformationColumn a -> Bool
-isIdentityLTColumn (LeftTransformationColumn _ a v) =
-  isOne (fromNonZero a) && V.all isZero v
+isOne ::
+     ( DecidableZero a, DecidableOne a )
+  => LeftTransformationColumn a -> Bool
+isOne (LeftTransformationColumn _ a v) =
+  MS.isOne (fromNonZero a) && V.all isZero v
 
 instance NFData a => NFData (LeftTransformationColumn a) where
   rnf (LeftTransformationColumn s (NonZero a) c) =
     seq (rnf s) $ seq (rnf a) $ seq (rnf c) ()
 
+--------------------------------------------------------------------------------
 -- container
+--------------------------------------------------------------------------------
 
 instance Functor LeftTransformationColumn where
   fmap f (LeftTransformationColumn s (NonZero a) c) =
@@ -138,15 +144,31 @@ zipWith f (LeftTransformationColumn s (NonZero a) c)
     cB  = V.replicate (nc' - minnc) zero
     cB' = V.replicate (nc  - minnc) zero
 
+--------------------------------------------------------------------------------
 -- creation
+--------------------------------------------------------------------------------
 
-identityLTColumn :: ( Ring a, DecidableZero a )
-                 => Int -> Int -> LeftTransformationColumn a
-identityLTColumn n o | n <= o = error "identityLTColumn: to large offset"
-                     | otherwise = LeftTransformationColumn o (nonZero one) $
-                                     V.replicate (n-o-1) zero
+one ::
+     ( Ring a, DecidableZero a )
+  => Int -> Int -> LeftTransformationColumn a
+one n o
+  | n <= o = error "identityLTColumn: to large offset"
+  | otherwise = LeftTransformationColumn o (nonZero MS.one) $
+                  V.replicate (n-o-1) zero
 
+--------------------------------------------------------------------------------
+-- permutation action
+--------------------------------------------------------------------------------
+
+instance MultiplicativeSemigroupLeftAction RPermute (LeftTransformationColumn a) where
+  p *. (LeftTransformationColumn s a v)
+    | RP.size p > V.length v =
+        error "RPermute *. LeftTransformationColumn: permutation too large"
+    | otherwise = LeftTransformationColumn s a $ p *. v
+
+--------------------------------------------------------------------------------
 -- QuickCheck
+--------------------------------------------------------------------------------
 
 instance    ( DecidableZero a, Arbitrary a )
          => Arbitrary (LeftTransformationColumn a) where
@@ -181,14 +203,4 @@ instance    ( DecidableZero a, Arbitrary a )
            | ix <- [0..V.length v-1]
            , e <- shrink (v V.! ix)
            ]
-                
--- partially defined permutation action
 
-instance MultiplicativeSemigroupLeftAction
-           RPermute
-           (LeftTransformationColumn a)
-  where
-  p *. (LeftTransformationColumn s a v)
-    | RP.size p > V.length v =
-        error "RPermute *. LeftTransformationColumn: permutation too large"
-    | otherwise = LeftTransformationColumn s a $ p *. v

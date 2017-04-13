@@ -13,7 +13,6 @@ import Data.Vector ( Vector(..) )
 import Math.Structure
 import Numeric.Natural ( Natural )
 
---import HLinear.LeftTransformation.Basic ()
 import HLinear.PLE.Hook.LeftTransformation.Definition
 import HLinear.PLE.Hook.LeftTransformation.Column as LTC
 
@@ -43,5 +42,5 @@ zipWith f (LeftTransformation nrs cs) (LeftTransformation nrs' cs') =
 
     complete ncs'' cs'' =
       cs'' V.++
-      V.map ( \jx -> identityLTColumn jx (succ jx) )
+      V.map ( \jx -> LTC.one jx (succ jx) )
         (V.enumFromN ncs'' (maxncs - V.length cs''))

@@ -25,7 +25,7 @@ import Numeric.Natural ( Natural )
 
 
 import HLinear.Matrix ( Matrix(..), IsMatrix(..) )
-import HLinear.PLE.Hook.LeftTransformation.Column
+import HLinear.PLE.Hook.LeftTransformation.Column hiding ( one, isOne )
 import qualified HLinear.PLE.Hook.LeftTransformation.Column as LTC
 import HLinear.PLE.Hook.LeftTransformation.Definition
 import HLinear.PLE.Hook.RPermute
@@ -41,10 +41,12 @@ minimizeSize (LeftTransformation nrs cs) =
   then LeftTransformation 0 V.empty
   else LeftTransformation nrs' cs'
   where
-    cs' = V.dropWhile isIdentityLTColumn cs
+    cs' = V.dropWhile LTC.isOne cs
     nrs' = fromIntegral $ fromIntegral nrs - (V.length cs - V.length cs')
 
+--------------------------------------------------------------------------------
 -- Eq, Show, and NFData instances
+--------------------------------------------------------------------------------
 
 deriving instance Show a => Show (LeftTransformation a)
 
@@ -64,7 +66,9 @@ instance    ( Eq a, DecidableZero a, DecidableOne a )
 instance NFData a => NFData (LeftTransformation a) where
   rnf (LeftTransformation nrs cs) = seq (rnf nrs) $ seq (rnf cs) ()
 
+--------------------------------------------------------------------------------
 -- creation
+--------------------------------------------------------------------------------
 
 identityLT :: Natural -> LeftTransformation a
 identityLT nrs = LeftTransformation nrs V.empty
@@ -104,7 +108,9 @@ instance Ring a => IsMatrix (LeftTransformation a) a where
     where
     nrs' = fromIntegral nrs
 
+--------------------------------------------------------------------------------
 -- subtransformations
+--------------------------------------------------------------------------------
 
 splitAt :: Int -> LeftTransformation a
         -> (LeftTransformation a, LeftTransformation a)

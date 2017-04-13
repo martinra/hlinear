@@ -25,7 +25,7 @@ import qualified Data.Vector as V
 
 import HLinear.Matrix ( Matrix(..) )
 import HLinear.PLE.Hook.LeftTransformation.Basic as LT
-import HLinear.PLE.Hook.LeftTransformation.Column
+import HLinear.PLE.Hook.LeftTransformation.Column hiding ( one, isOne )
 import HLinear.PLE.Hook.LeftTransformation.Definition
 import HLinear.PLE.Hook.RPermute
 import qualified HLinear.Matrix.Algebra as M
@@ -47,7 +47,7 @@ instance    ( DivisionRing a, DecidableZero a )
     | ncs  == 0 = lt'
     | ncs' == 0 = lt
     | nrsZ - ncs >= nrs'Z =
-        let ltcOnes = V.map (LTC.identityLTColumn nrsZ) $
+        let ltcOnes = V.map (LTC.one nrsZ) $
                         V.enumFromN ncs (nrsZ - ncs - nrs'Z)
             cs'shifted = V.map (LTC.setLength nrsZ) cs' 
         in LeftTransformation nrs $ cs V.++ ltcOnes V.++ cs'shifted
