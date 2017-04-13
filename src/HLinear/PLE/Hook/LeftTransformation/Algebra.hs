@@ -178,33 +178,3 @@ instance    ( DivisionRing a, DecidableZero a )
 instance    ( DivisionRing a, DecidableZero a ) 
          => MultiplicativeLeftAction
               (LeftTransformation a) (Matrix a)
-
--- apply
---   :: DivisionRing a
---   => WeakLeftTransformation a -> Matrix a -> Matrix a
--- apply wlt (Matrix nrs ncs rs) =
---   Matrix nrs ncs $
---   V.map RV.toCurrentVector $ RV.toCurrentVector $
---   WLT.apply wlt $
---   RV.RVector $ V.map RV.RVector rs
--- 
--- 
--- apply
---   :: ( DivisionRing a, LinearSemiringLeftAction a b )
---   => WeakLeftTransformation a -> RVector b -> RVector b
--- apply lt@(WeakLeftTransformation nrs cs) (RVector v) = RVector $
---     V.foldr' applyCol v $ V.drop nrsDiff cs
---     where
---     nv = V.length v
---     nrsDiff = fromIntegral nrs - nv
--- 
---     -- this assumes that vn is longer than v'
---     {-# INLINE applyCol #-}
---     applyCol c@(WeakLeftTransformationColumn s' a' v') vn =
---        V.init vn1 `V.snoc` av
---        V.++
---        V.zipWith (\bl br -> bl*.av + br) v' vn2
---          where
---          av = a' *. V.last vn1
---          (vn1,vn2) = V.splitAt (V.length vn - V.length v') vn
--- 
