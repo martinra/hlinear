@@ -22,6 +22,7 @@ import Numeric.Natural ( Natural )
 import HLinear.Matrix.Definition
 import HLinear.PLE.Hook.EchelonTransformation.Basic as ET
 import qualified HLinear.PLE.Hook.EchelonTransformation.Column as ETC
+import HLinear.PLE.Hook.EchelonTransformation.Definition
 import HLinear.PLE.Hook.EchelonTransformation.Column
 import HLinear.Utility.RPermute
 

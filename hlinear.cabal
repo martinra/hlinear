@@ -53,6 +53,7 @@ library
     HLinear.PLE.Hook.EchelonTransformation
     HLinear.PLE.Hook.EchelonTransformation.Algebra
     HLinear.PLE.Hook.EchelonTransformation.Basic
+    HLinear.PLE.Hook.EchelonTransformation.Definition
     HLinear.PLE.Hook.EchelonTransformation.Column
     HLinear.PLE.Hook.EchelonTransformation.QuickCheck
     HLinear.PLE.Hook.EchelonTransformation.SmallCheck

@@ -20,6 +20,7 @@ import Test.QuickCheck.Modifiers ( NonNegative(..)
 
 import HLinear.PLE.Hook.EchelonTransformation.Basic as ET
 import HLinear.PLE.Hook.EchelonTransformation.Column as ETC
+import HLinear.PLE.Hook.EchelonTransformation.Definition
 
 
 instance    (DecidableZero a, Arbitrary a)

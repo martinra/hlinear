@@ -16,6 +16,7 @@ import Test.Natural ()
 
 import HLinear.PLE.Hook.EchelonTransformation.Basic
 import HLinear.PLE.Hook.EchelonTransformation.Column
+import HLinear.PLE.Hook.EchelonTransformation.Definition
 
 
 instance    (Monad m, Serial m a, DecidableZero a)

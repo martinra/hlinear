@@ -36,10 +36,8 @@ reducedEchelonForm ef =
         V.unfoldr reduceLastPivot (ef, pivots)
   in  RREF et' ef'
   where
-    firstReduction = EchelonReduction
-                       (ET.identityET nrs)
-                       (M.zero nrs 0)
-                       (EF.zero 0 0)
+    firstReduction =
+      EchelonReduction (ET.one nrs) (M.zero nrs 0) (EF.zero 0 0)
     pivots = EF.pivotStructure ef
     nrs = EF.nmbRows ef
     ncs = EF.nmbCols ef

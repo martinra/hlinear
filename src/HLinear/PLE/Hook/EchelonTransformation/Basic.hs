@@ -17,27 +17,20 @@ import Prelude hiding ( (+), (-), negate, subtract
 import Control.DeepSeq ( NFData(..) )
 import Data.Vector ( Vector(..) )
 import qualified Data.Vector as V
-import Math.Structure
+import Math.Structure hiding ( one )
+import qualified Math.Structure as MS
 import Numeric.Natural ( Natural )
 
 import HLinear.Matrix ( Matrix(..), IsMatrix(..) )
 import HLinear.PLE.Hook.EchelonTransformation.Column
+import HLinear.PLE.Hook.EchelonTransformation.Definition
 import qualified HLinear.PLE.Hook.EchelonTransformation.Column as ETC
 import HLinear.Utility.RPermute
 
 
--- | An echelon transformation preserves Echelon forms, and thus is of the form
---   1  v  v  v
---   0  1  v  v
---   0  0  1  v
---   0  0  0  1
---  EchelonTransformationColumns all start at the top, but their lengths vary,
---  which is expressed by their offset parameter.
-data EchelonTransformation a =
-  EchelonTransformation
-    { nmbRows :: Natural
-    , columns :: Vector (EchelonTransformationColumn a)
-    }
+--------------------------------------------------------------------------------
+-- attributes
+--------------------------------------------------------------------------------
 
 nmbCols :: EchelonTransformation a -> Natural
 nmbCols = fromIntegral . V.length . columns
@@ -75,8 +68,9 @@ instance NFData a => NFData (EchelonTransformation a) where
   rnf (EchelonTransformation nrs cs) =
     seq (rnf nrs) $
     seq (V.map rnf cs) ()
-
+--------------------------------------------------------------------------------
 -- creation
+--------------------------------------------------------------------------------
 
 singleton :: Vector a -> EchelonTransformation a
 singleton v = EchelonTransformation nrs $ V.singleton $
@@ -84,10 +78,12 @@ singleton v = EchelonTransformation nrs $ V.singleton $
   where
     nrs = fromIntegral $ 1 + V.length v
 
-identityET :: Natural -> EchelonTransformation a
-identityET nrs = EchelonTransformation nrs V.empty
+one :: Natural -> EchelonTransformation a
+one nrs = EchelonTransformation nrs V.empty
 
+--------------------------------------------------------------------------------
 -- conversion
+--------------------------------------------------------------------------------
 
 instance Ring a => IsMatrix (EchelonTransformation a) a where
   toMatrix (EchelonTransformation nrs cs) =
@@ -96,18 +92,20 @@ instance Ring a => IsMatrix (EchelonTransformation a) a where
       V.generate nrsZ $ \jx ->
         case compare ix jx of
           LT -> maybe zero (!ix) $ cs V.!? (nrsZ-1-jx)
-          EQ -> one
+          EQ -> MS.one
           GT -> zero
     where
     nrsZ = fromIntegral nrs
 
+--------------------------------------------------------------------------------
 -- subtransformations
+--------------------------------------------------------------------------------
 
 splitAt :: Int -> EchelonTransformation a
         -> (EchelonTransformation a, EchelonTransformation a)
 splitAt ix et@(EchelonTransformation nrs cs)
-  | ix <= nrsZ - ncsZ = (identityET ixN, et)
-  | ix >= nrsZ        = (et, identityET nrs)
+  | ix <= nrsZ - ncsZ = (one ixN, et)
+  | ix >= nrsZ        = (et, one nrs)
   | otherwise =
       let (csRight, csLeft) = V.splitAt (ix-nrsZ+ncsZ) cs
       in ( EchelonTransformation ixN $ V.map (ETC.setLength ix) csLeft
