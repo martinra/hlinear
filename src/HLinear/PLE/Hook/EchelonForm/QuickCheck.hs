@@ -74,4 +74,3 @@ instance    ( Arbitrary a, Ring a, DecidableZero a )
         e <- shrink $ r V.! jx
         return $ V.update rs $ V.singleton
                    (ix, EchelonFormRow o $ V.update r $ V.singleton (jx,e))
-    

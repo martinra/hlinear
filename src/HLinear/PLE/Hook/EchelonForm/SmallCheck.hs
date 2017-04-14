@@ -37,4 +37,3 @@ instance    (Monad m, Serial m a, DecidableZero a)
               decDepth $ decDepth series
             )
       )
-

@@ -16,7 +16,8 @@ import Control.DeepSeq
 import Control.Arrow ( first )
 import qualified Data.Vector as V
 import Data.Vector ( Vector(..) )
-import Math.Structure
+import Math.Structure hiding ( zero )
+import qualified Math.Structure as MS
 import Numeric.Natural ( Natural )
 
 import HLinear.Matrix.Basic ()
@@ -30,23 +31,9 @@ data EchelonFormRow a =
     , row :: Vector a
     }
 
--- properties
-
-pivotIx :: DecidableZero a => EchelonFormRow a -> Maybe Int
-pivotIx (EchelonFormRow o v) = (oZ+) <$> V.findIndex (not . isZero) v
-  where
-    oZ = fromIntegral o
-
-
-pivotIx' :: DecidableZero a => EchelonFormRow a -> Int -> Maybe Int
-pivotIx' (EchelonFormRow o v) ix =
-  if ix >= oZ
-  then (ix+) <$> V.findIndex (not . isZero) (V.drop (ix-oZ) v)
-  else (oZ+) <$> V.findIndex (not . isZero) v
-  where
-    oZ = fromIntegral o
-
+--------------------------------------------------------------------------------
 -- Show, Eq, and NFData
+--------------------------------------------------------------------------------
 
 deriving instance Show a => Show (EchelonFormRow a)
 
@@ -68,7 +55,9 @@ instance NFData a => NFData (EchelonFormRow a) where
     seq (rnf o) $
     seq (V.map rnf s) ()
 
--- length
+--------------------------------------------------------------------------------
+-- attributes
+--------------------------------------------------------------------------------
 
 length :: EchelonFormRow a -> Int
 length (EchelonFormRow o r) = fromIntegral o + V.length r
@@ -80,17 +69,33 @@ setLength ncs (EchelonFormRow o r)
   where
     o' = ncs - V.length r
   
--- access and conversion
-
 (!) :: AdditiveMonoid a => EchelonFormRow a -> Int -> a
 (!) er@(EchelonFormRow o v) ix
-  | ix < oZ         = zero
+  | ix < oZ         = MS.zero
   | ix >= length er = error "EchelonFormRow.(!): out of range"
   | otherwise       = v V.! (ix-oZ)
   where
     oZ = fromIntegral o
 
+--------------------------------------------------------------------------------
+-- properties
+--------------------------------------------------------------------------------
+
+pivotIx :: DecidableZero a => EchelonFormRow a -> Maybe Int
+pivotIx (EchelonFormRow o v) = (oZ+) <$> V.findIndex (not . isZero) v
+  where
+    oZ = fromIntegral o
+
+pivotIx' :: DecidableZero a => EchelonFormRow a -> Int -> Maybe Int
+pivotIx' (EchelonFormRow o v) ix
+  | ix > oZ   = (ix+) <$> V.findIndex (not . isZero) (V.drop (ix-oZ) v)
+  | otherwise = (oZ+) <$> V.findIndex (not . isZero) v
+  where
+    oZ = fromIntegral o
+
+--------------------------------------------------------------------------------
 -- container
+--------------------------------------------------------------------------------
 
 instance Functor EchelonFormRow where
   fmap f (EchelonFormRow o r) = EchelonFormRow o $ V.map f r
@@ -115,20 +120,31 @@ zipWith f e@(EchelonFormRow o r) e'@(EchelonFormRow o' r') =
     maxl = max (length e) (length e')
     o'' = fromIntegral $ maxl - maxnr
 
-    rR  = V.replicate (maxnr - nr) zero
-    rR'  = V.replicate (maxnr - nr') zero
+    rR  = V.replicate (maxnr - nr) MS.zero
+    rR'  = V.replicate (maxnr - nr') MS.zero
     rL = V.drop (maxnr - nr) r
     rL' = V.drop (maxnr - nr') r'
 
+--------------------------------------------------------------------------------
 -- creation
+--------------------------------------------------------------------------------
 
-zeroEFR :: Natural -> EchelonFormRow a
-zeroEFR o = EchelonFormRow o V.empty
+zero :: Natural -> EchelonFormRow a
+zero o = EchelonFormRow o V.empty
 
 toVector :: AdditiveMonoid a => EchelonFormRow a -> Vector a
-toVector (EchelonFormRow o r) = V.replicate (fromIntegral o) zero V.++ r
+toVector (EchelonFormRow o r) = V.replicate (fromIntegral o) MS.zero V.++ r
 
+--------------------------------------------------------------------------------
+-- block sums
+--------------------------------------------------------------------------------
+
+sumRow :: EchelonFormRow a -> Vector a -> EchelonFormRow a
+sumRow (EchelonFormRow o v) v' = EchelonFormRow o $ v V.++ v'
+
+--------------------------------------------------------------------------------
 -- subrows
+--------------------------------------------------------------------------------
 
 splitAt
   ::  Int -> EchelonFormRow a
@@ -143,7 +159,9 @@ splitAt ix (EchelonFormRow o r)
     oZ = fromIntegral o
     (leftr,rightr) = V.splitAt (ix-oZ) r
 
+--------------------------------------------------------------------------------
 -- additive structure
+--------------------------------------------------------------------------------
 
 instance AdditiveMagma a => AdditiveMagma (EchelonFormRow a) where
   (EchelonFormRow o r) + (EchelonFormRow o' r') =
@@ -161,8 +179,3 @@ instance AdditiveMagma a => AdditiveMagma (EchelonFormRow a) where
                    in left V.++ V.zipWith (+) r right
 
 instance AdditiveSemigroup a => AdditiveSemigroup (EchelonFormRow a)
-
--- block sums
-
-sumRow :: EchelonFormRow a -> Vector a -> EchelonFormRow a
-sumRow (EchelonFormRow o v) v' = EchelonFormRow o $ v V.++ v'

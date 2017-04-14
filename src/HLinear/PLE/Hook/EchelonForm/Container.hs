@@ -13,7 +13,6 @@ import Data.Vector ( Vector(..) )
 import Math.Structure
 import Numeric.Natural ( Natural )
 
---import HLinear.EchelonForm.Basic ()
 import HLinear.PLE.Hook.EchelonForm.Definition
 import HLinear.PLE.Hook.EchelonForm.Row as EFR
 
@@ -50,6 +49,6 @@ zipWith f (EchelonForm nrs ncs rs) (EchelonForm nrs' ncs' rs') =
 
     complete :: Int -> Int -> Vector (EchelonFormRow a) -> Vector (EchelonFormRow a)
     complete nrs''Z nrs''B rs'' =
-      V.replicate (maxnrsZ - nrs''Z) (zeroEFR maxncs)
+      V.replicate (maxnrsZ - nrs''Z) (EFR.zero maxncs)
       V.++ rs'' V.++
-      V.replicate (minnrsB - nrs''B) (zeroEFR maxncs)
+      V.replicate (minnrsB - nrs''B) (EFR.zero maxncs)

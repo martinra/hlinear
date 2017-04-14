@@ -18,7 +18,7 @@ import qualified HLinear.PLE.Hook.EchelonForm.Row as EFR
 
 
 newtype PivotStructure = PivotStructure 
-  { unPivotStructure :: Seq (Int,Int) }
+  { fromPivotStructure :: Seq (Int,Int) }
   deriving (Show, Eq, Ord, NFData)
 
 pivotStructure
@@ -33,4 +33,4 @@ pivotStructure (EchelonForm nrs ncs rs) = PivotStructure $ go S.empty rs 0 0
       | otherwise = s
 
 rank :: DecidableZero a => EchelonForm a -> Natural
-rank e@(EchelonForm _ _ rs) = fromIntegral $ S.length $ unPivotStructure $ pivotStructure e
+rank e@(EchelonForm _ _ rs) = fromIntegral $ S.length $ fromPivotStructure $ pivotStructure e
