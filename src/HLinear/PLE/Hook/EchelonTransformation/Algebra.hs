@@ -27,7 +27,9 @@ import HLinear.PLE.Hook.EchelonTransformation.Column
 import HLinear.Utility.RPermute
 
 
+--------------------------------------------------------------------------------
 -- product structure 
+--------------------------------------------------------------------------------
 
 instance    DivisionRing a
          => MultiplicativeMagma (EchelonTransformation a) where
@@ -80,7 +82,9 @@ instance    ( DivisionRing a, DecidableZero a )
           EchelonTransformation (fromIntegral $ succ $ V.length c) $
                                 V.singleton $ EchelonTransformationColumn 0 c
 
--- action on Vector
+--------------------------------------------------------------------------------
+-- action on vectors
+--------------------------------------------------------------------------------
 
 -- incoherent against
 -- instance Semiring a =>
@@ -111,7 +115,24 @@ instance {-# INCOHERENT #-}
 instance    ( DivisionRing a, LeftModule a b )
          => MultiplicativeLeftAction (EchelonTransformation a) (Vector b)
 
+--------------------------------------------------------------------------------
+-- action on matrices
+--------------------------------------------------------------------------------
+
+instance    DivisionRing a
+         => MultiplicativeSemigroupLeftAction
+              (EchelonTransformation a) (Matrix a)
+  where
+  et *. (Matrix nrs' ncs' rs') =
+    Matrix nrs' ncs' $ et *. rs'
+
+instance    DivisionRing a
+         => MultiplicativeLeftAction
+              (EchelonTransformation a) (Matrix a)
+
+--------------------------------------------------------------------------------
 -- action on EchelonTransformationColumn
+--------------------------------------------------------------------------------
 
 instance    DivisionRing a
          => MultiplicativeSemigroupLeftAction
@@ -134,16 +155,3 @@ instance    DivisionRing a
          => MultiplicativeLeftAction
              (EchelonTransformation a)
              (EchelonTransformationColumn a)
-
--- action on Matrix
-
-instance    DivisionRing a
-         => MultiplicativeSemigroupLeftAction
-              (EchelonTransformation a) (Matrix a)
-  where
-  et *. (Matrix nrs' ncs' rs') =
-    Matrix nrs' ncs' $ et *. rs'
-
-instance    DivisionRing a
-         => MultiplicativeLeftAction
-              (EchelonTransformation a) (Matrix a)

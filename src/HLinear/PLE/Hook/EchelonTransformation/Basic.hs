@@ -68,6 +68,7 @@ instance NFData a => NFData (EchelonTransformation a) where
   rnf (EchelonTransformation nrs cs) =
     seq (rnf nrs) $
     seq (V.map rnf cs) ()
+
 --------------------------------------------------------------------------------
 -- creation
 --------------------------------------------------------------------------------
