@@ -15,23 +15,24 @@ import Test.Tasty
 
 import HLinear.Test.Utils
 
-import HLinear.Matrix
+import HLinear.Matrix as M
 
 
 properties :: TestTree
 properties = testGroup "Creation properties"
   [ testProperty "nmbRows/Cols .: zeroMatrix" $
-      \nrs ncs -> ( let m = zeroMatrix nrs ncs :: Matrix Int
+      \nrs ncs -> ( let m = M.zero nrs ncs :: Matrix Int
                     in    nmbRows m == nrs
                        && nmbCols m == ncs )
 
   , testProperty "nmbRows/Cols .: identityMatrix" $
-      \nrs -> ( let m = identityMatrix nrs :: Matrix Int
+      \nrs -> ( let m = M.one nrs :: Matrix Int
                 in    nmbRows m == nrs
                    && nmbCols m == nrs )
 
   , testPropertyMatrix "diagonalMatrix . * == * . diagonalMatrix" $
       \abs -> ( let (as,bs) = V.unzip (abs :: Vector (Int,Int))
-                  in (diagonalMatrix as) * (diagonalMatrix bs) ==
-                     ( diagonalMatrix (V.map (uncurry (*)) abs) ) )
+                in  (diagonal as) * (diagonal bs) ==
+                      diagonal (V.map (uncurry (*)) abs)
+              )
   ]

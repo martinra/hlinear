@@ -25,6 +25,7 @@ import Test.Vector
 import HLinear.PLE.Hook
 import HLinear.PLE.Hook.EchelonTransformation as ET
 import HLinear.PLE.Hook.EchelonTransformation.Column as ETC
+import HLinear.Matrix ( Matrix(..) )
 import qualified HLinear.Matrix as M
 
 import HLinear.Test.Utils
@@ -41,16 +42,17 @@ echelonTransformationUnitTests :: TestTree
 echelonTransformationUnitTests =
   testGroup "Unit Tests"
   [ HU.testCase "toMatrix trivial" $
-      let et = EchelonTransformation 2 V.empty
-      in toMatrix et @?= M.fromListsUnsafe
-                           ([[1,0], [0,1]] :: [[Rational]])
+      let et = EchelonTransformation 2 V.empty :: EchelonTransformation Rational
+      in  M.toMatrix et @?= M.fromListsUnsafe
+                              ([[1,0], [0,1]] :: [[Rational]])
 
   , HU.testCase "toMatrix diagonal" $
       let et = EchelonTransformation 2 $ V.fromList
                  [ EchelonTransformationColumn 0 $ V.fromList [0]
                  , EchelonTransformationColumn 1 V.empty ]
-      in toMatrix et @?= M.fromListsUnsafe
-                           ([[1,0], [0,1]] :: [[Rational]])
+                 :: EchelonTransformation Rational
+      in  M.toMatrix et @?= M.fromListsUnsafe
+                              ([[1,0], [0,1]] :: [[Rational]])
 
   , HU.testCase "toMatrix general" $
       let et = EchelonTransformation 3 $ V.fromList
@@ -58,17 +60,18 @@ echelonTransformationUnitTests =
                  , EchelonTransformationColumn 1 $ V.fromList [1%7]
                  , EchelonTransformationColumn 2 V.empty
                  ]
-      in toMatrix et @?= M.fromListsUnsafe
-                           ([[1,1%7,3%8], [0,1,9%14], [0,0,1]] :: [[Rational]])
+                 :: EchelonTransformation Rational
+      in  M.toMatrix et @?= M.fromListsUnsafe
+                              ([[1,1%7,3%8], [0,1,9%14], [0,0,1]] :: [[Rational]])
   ]
 
 echelonTransformationProperties :: TestTree
 echelonTransformationProperties =
   testGroup "Properties" $
     [ QC.testProperty "toMatrix *. vector == *. vector" $
-        \et v -> let m = toMatrix (et :: EchelonTransformation Rational)
+        \et v -> let m = M.toMatrix (et :: EchelonTransformation Rational) :: Matrix Rational
                      nv = V.length v
-                     nrsZ = fromIntegral $ nmbRows et
+                     nrsZ = fromIntegral $ ET.nmbRows et
                      nrsDiff = nv - nrsZ
                      (v1,v2) = V.splitAt nrsZ v
                      mv1 = m *. ( v1 V.++ V.replicate (-nrsDiff) 0 )
@@ -94,13 +97,13 @@ echelonTransformationProperties =
     )
     ++
     [ testPropertyMatrixSC "toMatrix * toInverseMatrix" $
-        \et -> let m = toMatrix (et :: EchelonTransformation Rational)
-                   mi = toInverseMatrix et
+        \et -> let m = M.toMatrix (et :: EchelonTransformation Rational) :: Matrix Rational
+                   mi = M.toMatrix $ recip et
                    nrs = fromIntegral $ ET.nmbRows et
-               in m * mi == M.identityMatrix nrs
+               in m * mi == M.one nrs
     ,
       testPropertyMatrixSC "et *. toInverseMatrix et equals identity" $
-        \et -> let mi = toInverseMatrix (et :: EchelonTransformation Rational)
+        \et -> let mi = M.toMatrix (recip et :: EchelonTransformation Rational) :: Matrix Rational
                    nrs = fromIntegral $ ET.nmbRows et
-               in et *. mi == M.identityMatrix nrs
+               in et *. mi == M.one nrs
     ]

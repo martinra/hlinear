@@ -20,8 +20,7 @@ main =
   defaultMainWithIngredients
   [ rerunningTests [ listingTests, consoleTestReporter ] ] $
   testGroup "HLinear Tests"
-    [{- debug
-         matrixTests
-     --, brMatrixTests
-    ,-} pleTests
+    [ matrixTests
+--    , brMatrixTests
+--    , pleTests
     ]

@@ -1,5 +1,7 @@
 {-# LANGUAGE
-    ScopedTypeVariables
+    FlexibleContexts
+  , Rank2Types
+  , ScopedTypeVariables
   #-}
 
 module HLinear.Test.PLE.FoldUnfold.ReducedEchelonForm
@@ -27,13 +29,12 @@ import qualified Test.Tasty.QuickCheck as QC
 
 import HLinear.Matrix
 
-import HLinear.PLE.Decomposition ( unPLEDecomposition )
+import HLinear.PLE.HasPLE
+import HLinear.PLE.FoldUnfold.ReducedEchelonForm
 import HLinear.PLE.Hook
 import HLinear.PLE.Hook.EchelonForm as EF
 import HLinear.PLE.Hook.EchelonForm.Container ()
 import HLinear.PLE.Hook.EchelonTransformation as ET
-import HLinear.PLE.FoldUnfold.Echelonize ( pleDecompositionFoldUnfold )
-import HLinear.PLE.FoldUnfold.ReducedEchelonForm as REF
 import qualified HLinear.Matrix as M
 
 import HLinear.Test.Utils
@@ -50,12 +51,12 @@ reducedEchelonFormProperties =
                let ps = pivotStructure ef
                (EchelonReduction et m ef'', (ef',ps)) <- reduceLastPivot (ef,ps)
 
-               let efm = EF.toMatrix ef
-               let ef'm = EF.toMatrix ef'
-               let ef''m = EF.toMatrix ef''
-               let etm = ET.toMatrix et
-               let zm = M.zeroMatrix (EF.nmbRows ef'') (EF.nmbCols ef')
-               let im = M.identityMatrix (EF.nmbRows ef P.- ET.nmbRows et)
+               let efm = toMatrix ef
+               let ef'm = toMatrix ef'
+               let ef''m = toMatrix ef''
+               let etm = toMatrix et
+               let zm = M.zero (EF.nmbRows ef'') (EF.nmbCols ef')
+               let im = M.one (EF.nmbRows ef P.- ET.nmbRows et)
                return $ M.blockSum etm im * efm == M.blockMatrixL [[ef'm,m],[zm,ef''m]]
 
   , testPropertyMatrix "recombine reducedEchelonForm (small prime)" $
@@ -66,12 +67,10 @@ reducedEchelonFormProperties =
   ]
 
 recombineReducedEF :: FlintLimb -> Matrix FMPZ -> Bool
-recombineReducedEF p m = withNModContext p $ \(_ :: Proxy ctx) ->
-  let mNMod = fmap toNMod m :: Matrix (NMod ctx)
-      PLEHook _ _ ef = unPLEDecomposition $ pleDecompositionFoldUnfold mNMod
-      (et,ef') = reducedEchelonForm ef
-      efm = EF.toMatrix ef
-      ef'm = EF.toMatrix ef'
-      etm =  ET.toMatrix et
-      im = M.identityMatrix (EF.nmbRows ef P.- ET.nmbRows et)
-    in M.blockSum etm im * efm == ef'm
+recombineReducedEF p m =
+  withNModContext p $ \(_ :: ReifiesNModContext ctx => Proxy ctx) ->
+    let mNMod = fmap toNMod m :: Matrix (NMod ctx)
+        PLEHook _ _ e = ple mNMod
+        RREF r e' = rref e
+        im = M.one (EF.nmbRows e P.- ET.nmbRows r) :: Matrix (NMod ctx)
+    in  (M.blockSum (toMatrix r) im) * toMatrix e == toMatrix e'

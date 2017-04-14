@@ -12,22 +12,21 @@ import qualified Test.Tasty.QuickCheck as QC
 import Test.Tasty
 
 import HLinear.Test.Utils
-
-import HLinear.Matrix
+import HLinear.Matrix as M
 
 
 properties :: TestTree
 properties = testGroup "Basic properties"
-  [ testProperty "zeroMatrix ! ix ! jx == 0" $
+  [ testProperty "zero matrix ! ix ! jx == 0" $
       \ix jx nrs ncs ->
         0 ==
-        (zeroMatrix (ix+1+nrs) (jx+1+ncs) :: Matrix Int)
+        (M.zero (ix+1+nrs) (jx+1+ncs) :: Matrix Int)
         ! fromIntegral ix V.! fromIntegral jx
 
-  , testProperty "zeroMatrix !? ix == Nothing" $
+  , testProperty "zero matrix !? ix == Nothing" $
       \ix nrs ncs ->
         isNothing
-        ( (zeroMatrix nrs ncs :: Matrix Int) !? fromIntegral (nrs+ix) )
+        ( (M.zero nrs ncs :: Matrix Int) !? fromIntegral (nrs+ix) )
 
   , testPropertyMatrix "m == m" $
       \m -> (m :: Matrix Int) == m

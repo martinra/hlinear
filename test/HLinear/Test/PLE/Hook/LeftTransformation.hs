@@ -23,6 +23,7 @@ import Test.Vector
 
 import HLinear.PLE.Hook
 import HLinear.PLE.Hook.LeftTransformation as LT
+import HLinear.Matrix ( Matrix(..) )
 import qualified HLinear.Matrix as M
 
 import HLinear.Test.Utils
@@ -39,15 +40,16 @@ leftTransformationUnitTests :: TestTree
 leftTransformationUnitTests =
   testGroup "Unit Tests"
   [ HU.testCase "toMatrix trivial" $
-      let lt = LeftTransformation 2 V.empty
-      in toMatrix lt @?= M.fromListsUnsafe
+      let lt = LeftTransformation 2 V.empty :: LeftTransformation Rational
+      in  M.toMatrix lt @?= M.fromListsUnsafe
                            ([[1,0], [0,1]] :: [[Rational]])
 
   , HU.testCase "toMatrix diagonal" $
       let lt = LeftTransformation 2 $ V.fromList
                  [ LeftTransformationColumn 0 (nonZero 2) $ V.fromList [0]
                  , LeftTransformationColumn 1 (nonZero (1%3)) V.empty ]
-      in toMatrix lt @?= M.fromListsUnsafe
+                 :: LeftTransformation Rational
+      in  M.toMatrix lt @?= M.fromListsUnsafe
                            ([[2,0], [0,1%3]] :: [[Rational]])
 
   , HU.testCase "toMatrix unipotent" $
@@ -56,7 +58,8 @@ leftTransformationUnitTests =
                  , LeftTransformationColumn 1 (nonZero 1) $ V.fromList [1%7]
                  , LeftTransformationColumn 2 (nonZero 1) V.empty
                  ]
-      in toMatrix lt @?= M.fromListsUnsafe
+                 :: LeftTransformation Rational
+      in  M.toMatrix lt @?= M.fromListsUnsafe
                            ([[1,0,0], [3%8,1,0], [9%14,1%7,1]] :: [[Rational]])
 
   , HU.testCase "toMatrix general" $
@@ -65,16 +68,17 @@ leftTransformationUnitTests =
                  , LeftTransformationColumn 1 (nonZero $ 3%2) $ V.fromList [1%7]
                  , LeftTransformationColumn 2 (nonZero $ 8%14) V.empty
                  ]
-      in toMatrix lt @?= M.fromListsUnsafe
+                 :: LeftTransformation Rational
+      in  M.toMatrix lt @?= M.fromListsUnsafe
                            ([[7%5,0,0], [21%40,3%2,0], [9%10,3%14,8%14]] :: [[Rational]])
   ]
 
 leftTransformationProperties :: TestTree
 leftTransformationProperties =
-  testGroup "Properties" $
+  testGroup "Properties"
     [ testPropertyMatrixSC "toMatrix * toInverseMatrix" $
-        \lt -> let m = toMatrix (lt :: LeftTransformation Rational)
-                   mi = toInverseMatrix lt
+        \lt -> let m = M.toMatrix (lt :: LeftTransformation Rational) :: Matrix Rational
+                   mi = M.toMatrix $ recip lt
                    nrs = fromIntegral $ LT.nmbRows lt
-               in m * mi == M.identityMatrix nrs
+               in m * mi == M.one nrs
     ]
