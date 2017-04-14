@@ -79,8 +79,8 @@ pleFoldUnfold :: Matrix FMPQ -> PLEHook FMPQ
 pleFoldUnfold m@(Matrix nrs ncs rs) =
     V.foldl (*)
     ( PLEHook one
-              ( LT.fromDiagonal $ V.map (NonZero . fromDenominator) ds )
-              ( EF.zeroEF nrs ncs) )
+              ( LT.diagonal $ V.map (NonZero . fromDenominator) ds )
+              ( EF.zero nrs ncs) )
     ( V.unfoldr splitOffHook (MatrixFractionFree mnum one) )
   where
     (mnum :: Matrix FMPZ, ds :: Vector (NonZero FMPZ)) = toFractionFreeMatrixRowwise m
@@ -92,7 +92,7 @@ splitOffHook (MatrixFractionFree m@(Matrix nrs ncs rs) den)
   | nrs == 0 || ncs == 0 = Nothing
   | otherwise            = Just $
       case V.findIndex ((not . isZero) . V.head) rs of
-        Nothing  -> ( PLEHook one (LT.one nrs) $ EF.zeroEF nrs ncs
+        Nothing  -> ( PLEHook one (LT.one nrs) $ EF.zero nrs ncs
                     , MatrixFractionFree (Matrix nrs (pred ncs) $ V.map V.tail rs) den
                     )
         Just pIx -> ( PLEHook p lt ef

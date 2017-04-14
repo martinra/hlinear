@@ -18,7 +18,8 @@ import Control.DeepSeq ( NFData(..) )
 import Data.Maybe
 import Data.Vector ( Vector(..) )
 import qualified Data.Vector as V
-import Math.Structure
+import Math.Structure hiding (zero )
+import qualified Math.Structure as MS
 import Numeric.Natural ( Natural )
 import Safe ( atMay )
 
@@ -28,34 +29,10 @@ import HLinear.PLE.Hook.EchelonForm.PivotStructure ( rank )
 import qualified HLinear.PLE.Hook.EchelonForm.Row as EFR
 import HLinear.PLE.Hook.EchelonForm.Row ( EchelonFormRow(..) )
 
--- properties
 
-offset :: EchelonForm a -> Natural
-offset (EchelonForm nrs _ rs)
-  | V.null rs = nrs
-  | otherwise = EFR.offset $ V.head rs
-                      
--- access and conversion
-
-atRow :: AdditiveMonoid a => EchelonForm a -> Int -> Vector a
-atRow (EchelonForm nrs ncs rs) ix
-  | ix >= nrsZ  = error  "EchelonForm.atRow: out of range"
-  | otherwise   = maybe (V.replicate ncsZ zero) EFR.toVector $ rs V.!? ix
-  where
-    nrsZ = fromIntegral nrs
-    ncsZ = fromIntegral ncs
-
-atCol :: AdditiveMonoid a => EchelonForm a -> Int -> Vector a
-atCol (EchelonForm nrs ncs rs) ix
-  | ix >= ncsZ = error "EchelonForm.atCol: out of range"
-  | otherwise  = V.map (EFR.! ix) rs
-                 V.++
-                 V.replicate (nrsZ - V.length rs) zero
-    where
-      nrsZ = fromIntegral nrs
-      ncsZ = fromIntegral ncs
-
+--------------------------------------------------------------------------------
 -- Eq, Show, and NFData
+--------------------------------------------------------------------------------
 
 deriving instance Show a => Show (EchelonForm a)
 
@@ -69,7 +46,46 @@ instance NFData a => NFData (EchelonForm a) where
     seq (rnf ncs) $
     seq (V.map rnf rs) ()
 
+--------------------------------------------------------------------------------
+-- attributes
+--------------------------------------------------------------------------------
+
+offset :: EchelonForm a -> Natural
+offset (EchelonForm nrs _ rs)
+  | V.null rs = nrs
+  | otherwise = EFR.offset $ V.head rs
+                      
+at :: AdditiveMonoid a => EchelonForm a -> Int -> Int -> a
+at (EchelonForm nrs ncs rs) ix jx
+  | ix >= nrsZ  = error  "EchelonForm.at: row index out of range"
+  | otherwise   =
+      let getFromRow (EchelonFormRow o r) =
+            fromMaybe MS.zero $ r V.!? (jx - fromIntegral o)
+      in  maybe MS.zero getFromRow $ rs V.!? ix
+  where
+    nrsZ = fromIntegral nrs
+
+atRow :: AdditiveMonoid a => EchelonForm a -> Int -> Vector a
+atRow (EchelonForm nrs ncs rs) ix
+  | ix >= nrsZ  = error  "EchelonForm.atRow: out of range"
+  | otherwise   = maybe (V.replicate ncsZ MS.zero) EFR.toVector $ rs V.!? ix
+  where
+    nrsZ = fromIntegral nrs
+    ncsZ = fromIntegral ncs
+
+atCol :: AdditiveMonoid a => EchelonForm a -> Int -> Vector a
+atCol (EchelonForm nrs ncs rs) ix
+  | ix >= ncsZ = error "EchelonForm.atCol: out of range"
+  | otherwise  = V.map (EFR.! ix) rs
+                 V.++
+                 V.replicate (nrsZ - V.length rs) MS.zero
+    where
+      nrsZ = fromIntegral nrs
+      ncsZ = fromIntegral ncs
+
+--------------------------------------------------------------------------------
 -- conversion
+--------------------------------------------------------------------------------
 
 instance AdditiveMonoid a => IsMatrix (EchelonForm a) a where
   toMatrix (EchelonForm nrs ncs rs) = Matrix nrs ncs rs'
@@ -77,18 +93,14 @@ instance AdditiveMonoid a => IsMatrix (EchelonForm a) a where
       hrs = V.map EFR.row rs
       rs' = V.map EFR.toVector rs V.++ zeros
       zeros = V.replicate (fromIntegral nrs - V.length rs)
-                          (V.replicate (fromIntegral ncs) zero)
+                          (V.replicate (fromIntegral ncs) MS.zero)
 
+--------------------------------------------------------------------------------
 -- creation
+--------------------------------------------------------------------------------
 
-zeroEF :: Natural -> Natural -> EchelonForm a
-zeroEF nrs ncs = EchelonForm nrs ncs V.empty
-
-singletonLeadingOne
-  :: MultiplicativeMonoid a
-  => Natural -> Natural -> Vector a
-  -> EchelonForm a
-singletonLeadingOne nrs o v = singleton nrs o $ one `V.cons` v
+zero :: Natural -> Natural -> EchelonForm a
+zero nrs ncs = EchelonForm nrs ncs V.empty
 
 singleton
   :: Natural -> Natural -> Vector a
@@ -98,7 +110,15 @@ singleton nrs o v = EchelonForm nrs nv $
   where
     nv = fromIntegral $ V.length v
 
+singletonLeadingOne
+  :: MultiplicativeMonoid a
+  => Natural -> Natural -> Vector a
+  -> EchelonForm a
+singletonLeadingOne nrs o v = singleton nrs o $ one `V.cons` v
+
+--------------------------------------------------------------------------------
 -- submatrices
+--------------------------------------------------------------------------------
 
 splitAt :: Int -> EchelonForm a -> (EchelonForm a, EchelonForm a)
 splitAt ix (EchelonForm nrs ncs rs) =
@@ -143,7 +163,9 @@ splitAtHook (pivotRow,pivotCol) ef@(EchelonForm nrs ncs rs)
     pivotRowN = fromIntegral pivotRow
     pivotColN = fromIntegral pivotCol
 
+--------------------------------------------------------------------------------
 -- block sums
+--------------------------------------------------------------------------------
 
 blockSum
   :: AdditiveMonoid a
@@ -163,7 +185,7 @@ blockSum
 
       (rs1,rs2) = V.splitAt nrs'Z rs
       zerors = V.replicate (V.length rs2) $
-                V.replicate ncs'Z zero
+                V.replicate ncs'Z MS.zero
 
 blockSumHook
   :: EchelonForm a -> Matrix a -> EchelonForm a

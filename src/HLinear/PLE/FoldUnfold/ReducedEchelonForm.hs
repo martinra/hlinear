@@ -39,7 +39,7 @@ reducedEchelonForm ef =
     firstReduction = EchelonReduction
                        (ET.identityET nrs)
                        (M.zero nrs 0)
-                       (EF.zeroEF 0 0)
+                       (EF.zero 0 0)
     pivots = EF.pivotStructure ef
     nrs = EF.nmbRows ef
     ncs = EF.nmbCols ef
@@ -86,4 +86,3 @@ reduceLastPivot ( ef@(EchelonForm nrs ncs rs), PivotStructure pivots )
           ef
       , (EchelonForm 0 0 V.empty, PivotStructure S.empty)
       )
-  

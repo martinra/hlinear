@@ -74,22 +74,34 @@ instance NFData a => NFData (LeftTransformation a) where
 one :: Natural -> LeftTransformation a
 one nrs = LeftTransformation nrs V.empty
 
-fromDiagonal :: Vector (NonZero a) -> LeftTransformation a
-fromDiagonal ds = LeftTransformation nrs $ flip V.imap ds $ \ix d ->
+diagonal :: Vector (NonZero a) -> LeftTransformation a
+diagonal ds = LeftTransformation nrs $ flip V.imap ds $ \ix d ->
                     LeftTransformationColumn ix d V.empty
   where
     nrsZ = V.length ds 
     nrs = fromIntegral nrsZ
 
--- todo: rename singleton
-fromVector' :: DecidableZero a
-            => Vector a -> LeftTransformation a
-fromVector' v = LeftTransformation nrs $ V.singleton $
-                  LeftTransformationColumn 0 a c
-  where
-  nrs = fromIntegral $ V.length v
-  a = nonZero $ V.head v
-  c = V.tail v
+singleton ::
+  NonZero a -> Vector a -> LeftTransformation a
+singleton a v =
+  LeftTransformation (fromIntegral $ 1 + V.length v) $
+    V.singleton $ LeftTransformationColumn 0 a v
+
+singletonAdditive ::
+     Rig a
+  => Vector a -> LeftTransformation a
+singletonAdditive = singleton (NonZero MS.one)
+
+singletonMultiplicative ::
+     (AdditiveMonoid a, DecidableZero a)
+  => NonZero a -> Natural -> LeftTransformation a
+singletonMultiplicative a nrs_pred =
+  singleton a $ V.replicate (fromIntegral nrs_pred) zero
+
+fromVector ::
+     DecidableZero a
+  => Vector a -> LeftTransformation a
+fromVector v = singleton (nonZero $ V.head v) (V.tail v)
 
 --------------------------------------------------------------------------------
 -- conversion

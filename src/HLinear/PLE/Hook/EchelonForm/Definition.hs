@@ -13,6 +13,7 @@ import HLinear.PLE.Hook.EchelonForm.Row
 --   corresponds to
 --     0 v v v v ...
 --     0 0 0 v v ...
+
 data EchelonForm a =
   EchelonForm
     { nmbRows :: Natural
