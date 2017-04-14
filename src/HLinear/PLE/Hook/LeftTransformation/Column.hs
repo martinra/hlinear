@@ -43,7 +43,9 @@ data LeftTransformationColumn a =
     , tail :: Vector a
     }
 
--- lenght and offset
+--------------------------------------------------------------------------------
+-- attributes
+--------------------------------------------------------------------------------
 
 length :: LeftTransformationColumn a -> Int
 length (LeftTransformationColumn s _ v) = s + 1 + V.length v
@@ -64,11 +66,15 @@ shiftOffset :: Int -> LeftTransformationColumn a
 shiftOffset s (LeftTransformationColumn o a vs) =
   LeftTransformationColumn (o+s) a vs
 
+--------------------------------------------------------------------------------
 -- access and conversion
+--------------------------------------------------------------------------------
 
-(!) :: LeftTransformationColumn a -> Int -> a
+(!) ::
+     AdditiveMonoid a
+  => LeftTransformationColumn a -> Int -> a
 (!) (LeftTransformationColumn o a v) ix
-  | ix < o    = error "LeftTransformationColumn.(!): out of range"
+  | ix < o    = zero
   | ix == o   = fromNonZero a
   | otherwise = v V.! (ix - o - 1)
 
