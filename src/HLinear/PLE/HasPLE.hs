@@ -50,7 +50,7 @@ instance
   where
     type RREF (PLEHook a) = H.RREF a
 
-    rref (PLEHook _ _ e) = REF.reducedEchelonForm e
+    rref (PLEHook _ _ e) = rref e
 
 instance
      ( DivisionRing a, DecidableZero a )
@@ -62,3 +62,11 @@ instance
       let h@(PLEHook p l e) = ple m
           H.RREF r e' = rref h
       in  PLREHook p l r e'
+
+instance
+     ( DivisionRing a, DecidableZero a )
+  => HasRREF (EchelonForm a)
+  where
+    type RREF (EchelonForm a) = H.RREF a
+
+    rref = REF.reducedEchelonForm
