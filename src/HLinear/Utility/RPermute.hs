@@ -4,8 +4,14 @@
   , MultiParamTypeClasses
   #-}
 
-module HLinear.PLE.Hook.RPermute
+module HLinear.Utility.RPermute
 where
+
+--------------------------------------------------------------------------------
+-- RPermute models permutations that act on vectors that are indexed in reverse
+-- order. More precisely, the indices of vectors are ... 3 2 1 instead of
+-- 1 2 3 ...
+--------------------------------------------------------------------------------
 
 import qualified Prelude as P
 import Prelude hiding ( (+), (-), negate, subtract
@@ -25,10 +31,12 @@ import HLinear.Utility.Permute
 import HLinear.Matrix hiding ( zero, one )
 
 
--- right permutations, i.e. action on vectors with indices ... 3 2 1
--- instead of 1 2 3 ...
 newtype RPermute = RPermute Permute
   deriving ( Show, NFData )
+
+--------------------------------------------------------------------------------
+-- Eq, Ord instances
+--------------------------------------------------------------------------------
 
 instance Eq RPermute where
   p == p' = compare p p' == EQ
@@ -45,6 +53,20 @@ instance Ord RPermute where
       cp = toVectorSize maxnp rp :: Vector Int
       cp' = toVectorSize maxnp rp' :: Vector Int
 
+---------------------------------------------------------------------------------
+-- attributes
+---------------------------------------------------------------------------------
+
+size :: RPermute -> Int
+size (RPermute p) = P.size p
+
+at :: RPermute -> Int -> Int -> Int
+at (RPermute p) n ix = n-1 - P.at p (n-1 - ix)
+
+---------------------------------------------------------------------------------
+-- creation and conversion
+---------------------------------------------------------------------------------
+
 rpermute :: Int -> RPermute
 rpermute n = RPermute $ P.permute n
 
@@ -57,12 +79,6 @@ toPermute (RPermute p) =
   P.swapsPermute n [(n-a,n-b) | (a,b) <- P.swaps p]
     where
     n = P.size p
-
-size :: RPermute -> Int
-size (RPermute p) = P.size p
-
-at :: RPermute -> Int -> Int -> Int
-at (RPermute p) n ix = n-1 - P.at p (n-1 - ix)
 
 instance Ring a => IsMatrix RPermute a where
   toMatrix p = Matrix np np $

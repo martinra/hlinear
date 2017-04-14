@@ -12,7 +12,7 @@ import qualified Data.Vector as V
 import Math.Structure
 
 import HLinear.PLE.Hook.Definition
-import HLinear.PLE.Hook.RPermute ()
+import HLinear.Utility.RPermute ()
 import HLinear.PLE.Hook.EchelonForm ()
 import HLinear.PLE.Hook.LeftTransformation ()
 

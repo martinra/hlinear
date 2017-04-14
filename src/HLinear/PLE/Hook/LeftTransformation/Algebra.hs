@@ -24,22 +24,25 @@ import Numeric.Natural ( Natural )
 import qualified Data.Vector as V
 
 import HLinear.Matrix ( Matrix(..) )
-import HLinear.PLE.Hook.LeftTransformation.Basic as LT
+import qualified HLinear.PLE.Hook.LeftTransformation.Basic as LT
 import HLinear.PLE.Hook.LeftTransformation.Column hiding ( one, isOne )
 import HLinear.PLE.Hook.LeftTransformation.Definition
-import HLinear.PLE.Hook.RPermute
+import HLinear.Utility.RPermute
 import qualified HLinear.Matrix.Algebra as M
 import qualified HLinear.PLE.Hook.LeftTransformation.Column as LTC
 
+--------------------------------------------------------------------------------
+-- permutation action
+--------------------------------------------------------------------------------
 
--- partially defined permutation action
-instance MultiplicativeSemigroupLeftAction
-           RPermute
-           (LeftTransformation a)
-  where
+instance MultiplicativeSemigroupLeftAction RPermute (LeftTransformation a) where
   p *. (LeftTransformation nrs cs) = LeftTransformation nrs $ V.map (p*.) cs
 
+instance MultiplicativeLeftAction RPermute (LeftTransformation a)
+
+--------------------------------------------------------------------------------
 -- product structure
+--------------------------------------------------------------------------------
 
 instance    ( DivisionRing a, DecidableZero a )
          => MultiplicativeMagma (LeftTransformation a) where

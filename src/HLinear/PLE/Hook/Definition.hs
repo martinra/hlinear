@@ -19,7 +19,7 @@ import HLinear.Matrix ( Matrix, IsMatrix(..) )
 import HLinear.PLE.Hook.EchelonForm as EF
 import HLinear.PLE.Hook.EchelonTransformation as ET
 import HLinear.PLE.Hook.LeftTransformation as LT
-import HLinear.PLE.Hook.RPermute as RP
+import HLinear.Utility.RPermute as RP
 
 
 data PLEHook a =

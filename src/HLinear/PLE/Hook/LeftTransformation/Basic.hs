@@ -20,7 +20,8 @@ import Control.DeepSeq ( NFData(..) )
 import Data.Maybe
 import Data.Vector ( Vector(..) )
 import qualified Data.Vector as V
-import Math.Structure
+import Math.Structure hiding ( one )
+import qualified Math.Structure as MS
 import Numeric.Natural ( Natural )
 
 
@@ -28,7 +29,7 @@ import HLinear.Matrix ( Matrix(..), IsMatrix(..) )
 import HLinear.PLE.Hook.LeftTransformation.Column hiding ( one, isOne )
 import qualified HLinear.PLE.Hook.LeftTransformation.Column as LTC
 import HLinear.PLE.Hook.LeftTransformation.Definition
-import HLinear.PLE.Hook.RPermute
+import HLinear.Utility.RPermute
 
 
 nmbCols :: LeftTransformation a -> Natural
@@ -70,8 +71,8 @@ instance NFData a => NFData (LeftTransformation a) where
 -- creation
 --------------------------------------------------------------------------------
 
-identityLT :: Natural -> LeftTransformation a
-identityLT nrs = LeftTransformation nrs V.empty
+one :: Natural -> LeftTransformation a
+one nrs = LeftTransformation nrs V.empty
 
 fromDiagonal :: Vector (NonZero a) -> LeftTransformation a
 fromDiagonal ds = LeftTransformation nrs $ flip V.imap ds $ \ix d ->
@@ -99,7 +100,7 @@ instance Ring a => IsMatrix (LeftTransformation a) a where
     Matrix nrs nrs $
       V.generate nrs' $ \ix ->
       V.generate nrs' $ \jx ->
-        let a = maybe one LTC.head $ cs V.!? jx
+        let a = maybe MS.one LTC.head $ cs V.!? jx
         in
         case compare ix jx of
           LT -> zero
@@ -115,7 +116,7 @@ instance Ring a => IsMatrix (LeftTransformation a) a where
 splitAt :: Int -> LeftTransformation a
         -> (LeftTransformation a, LeftTransformation a)
 splitAt ix lt@(LeftTransformation nrs cs)
-  | ix >= ncs = (lt, identityLT nrs')
+  | ix >= ncs = (lt, one nrs')
   | otherwise =
       let (csLeft, csRight) = V.splitAt ix cs
       in ( LeftTransformation nrs csLeft

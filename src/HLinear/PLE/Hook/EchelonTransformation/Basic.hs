@@ -23,7 +23,7 @@ import Numeric.Natural ( Natural )
 import HLinear.Matrix ( Matrix(..), IsMatrix(..) )
 import HLinear.PLE.Hook.EchelonTransformation.Column
 import qualified HLinear.PLE.Hook.EchelonTransformation.Column as ETC
-import HLinear.PLE.Hook.RPermute
+import HLinear.Utility.RPermute
 
 
 -- | An echelon transformation preserves Echelon forms, and thus is of the form

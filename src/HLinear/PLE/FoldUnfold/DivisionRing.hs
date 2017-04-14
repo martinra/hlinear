@@ -22,8 +22,8 @@ import Math.Structure
 import Numeric.Natural
 
 import HLinear.PLE.Hook
-import qualified HLinear.PLE.Hook.RPermute as RP
-import HLinear.PLE.Hook.RPermute ( RPermute(..) )
+import qualified HLinear.Utility.RPermute as RP
+import HLinear.Utility.RPermute ( RPermute(..) )
 import qualified HLinear.PLE.Hook.EchelonForm as EF
 import HLinear.PLE.Hook.EchelonForm ( EchelonForm(..) )
 import qualified HLinear.PLE.Hook.LeftTransformation as LT
@@ -38,7 +38,7 @@ pleFoldUnfold
   => Matrix a -> PLEHook a
 pleFoldUnfold m@(Matrix nrs ncs _) =
   V.foldl (*)
-  ( PLEHook one (LT.identityLT nrs) (EF.zeroEF nrs ncs) )
+  ( PLEHook one (LT.one nrs) (EF.zeroEF nrs ncs) )
   ( V.unfoldr splitOffHook m )
 
 
@@ -49,7 +49,7 @@ splitOffHook m@(Matrix nrs ncs rs)
   | nrs == 0 || ncs == 0 = Nothing
   | otherwise            = Just $
       case V.findIndex ((not . isZero) . V.head) rs of
-        Nothing  -> ( PLEHook one (LT.identityLT nrs) $ EF.zeroEF nrs ncs
+        Nothing  -> ( PLEHook one (LT.one nrs) $ EF.zeroEF nrs ncs
                     , Matrix nrs (pred ncs) $ V.map V.tail rs
                     )
         Just pIx -> ( PLEHook p lt ef
