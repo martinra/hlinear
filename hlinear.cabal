@@ -30,6 +30,7 @@ library
     HLinear.Matrix.Basic
     HLinear.Matrix.Definition
     HLinear.Matrix.QuickCheck
+    HLinear.Matrix.Sized
     HLinear.Matrix.SmallCheck
     HLinear.Matrix.Block
 
@@ -88,6 +89,7 @@ library
     , split
     , transformers
     , vector
+    , vector-test
 
 
 -- These are dependencies of other sections, which we include so that
