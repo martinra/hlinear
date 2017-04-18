@@ -29,16 +29,20 @@ import System.Random ( randomIO )
 
 import HFlint.NMod ( ReifiesNModContext, NMod, Modulus(..), modulus )
 
-import HLinear.Matrix ( Matrix(..) )
+import HLinear.Matrix ( Matrix(..), toMatrix )
 import qualified HLinear.PLE.Hook.EchelonForm as EF
 import HLinear.PLE.Hook.EchelonForm.Definition ( EchelonForm(..) )
 import HLinear.PLE.Hook.EchelonForm.Row ( EchelonFormRow(..) )
 import qualified HLinear.PLE.Hook.LeftTransformation as LT
 import HLinear.PLE.Hook.LeftTransformation.Definition( LeftTransformation(..) )
 import HLinear.PLE.Hook.LeftTransformation.Column ( LeftTransformationColumn(..) )
-import qualified HLinear.PLE.Hook.RPermute as RP
-import HLinear.PLE.Hook.RPermute ( RPermute(..) )
+import qualified HLinear.Utility.RPermute as RP
+import HLinear.Utility.RPermute ( RPermute(..) )
 
+
+--------------------------------------------------------------------------------
+-- distributions
+--------------------------------------------------------------------------------
 
 instance Distribution Uniform Natural where
   rvar (Uniform l u) = fromInteger <$> rvar (Uniform (fromIntegral $ max 0 l) (fromIntegral u))
@@ -51,6 +55,9 @@ instance ReifiesNModContext ctxProxy => Distribution StdUniform (NMod ctxProxy) 
     where
     Modulus n = modulus (Proxy :: Proxy ctxProxy)
 
+--------------------------------------------------------------------------------
+-- random variables
+--------------------------------------------------------------------------------
 
 rMatrix :: Distribution d a => Natural -> Natural -> d a -> RVar (Matrix a)
 rMatrix nrs ncs d =
@@ -68,7 +75,6 @@ rQQbd denFactors dnum = do
   nmbDenFactors <- rvar $ Uniform 0 (length denFactors)
   den <- foldl (*) 1 <$> RE.sample nmbDenFactors denFactors
   return $ fromInteger num / fromIntegral den
-
 
 rMatrixQQbd
   :: ( Distribution dnum Integer, Distribution dden Natural )
@@ -88,7 +94,7 @@ rMatrixQQbdLE nrs ncs dnum nden dden = do
   p <- rPermutation nrs
   lt <- rLeftTransformationQQbd nrs dnum nden dden
   ef <- rEchelonFormQQbd nrs ncs dnum nden dden 
-  return $ RP.toMatrix p * LT.toMatrix lt * EF.toMatrix ef
+  return $ toMatrix p * toMatrix lt * toMatrix ef
 
 rPermutation ::
   Natural -> RVar RPermute

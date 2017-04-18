@@ -17,6 +17,7 @@ import Control.DeepSeq ( NFData )
 import Control.Exception ( tryJust )
 import Control.Monad ( guard )
 import Criterion.Main
+import Criterion.Types ( Config(..), Verbosity(..) )
 import qualified Data.Binary as B
 import Data.Maybe
 import Data.Proxy
@@ -28,14 +29,13 @@ import System.FilePath
 import System.IO.Error ( isDoesNotExistError )
 
 import HFlint.FMPQ
-import HFlint.FMPQMat as FMPQMat
+import qualified HFlint.FMPQMat as FMPQMat
 import HFlint.NMod
 
 import HLinear.Bench.Example
   ( increasingFractionsMatrix
   , uniformRandomMatrixQQbd
   , uniformRandomMatrixQQbdLE
-  , uniformRandomMatrixFp
   )
 import HLinear.Bench.Conversion ( toFMPQMat )
 import HLinear.Matrix as M
@@ -45,85 +45,21 @@ import HLinear.PLE.ReducedEchelonForm as REF
 import HLinear.PLE
 
 main :: IO ()
-main = defaultMain
-  [
---    env ( toFMPQMat <$> uQQMatrix ) $ \mat ->
---    bgroup "FMPQMat" (bgroupFlint mat)
---
---  , env ( toFMPQMat <$> uQQbdMatrix ) $ \mat ->
---    bgroup "FMPQMat (bounded denominator)" (bgroupFlint mat)
---
---  , env ( toFMPQMat <$> incQQMatrix ) $ \mat ->
---    bgroup "FMPQMat (increasing fractions)" (bgroupFlint mat)
-
---  , env ( fmap fromRational <$> uQQMatrix :: IO (Matrix FMPQ) ) $ \mat ->
---    bgroup "Matrix FMPQ" (bgroupHlinearFMPQ mat)
-
-    env ( fmap fromRational <$> uQQbdMatrix :: IO (Matrix FMPQ) ) $ \mat ->
-    bgroup "Matrix FMPQ (bounded denominator)" (bgroupHlinearFMPQ mat)
-
---  , env ( fmap fromRational <$> incQQMatrix :: IO (Matrix FMPQ) ) $ \mat ->
---    bgroup "Matrix FMPQ (increasing fractions)" (bgroupHlinearFMPQ mat)
-
---  , env ( uQQMatrix :: IO (Matrix Rational) ) $ \mat ->
---    bgroup "Matrix Rational" (bgroupHlinear mat)
-
---  , env ( uQQbdMatrix :: IO (Matrix Rational) ) $ \mat ->
---    bgroup "Matrix Rational (bounded denominator)" (bgroupHlinear mat)
-
---  , withNModContext 7 $ \(proxy :: Proxy ctxProxy) ->
---    env ( uFpMatrix proxy ) $ \mat ->
---    bgroup "Matrix Fp(7)" (bgroupHlinear mat)
+main = defaultMainWith
+  defaultConfig { csvFile = Just "benchmarks.csv" } $
+  [ env (matenv mx) $ \mat ->
+      bench ("rref" ++ show mx) $ nf rref mat
+  | mx <- [1..maxmx]
+  ] ++
+  [ env (toFMPQMat <$> matenv mx) $ \mat ->
+      bench ("FLINTrref" ++ show mx) $ nf rref mat
+  | mx <- [1..maxmx]
   ]
-
   where
---    matSize = 200
-    snum = 10
-    nden = 5
-    sden = 4
-
---    uQQMatrix = uniformRandomMatrixQQbd 20 30 snum nden sden
-    uQQbdMatrix = uniformRandomMatrixQQbdLE 20 30 snum nden sden
-
---    incQQMatrix = increasingFractionsMatrix 200 300
---    uFpMatrix :: Proxy ctxProxy -> IO ( Matrix (NMod ctxProxy) )
---    uFpMatrix _ = uniformRandomMatrixFp matSize matSize
-
-    bgroupFlint :: FMPQMat -> [Benchmark]
-    bgroupFlint mat =
-      [ bench "rref" $ nf rref mat
-      ]
-
-    bgroupHlinearFMPQ mat =
-      [
---        bench "ple matrices"   $ nf pleMatricesFMPQ mat
---      , bench "ef matrix" $ nf pleEchelonMatrixFMPQ mat
---      , bench "efff matrix" $ nf pleEchelonFFMatrixFMPQ mat
---        bench "rref matrix"    $ nf pleReducedEchelonMatrixFMPQ mat
-        bench "rrefff matrix"    $ nf pleReducedEchelonFFMatrixFMPQ mat
-      ]
-
---    pleMatricesFMPQ = Hk.toMatrices . unPLEDecomposition . pleDecompositionFoldUnfold
---    pleFFMatricesFMPQ = Hk.toMatrices . unPLEDecomposition . pleDecompositionFoldUnfoldFractionFree
---    pleEchelonMatrixFMPQ = sel3 . pleMatricesFMPQ
---    pleEchelonFFMatrixFMPQ = sel3 . pleFFMatricesFMPQ
---    pleReducedEchelonMatrixFMPQ =
---         EF.toMatrix . snd . REF.reducedEchelonForm
---       . Hk.echelonForm . unPLEDecomposition . pleDecompositionFoldUnfold
-
-    pleReducedEchelonFFMatrixFMPQ =
-         EF.toMatrix . snd . REF.reducedEchelonForm
-       . Hk.echelonForm . unPLEDecomposition . pleDecompositionFoldUnfoldFractionFree
-
---     bgroupHlinear mat =
---       [
--- --        bench "ple matrices"   $ nf pleMatrices mat
--- --      , bench "echelon matrix" $ nf pleEchelonMatrix mat
---         bench "rref matrix"    $ nf pleReducedEchelonMatrix mat
---       ]
---
---     pleMatrices = Hk.toMatrices . unPLEDecomposition . pleDecomposition
---     pleEchelonMatrix = sel3 . pleMatrices
---     pleReducedEchelonMatrix =
---          EF.toMatrix . snd . REF.reducedEchelonForm
---        . Hk._echelon . unPLEDecomposition . pleDecomposition
+    matenv mx = uniformRandomMatrixQQbd   mx nrs ncs snum nden sden 
+    maxmx = 50
+    nrs = 100
+    ncs = 1000
+    snum = 20
+    nden = 4
+    sden = 2

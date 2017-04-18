@@ -152,7 +152,7 @@ benchmark bench-hlinear
     -threaded
 
   main-is:
-    HLinear/ClockBench.hs
+    HLinear/Bench.hs
 
   build-depends:
       base

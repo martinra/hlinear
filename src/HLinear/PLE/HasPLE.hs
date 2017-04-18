@@ -7,6 +7,7 @@ module HLinear.PLE.HasPLE
 where
 
 import HFlint.FMPQ
+import qualified HFlint.FMPQMat as FMPQMat
 import Math.Structure ( DivisionRing, DecidableZero )
 import HLinear.PLE.Hook.EchelonForm ( EchelonForm )
 import HLinear.PLE.Hook.EchelonTransformation ( EchelonTransformation )
@@ -70,3 +71,8 @@ instance
     type RREF (EchelonForm a) = H.RREF a
 
     rref = REF.reducedEchelonForm
+
+instance HasRREF FMPQMat.FMPQMat where
+  type RREF FMPQMat.FMPQMat = FMPQMat.FMPQMat
+
+  rref = FMPQMat.rref

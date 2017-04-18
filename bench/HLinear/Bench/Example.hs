@@ -36,6 +36,9 @@ import HLinear.Bench.Random
 import HLinear.PLE as PLE
 import HLinear.Matrix as M
 
+--------------------------------------------------------------------------------
+-- special matrices
+--------------------------------------------------------------------------------
 
 increasingFractionsMatrix
   :: ( Binary a, Fractional a, Ring a )
@@ -60,6 +63,41 @@ increasingFractionsMatrix nrs ncs = do
             ncsQ = fromIntegral ncs
         in (ixQ^2 + 2) P./ ((ncsQ-jxQ)^3 + 1)
 
+--------------------------------------------------------------------------------
+-- matrices with uniformly distributed entries
+--------------------------------------------------------------------------------
+
+uniformRandomMatrixQQbd
+  :: Int -> Natural -> Natural -> Natural -> Natural -> Natural -> IO (Matrix Rational)
+uniformRandomMatrixQQbd mx nrs ncs snum nden sden =
+  loadOrCreate
+    ( rMatrixQQbd nrs ncs
+        (uniformFromSize snum)
+        nden (uniformPositiveFromSize sden)
+    ) $
+    "." </> "bench_data" </>
+       "mat_qqdb_mx" ++ show mx
+    ++ "_nrs" ++ show nrs ++ "_ncs" ++ show ncs
+    ++ "_snum" ++ show snum
+    ++ "_nden" ++ show nden ++ "_sden" ++ show sden <.> "mat"
+
+uniformRandomMatrixQQbdLE
+  :: Int -> Natural -> Natural -> Natural -> Natural -> Natural -> IO (Matrix Rational)
+uniformRandomMatrixQQbdLE mx nrs ncs snum nden sden =
+  loadOrCreate
+    ( rMatrixQQbdLE nrs ncs
+        (uniformFromSize snum)
+        nden (uniformPositiveFromSize sden)
+    ) $
+    "." </> "bench_data" </>
+       "mat_qqdble_mx" ++ show mx
+    ++ "_nrs" ++ show nrs ++ "_ncs" ++ show ncs
+    ++ "_snum" ++ show snum
+    ++ "_nden" ++ show nden ++ "_sden" ++ show sden <.> "mat"
+
+--------------------------------------------------------------------------------
+-- utility
+--------------------------------------------------------------------------------
 
 loadOrCreate :: Binary a => RVar a -> FilePath -> IO a
 loadOrCreate a fileName = do
@@ -71,46 +109,10 @@ loadOrCreate a fileName = do
       return a'
     Right a' -> return a'
 
-uniformRandomMatrixFp
-  :: forall ctxProxy
-  .  ReifiesNModContext ctxProxy
-  => Natural -> Natural -> IO (Matrix (NMod ctxProxy))
-uniformRandomMatrixFp nrs ncs = fmap (NMod . fromInteger) <$>
-  loadOrCreate
-    ( rMatrix nrs ncs (Uniform 0 $ pred (fromIntegral n)) )
-    ( "." </> "bench_data" </> "mat_fp_" ++ show n ++ "_nrs" ++ show nrs ++ "_ncs" ++ show ncs
-                            ++ "_u" ++ show n <.> "mat" )
-  where
-    Modulus n = modulus (Proxy :: Proxy ctxProxy)
-   
 uniformFromSize :: Natural -> Uniform Integer
 uniformFromSize s = Uniform (-u) u
     where
       u = fromInteger $ shiftL 1 (8 * fromIntegral s)
 
-uniformDenFromSize :: Natural -> Uniform Natural
-uniformDenFromSize s = Uniform 1 $ shiftL 1 (8 * fromIntegral s)
-
-uniformRandomMatrixQQbd
-  :: Natural -> Natural -> Natural -> Natural -> Natural -> IO (Matrix Rational)
-uniformRandomMatrixQQbd nrs ncs snum nden sden =
-  loadOrCreate
-    ( rMatrixQQbd nrs ncs
-                  (uniformFromSize snum)
-                  nden (uniformDenFromSize sden)
-    ) $
-    "." </> "bench_data" </> "mat_qqdb_nrs" ++ show nrs ++ "_ncs" ++ show ncs
-                             ++ "_snum" ++ show snum
-                             ++ "_nden" ++ show nden ++ "_sden" ++ show sden <.> "mat"
-
-uniformRandomMatrixQQbdLE
-  :: Natural -> Natural -> Natural -> Natural -> Natural -> IO (Matrix Rational)
-uniformRandomMatrixQQbdLE nrs ncs snum nden sden =
-  loadOrCreate
-    ( rMatrixQQbdLE nrs ncs
-                    (uniformFromSize snum)
-                    nden (uniformDenFromSize sden)
-    ) $
-    "." </> "bench_data" </> "mat_qqdble_nrs" ++ show nrs ++ "_ncs" ++ show ncs
-                             ++ "_snum" ++ show snum
-                             ++ "_nden" ++ show nden ++ "_sden" ++ show sden <.> "mat"
+uniformPositiveFromSize :: Natural -> Uniform Natural
+uniformPositiveFromSize s = Uniform 1 $ shiftL 1 (8 * fromIntegral s)
