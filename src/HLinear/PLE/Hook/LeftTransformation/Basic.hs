@@ -74,7 +74,7 @@ instance NFData a => NFData (LeftTransformation a) where
 one :: Natural -> LeftTransformation a
 one nrs = LeftTransformation nrs V.empty
 
-diagonal :: Vector (NonZero a) -> LeftTransformation a
+diagonal :: Vector (Unit a) -> LeftTransformation a
 diagonal ds = LeftTransformation nrs $ flip V.imap ds $ \ix d ->
                     LeftTransformationColumn ix d V.empty
   where
@@ -82,7 +82,7 @@ diagonal ds = LeftTransformation nrs $ flip V.imap ds $ \ix d ->
     nrs = fromIntegral nrsZ
 
 singleton ::
-  NonZero a -> Vector a -> LeftTransformation a
+  Unit a -> Vector a -> LeftTransformation a
 singleton a v =
   LeftTransformation (fromIntegral $ 1 + V.length v) $
     V.singleton $ LeftTransformationColumn 0 a v
@@ -90,18 +90,18 @@ singleton a v =
 singletonAdditive ::
      Rig a
   => Vector a -> LeftTransformation a
-singletonAdditive = singleton (NonZero MS.one)
+singletonAdditive = singleton MS.one
 
 singletonMultiplicative ::
      (AdditiveMonoid a, DecidableZero a)
-  => NonZero a -> Natural -> LeftTransformation a
+  => Unit a -> Natural -> LeftTransformation a
 singletonMultiplicative a nrs_pred =
   singleton a $ V.replicate (fromIntegral nrs_pred) zero
 
 fromVector ::
-     DecidableZero a
+     DecidableUnit a
   => Vector a -> LeftTransformation a
-fromVector v = singleton (nonZero $ V.head v) (V.tail v)
+fromVector v = singleton (toUnit $ V.head v) (V.tail v)
 
 --------------------------------------------------------------------------------
 -- conversion

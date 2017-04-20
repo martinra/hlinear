@@ -79,7 +79,7 @@ pleFoldUnfold :: Matrix FMPQ -> PLEHook FMPQ
 pleFoldUnfold m@(Matrix nrs ncs rs) =
     V.foldl (*)
     ( PLEHook one
-              ( LT.diagonal $ V.map (NonZero . fromDenominator) ds )
+              ( LT.diagonal $ V.map (Unit . fromDenominator) ds )
               ( EF.zero nrs ncs) )
     ( V.unfoldr splitOffHook (MatrixFractionFree mnum one) )
   where
@@ -99,10 +99,10 @@ splitOffHook (MatrixFractionFree m@(Matrix nrs ncs rs) den)
                     , MatrixFractionFree (Matrix (pred nrs) (pred ncs) matRows) (NonZero pivot)
                     )
           where
-          denFMPQ = NonZero $ fromDenominator den :: NonZero FMPQ
+          denFMPQ = Unit $ fromDenominator den :: Unit FMPQ
           pivotRow = rs V.! pIx
           pivot = V.head pivotRow
-          pivotRecip = recip $ NonZero $ fromNumerator pivot :: NonZero FMPQ
+          pivotRecip = recip $ Unit $ fromNumerator pivot :: Unit FMPQ
           pivotTail = V.tail pivotRow
 
           bottomRows =
@@ -116,10 +116,10 @@ splitOffHook (MatrixFractionFree m@(Matrix nrs ncs rs) den)
           lt = LeftTransformation nrs $ V.singleton $
               LT.LeftTransformationColumn 0
                 ( denFMPQ * pivotRecip )
-                ( V.map (\a -> fromNonZero denFMPQ * fromNumerator a )
+                ( V.map (\a -> fromUnit denFMPQ * fromNumerator a )
                         ( V.map negate bottomHeads ) )
           ef = EF.singletonLeadingOne nrs 0 $
-                 V.map ( \a -> fromNonZero pivotRecip * fromNumerator a )
+                 V.map ( \a -> fromUnit pivotRecip * fromNumerator a )
                        ( V.tail pivotRow )
 
           matRows = V.zipWith

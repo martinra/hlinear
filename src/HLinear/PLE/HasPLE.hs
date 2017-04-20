@@ -1,6 +1,8 @@
 {-# LANGUAGE
-    FlexibleInstances
+    FlexibleContexts
+  , FlexibleInstances
   , TypeFamilies
+  , UndecidableInstances
   #-}
 
 module HLinear.PLE.HasPLE
@@ -8,7 +10,7 @@ where
 
 import HFlint.FMPQ
 import qualified HFlint.FMPQMat as FMPQMat
-import Math.Structure ( DivisionRing, DecidableZero )
+import Math.Structure ( DivisionRing, DecidableZero, DecidableUnit, MultiplicativeGroup, Unit )
 import HLinear.PLE.Hook.EchelonForm ( EchelonForm )
 import HLinear.PLE.Hook.EchelonTransformation ( EchelonTransformation )
 import HLinear.PLE.Hook ( PLEHook(..), PLREHook(..) )
@@ -27,7 +29,7 @@ class HasPLE a where
 
 
 instance {-# OVERLAPPABLE #-}
-     ( DivisionRing a, DecidableZero a )
+     ( DivisionRing a, DecidableZero a, DecidableUnit a, MultiplicativeGroup (Unit a) )
   => HasPLE (Matrix a)
   where
     type PLE (Matrix a) = PLEHook a
@@ -54,7 +56,7 @@ instance
     rref (PLEHook _ _ e) = rref e
 
 instance
-     ( DivisionRing a, DecidableZero a )
+     ( DivisionRing a, DecidableZero a, DecidableUnit a, MultiplicativeGroup (Unit a) )
   => HasRREF (Matrix a)
   where
     type RREF (Matrix a) = PLREHook a

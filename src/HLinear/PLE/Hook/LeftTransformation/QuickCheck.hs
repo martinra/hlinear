@@ -1,3 +1,8 @@
+{-# LANGUAGE
+    FlexibleContexts
+  , UndecidableInstances
+  #-}
+
 module HLinear.PLE.Hook.LeftTransformation.QuickCheck
 where
 
@@ -6,7 +11,7 @@ import Data.Traversable ( forM )
 import qualified Data.Vector as V
 import Data.Vector ( Vector )
 import qualified Data.Vector.Mutable as VM
-import Math.Structure ( DecidableZero, NonZero )
+import Math.Structure ( Unit(..) )
 
 import Math.Structure.Tasty ()
 import Test.QuickCheck ( suchThat, Gen )
@@ -23,8 +28,9 @@ import HLinear.PLE.Hook.LeftTransformation.Column as LTC
 import HLinear.PLE.Hook.LeftTransformation.Definition
 
 
-instance    (DecidableZero a, Arbitrary a)
-         => Arbitrary (LeftTransformation a) where
+instance ( Arbitrary a, Arbitrary (Unit a) )
+  => Arbitrary (LeftTransformation a)
+  where
   arbitrary = do
     -- We use this slightly odd construction of nrs to avoid infinite loops
     -- that QuickCheck sometimes produces on using

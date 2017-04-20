@@ -2,6 +2,7 @@
     FlexibleContexts
   , MultiParamTypeClasses
   , StandaloneDeriving
+  , UndecidableInstances
   #-}
 
 module HLinear.PLE.Hook.LeftTransformation.Column
@@ -15,14 +16,11 @@ import Prelude hiding ( (+), (-), negate, subtract
                       )
 
 import Control.Applicative ( (<$>) )
-import Control.Arrow ( first )
 import Control.DeepSeq ( NFData(..) )
-import Data.Maybe
-import Data.Vector ( Vector(..) )
+import Data.Vector ( Vector )
 import qualified Data.Vector as V
 import Math.Structure hiding ( one, isOne )
 import qualified Math.Structure as MS
-import Numeric.Natural ( Natural )
 
 
 import Math.Structure.Tasty ()
@@ -31,15 +29,15 @@ import Test.QuickCheck.Arbitrary ( Arbitrary
                                  , shrink
                                  )
 import Test.QuickCheck.Modifiers ( NonNegative(..) )
+import Test.Vector ()
 
 import HLinear.Utility.RPermute as RP
-import HLinear.Matrix.Algebra ( Column(..), fromColumn )
 
 
 data LeftTransformationColumn a =
   LeftTransformationColumn
     { offset :: Int
-    , headNonZero :: NonZero a
+    , headUnit :: Unit a
     , tail :: Vector a
     }
 
@@ -75,23 +73,23 @@ shiftOffset s (LeftTransformationColumn o a vs) =
   => LeftTransformationColumn a -> Int -> a
 (!) (LeftTransformationColumn o a v) ix
   | ix < o    = zero
-  | ix == o   = fromNonZero a
+  | ix == o   = fromUnit a
   | otherwise = v V.! (ix - o - 1)
 
 head :: LeftTransformationColumn a -> a  
-head = fromNonZero . headNonZero
+head = fromUnit . headUnit
 
-headRecip :: MultiplicativeGroup (NonZero a)
-            => LeftTransformationColumn a -> a  
-headRecip = fromNonZero . recip . headNonZero
+headRecip :: MultiplicativeGroup (Unit a)
+  => LeftTransformationColumn a -> a  
+headRecip = fromUnit . recip . headUnit
 
 toVector :: Rng a
-         => LeftTransformationColumn a -> Vector a
+  => LeftTransformationColumn a -> Vector a
 toVector (LeftTransformationColumn o a v) =
   V.replicate (fromIntegral o) zero
   V.++ a' `V.cons` V.map (*a') v
   where
-    a' = fromNonZero a
+    a' = fromUnit a
 
 --------------------------------------------------------------------------------
 -- Eq, Show, and NFData instancs
@@ -107,10 +105,10 @@ isOne ::
      ( DecidableZero a, DecidableOne a )
   => LeftTransformationColumn a -> Bool
 isOne (LeftTransformationColumn _ a v) =
-  MS.isOne (fromNonZero a) && V.all isZero v
+  MS.isOne (fromUnit a) && V.all isZero v
 
 instance NFData a => NFData (LeftTransformationColumn a) where
-  rnf (LeftTransformationColumn s (NonZero a) c) =
+  rnf (LeftTransformationColumn s (Unit a) c) =
     seq (rnf s) $ seq (rnf a) $ seq (rnf c) ()
 
 --------------------------------------------------------------------------------
@@ -118,27 +116,27 @@ instance NFData a => NFData (LeftTransformationColumn a) where
 --------------------------------------------------------------------------------
 
 instance Functor LeftTransformationColumn where
-  fmap f (LeftTransformationColumn s (NonZero a) c) =
-    LeftTransformationColumn s (NonZero $ f a) $ V.map f c
+  fmap f (LeftTransformationColumn s (Unit a) c) =
+    LeftTransformationColumn s (Unit $ f a) $ V.map f c
 
 instance Foldable LeftTransformationColumn where
-  foldl f b (LeftTransformationColumn s (NonZero a) r) =
+  foldl f b (LeftTransformationColumn _ (Unit a) r) =
     V.foldl f b $ a `V.cons` r
-  foldr f b (LeftTransformationColumn s (NonZero a) r) =
+  foldr f b (LeftTransformationColumn _ (Unit a) r) =
     V.foldr f b $ a `V.cons` r
 
 instance Traversable LeftTransformationColumn where
-  traverse f (LeftTransformationColumn s (NonZero a) c) =
-    LeftTransformationColumn s <$> (NonZero <$> f a) <*> traverse f c
+  traverse f (LeftTransformationColumn s (Unit a) c) =
+    LeftTransformationColumn s <$> (Unit <$> f a) <*> traverse f c
 
 zipWith
   :: ( AdditiveMonoid a, AdditiveMonoid b )
   => (a -> b -> c) -> LeftTransformationColumn a -> LeftTransformationColumn b
   -> LeftTransformationColumn c
-zipWith f (LeftTransformationColumn s (NonZero a) c)
-          (LeftTransformationColumn s' (NonZero a') c')
+zipWith f (LeftTransformationColumn s (Unit a) c)
+          (LeftTransformationColumn s' (Unit a') c')
   | s /= s' = error "LeftTransformation.zipWith: incompatible shifts"
-  | otherwise = LeftTransformationColumn s (NonZero $ f a a') $
+  | otherwise = LeftTransformationColumn s (Unit $ f a a') $
                   V.zipWith f cT cT' V.++ V.zipWith f cB cB'
   where
     nc = V.length c
@@ -155,11 +153,11 @@ zipWith f (LeftTransformationColumn s (NonZero a) c)
 --------------------------------------------------------------------------------
 
 one ::
-     ( Ring a, DecidableZero a )
+     Ring a
   => Int -> Int -> LeftTransformationColumn a
 one n o
   | n <= o = error "identityLTColumn: to large offset"
-  | otherwise = LeftTransformationColumn o (nonZero MS.one) $
+  | otherwise = LeftTransformationColumn o MS.one $
                   V.replicate (n-o-1) zero
 
 --------------------------------------------------------------------------------
@@ -176,14 +174,14 @@ instance MultiplicativeSemigroupLeftAction RPermute (LeftTransformationColumn a)
 -- QuickCheck
 --------------------------------------------------------------------------------
 
-instance    ( DecidableZero a, Arbitrary a )
+instance    ( Arbitrary a, Arbitrary (Unit a) )
          => Arbitrary (LeftTransformationColumn a) where
   arbitrary = do
     NonNegative s <- arbitrary
     NonNegative nv <- arbitrary
     a <- arbitrary
-
-    return . LeftTransformationColumn s a =<< V.replicateM nv arbitrary
+    cs <- V.replicateM nv arbitrary
+    return $ LeftTransformationColumn s a cs
 
   shrink (LeftTransformationColumn s a v) =
     [ LeftTransformationColumn s' a v
@@ -195,18 +193,5 @@ instance    ( DecidableZero a, Arbitrary a )
     ]
     ++
     [ LeftTransformationColumn s a v'
-    | v' <- shrinkVector v
+    | v' <- shrink v
     ]
-      where
-      shrinkVector v 
-         | V.length v <= 1 = []
-         | otherwise = 
-           let (v1,v2) = V.splitAt (V.length v `div` 2) v
-           in
-           [v1,v2]
-           ++
-           [ V.update v $ V.singleton (ix,e) 
-           | ix <- [0..V.length v-1]
-           , e <- shrink (v V.! ix)
-           ]
-

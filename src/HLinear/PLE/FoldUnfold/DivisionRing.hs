@@ -34,7 +34,7 @@ import qualified HLinear.Matrix as M
 
 
 pleFoldUnfold
-  :: ( DecidableZero a, DivisionRing a )
+  :: ( DivisionRing a, DecidableZero a, DecidableUnit a, MultiplicativeGroup (Unit a) )
   => Matrix a -> PLEHook a
 pleFoldUnfold m@(Matrix nrs ncs _) =
   V.foldl (*)
@@ -43,7 +43,7 @@ pleFoldUnfold m@(Matrix nrs ncs _) =
 
 
 splitOffHook
-  :: ( DecidableZero a, DivisionRing a )
+  :: ( DivisionRing a, DecidableZero a, DecidableUnit a, MultiplicativeGroup (Unit a) )
   => Matrix a -> Maybe (PLEHook a, Matrix a)
 splitOffHook m@(Matrix nrs ncs rs)
   | nrs == 0 || ncs == 0 = Nothing
@@ -58,8 +58,8 @@ splitOffHook m@(Matrix nrs ncs rs)
           where
           pivotRow = rs V.! pIx
           pivot = V.head pivotRow
-          pivotRecip = recip $ NonZero pivot
-          pivotTailRecip = V.map (fromNonZero pivotRecip *) $ V.tail pivotRow
+          pivotRecip = recip $ toUnit pivot
+          pivotTailRecip = V.map (fromUnit pivotRecip *) $ V.tail pivotRow
 
           bottomRows =
             if pIx == 0

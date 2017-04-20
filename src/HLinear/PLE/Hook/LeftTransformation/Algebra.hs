@@ -3,6 +3,7 @@
   , FlexibleContexts
   , FlexibleInstances
   , MultiParamTypeClasses
+  , UndecidableInstances
   #-}
 
 module HLinear.PLE.Hook.LeftTransformation.Algebra
@@ -44,8 +45,9 @@ instance MultiplicativeLeftAction RPermute (LeftTransformation a)
 -- product structure
 --------------------------------------------------------------------------------
 
-instance    ( DivisionRing a, DecidableZero a )
-         => MultiplicativeMagma (LeftTransformation a) where
+instance ( Ring a, MultiplicativeGroup (Unit a) )
+  => MultiplicativeMagma (LeftTransformation a)
+  where
   lt@(LeftTransformation nrs cs) * lt'@(LeftTransformation nrs' cs')
     | ncs  == 0 = lt'
     | ncs' == 0 = lt
@@ -72,27 +74,30 @@ instance    ( DivisionRing a, DecidableZero a )
       maxnrsZ = fromIntegral maxnrs
       minnrsZ = fromIntegral minnrs 
 
-instance    ( DivisionRing a, DecidableZero a )
-         => MultiplicativeSemigroup (LeftTransformation a)
+instance ( Ring a, MultiplicativeGroup (Unit a) )
+  => MultiplicativeSemigroup (LeftTransformation a)
 
-instance    ( DivisionRing a, DecidableZero a )
-         => MultiplicativeMonoid (LeftTransformation a) where
+instance ( Ring a, MultiplicativeGroup (Unit a) )
+  => MultiplicativeMonoid (LeftTransformation a)
+  where
   one = LeftTransformation 0 V.empty
 
-instance    ( DivisionRing a, DecidableZero a, DecidableOne a )
-         => DecidableOne (LeftTransformation a) where
+instance ( Ring a, MultiplicativeGroup (Unit a)
+         , DecidableZero a, DecidableOne (Unit a) )
+  => DecidableOne (LeftTransformation a)
+  where
   isOne (LeftTransformation nrs cs) =
     V.null cs
     ||
-    (`all` cs) (\(LeftTransformationColumn _ a v) -> isOne (fromNonZero a) && all isZero v)
+    (`all` cs) (\(LeftTransformationColumn _ a v) -> isOne a && all isZero v)
 
-instance    ( DivisionRing a, DecidableZero a )
-         => MultiplicativeGroup (LeftTransformation a) where
+instance ( Ring a, MultiplicativeGroup (Unit a) )
+  => MultiplicativeGroup (LeftTransformation a)
+  where
   recip (LeftTransformation nrs cs)
     | V.length cs == 1
       = let LeftTransformationColumn _ a c = V.head cs
-            a' = fromNonZero a
-            c' = LeftTransformationColumn 0 (recip a) (V.map ((*a') . negate) c)
+            c' = LeftTransformationColumn 0 (recip a) (V.map ((* fromUnit a) . negate) c)
         in LeftTransformation nrs $ V.singleton c'
     | otherwise = foldl (*) initLt $ V.reverse $ V.map recip columnLTs
         where
@@ -110,10 +115,10 @@ instance    ( DivisionRing a, DecidableZero a )
 -- instance Semiring a =>
 --   MultiplicativeSemigroupLeftAction a (Vector a)
 -- should not occur: LinearSemiringLeftAction a (LeftTransformation a)
-instance  {-# INCOHERENT #-}
-            ( DivisionRing a, DecidableZero a, LinearSemiringLeftAction a b )
-         => MultiplicativeSemigroupLeftAction
-              (LeftTransformation a) (Vector b)
+instance {-# INCOHERENT #-}
+         ( Ring a, MultiplicativeGroup (Unit a), LinearSemiringLeftAction a b )
+  => MultiplicativeSemigroupLeftAction
+       (LeftTransformation a) (Vector b)
   where
   -- we fill the vector v with zeros from the top
   lt@(LeftTransformation nrs cs) *. v =
@@ -129,20 +134,20 @@ instance  {-# INCOHERENT #-}
        V.++
        V.zipWith (\bl br -> bl*.av + br) v' vn2
          where
-         av = fromNonZero a' *. V.last vn1
+         av = fromUnit a' *. V.last vn1
          (vn1,vn2) = V.splitAt (V.length vn - V.length v') vn
 
-instance    ( DivisionRing a, DecidableZero a, LeftModule a b )
-         => MultiplicativeLeftAction (LeftTransformation a) (Vector b)
+instance ( Ring a, MultiplicativeGroup (Unit a), LeftModule a b )
+  => MultiplicativeLeftAction (LeftTransformation a) (Vector b)
 
 --------------------------------------------------------------------------------
 -- action on LeftTransformationColumn
 --------------------------------------------------------------------------------
 
-instance    ( DivisionRing a, DecidableZero a )
-         => MultiplicativeSemigroupLeftAction
-             (LeftTransformation a)
-             (LeftTransformationColumn a)
+instance ( Ring a, MultiplicativeGroup (Unit a) )
+  => MultiplicativeSemigroupLeftAction
+       (LeftTransformation a)
+       (LeftTransformationColumn a)
   where
   lt@(LeftTransformation nrs cs) *. ltc@(LeftTransformationColumn s a v) =
     LeftTransformationColumn s a' v'
@@ -151,26 +156,26 @@ instance    ( DivisionRing a, DecidableZero a )
       nvDiff = fromIntegral nrs - nv
   
       c1 = cs V.!? (nvDiff-1)
-      nza1recip = fromNonZero $ maybe one (recip . LTC.headNonZero) c1
+      nza1recip = fromUnit $ maybe one (recip . LTC.headUnit) c1
 
-      a' = maybe a ((*a) . LTC.headNonZero) c1
+      a' = maybe a ((*a) . LTC.headUnit) c1
       v' = case c1 of
              Just c1' -> V.zipWith (\bc bv -> bc + bv*nza1recip)
                            (LTC.tail c1') (lt *. v)
              Nothing  -> lt *. v
 
-instance    ( DivisionRing a, DecidableZero a )
-         => MultiplicativeLeftAction
-             (LeftTransformation a)
-             (LeftTransformationColumn a)
+instance ( Ring a, MultiplicativeGroup (Unit a), DecidableUnit a )
+  => MultiplicativeLeftAction
+       (LeftTransformation a)
+       (LeftTransformationColumn a)
 
 --------------------------------------------------------------------------------
 -- action on matrices
 --------------------------------------------------------------------------------
 
-instance    ( DivisionRing a, DecidableZero a )
-         => MultiplicativeSemigroupLeftAction
-              (LeftTransformation a) (Matrix a)
+instance ( Ring a, MultiplicativeGroup (Unit a) )
+  => MultiplicativeSemigroupLeftAction
+       (LeftTransformation a) (Matrix a)
   where
   lt *. (Matrix nrs ncs rs) =
     Matrix nrs ncs $ M.withRowLength ncs go
@@ -178,6 +183,6 @@ instance    ( DivisionRing a, DecidableZero a )
         go :: forall ctx. Reifies ctx Natural => Proxy ctx -> Vector (Vector a)
         go _ = V.map M.fromRow $ lt *. (V.map M.Row rs :: Vector (M.Row ctx a))
 
-instance    ( DivisionRing a, DecidableZero a ) 
-         => MultiplicativeLeftAction
-              (LeftTransformation a) (Matrix a)
+instance ( Ring a, MultiplicativeGroup (Unit a) )
+  => MultiplicativeLeftAction
+       (LeftTransformation a) (Matrix a)
