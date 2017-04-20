@@ -24,7 +24,7 @@ import Math.Structure
 import Numeric.Natural ( Natural )
 import qualified Data.Vector as V
 
-import HLinear.Matrix ( Matrix(..) )
+import HLinear.Matrix ( Matrix(..), Column(..) )
 import qualified HLinear.PLE.Hook.LeftTransformation.Basic as LT
 import HLinear.PLE.Hook.LeftTransformation.Column hiding ( one, isOne )
 import HLinear.PLE.Hook.LeftTransformation.Definition
@@ -108,20 +108,15 @@ instance ( Ring a, MultiplicativeGroup (Unit a) )
                              V.singleton $ LeftTransformationColumn 0 a c
 
 --------------------------------------------------------------------------------
--- action on RVector
+-- action on columns
 --------------------------------------------------------------------------------
 
--- incoherent against
--- instance Semiring a =>
---   MultiplicativeSemigroupLeftAction a (Vector a)
--- should not occur: LinearSemiringLeftAction a (LeftTransformation a)
-instance {-# INCOHERENT #-}
-         ( Ring a, MultiplicativeGroup (Unit a), LinearSemiringLeftAction a b )
+instance ( Ring a, MultiplicativeGroup (Unit a), LinearSemiringLeftAction a b )
   => MultiplicativeSemigroupLeftAction
-       (LeftTransformation a) (Vector b)
+       (LeftTransformation a) (Column b)
   where
   -- we fill the vector v with zeros from the top
-  lt@(LeftTransformation nrs cs) *. v =
+  lt@(LeftTransformation nrs cs) *. (Column v) = Column $
     V.foldr' applyCol v $ V.drop nrsDiff cs
     where
     nv = V.length v
@@ -138,7 +133,7 @@ instance {-# INCOHERENT #-}
          (vn1,vn2) = V.splitAt (V.length vn - V.length v') vn
 
 instance ( Ring a, MultiplicativeGroup (Unit a), LeftModule a b )
-  => MultiplicativeLeftAction (LeftTransformation a) (Vector b)
+  => MultiplicativeLeftAction (LeftTransformation a) (Column b)
 
 --------------------------------------------------------------------------------
 -- action on LeftTransformationColumn
@@ -161,8 +156,8 @@ instance ( Ring a, MultiplicativeGroup (Unit a) )
       a' = maybe a ((*a) . LTC.headUnit) c1
       v' = case c1 of
              Just c1' -> V.zipWith (\bc bv -> bc + bv*nza1recip)
-                           (LTC.tail c1') (lt *. v)
-             Nothing  -> lt *. v
+                           (LTC.tail c1') (fromColumn $ lt *. Column v)
+             Nothing  -> fromColumn $ lt *. Column v
 
 instance ( Ring a, MultiplicativeGroup (Unit a), DecidableUnit a )
   => MultiplicativeLeftAction
@@ -181,7 +176,8 @@ instance ( Ring a, MultiplicativeGroup (Unit a) )
     Matrix nrs ncs $ M.withRowLength ncs go
       where
         go :: forall ctx. Reifies ctx Natural => Proxy ctx -> Vector (Vector a)
-        go _ = V.map M.fromRow $ lt *. (V.map M.Row rs :: Vector (M.Row ctx a))
+        go _ = V.map M.fromRow $ fromColumn $
+                 lt *. (Column $ V.map M.Row rs :: Column (M.Row ctx a))
 
 instance ( Ring a, MultiplicativeGroup (Unit a) )
   => MultiplicativeLeftAction
