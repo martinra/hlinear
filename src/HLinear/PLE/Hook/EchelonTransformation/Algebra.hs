@@ -19,6 +19,7 @@ import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural ( Natural )
 
+import HLinear.Matrix.Algebra ( Column(..) )
 import HLinear.Matrix.Definition
 import HLinear.PLE.Hook.EchelonTransformation.Basic as ET
 import qualified HLinear.PLE.Hook.EchelonTransformation.Column as ETC
@@ -86,17 +87,12 @@ instance    ( DivisionRing a, DecidableZero a )
 -- action on vectors
 --------------------------------------------------------------------------------
 
--- incoherent against
--- instance Semiring a =>
---   MultiplicativeSemigroupLeftAction a (Vector a)
--- should not occur: LinearSemiringLeftAction a (EchelonTransformation a)
-instance {-# INCOHERENT #-}
-            ( DivisionRing a, LinearSemiringLeftAction a b )
-         => MultiplicativeSemigroupLeftAction
-              (EchelonTransformation a) (Vector b)
+instance ( DivisionRing a, LinearSemiringLeftAction a b )
+  => MultiplicativeSemigroupLeftAction
+       (EchelonTransformation a) (Column b)
   where
   -- we fill the vector v with zeros from the bottom
-  lt@(EchelonTransformation nrs cs) *. v =
+  lt@(EchelonTransformation nrs cs) *. (Column v) = Column $
     V.foldr' applyCol v $ V.drop nrsDiff cs
     where
       nv = V.length v
@@ -112,32 +108,32 @@ instance {-# INCOHERENT #-}
            ev = V.head vn2
            (vn1,vn2) = V.splitAt (V.length v') vn
 
-instance    ( DivisionRing a, LeftModule a b )
-         => MultiplicativeLeftAction (EchelonTransformation a) (Vector b)
+instance ( DivisionRing a, LeftModule a b )
+  => MultiplicativeLeftAction (EchelonTransformation a) (Column b)
 
 --------------------------------------------------------------------------------
 -- action on matrices
 --------------------------------------------------------------------------------
 
-instance    DivisionRing a
-         => MultiplicativeSemigroupLeftAction
-              (EchelonTransformation a) (Matrix a)
+instance DivisionRing a
+  => MultiplicativeSemigroupLeftAction
+       (EchelonTransformation a) (Matrix a)
   where
   et *. (Matrix nrs' ncs' rs') =
-    Matrix nrs' ncs' $ et *. rs'
+    Matrix nrs' ncs' $ fromColumn $ et *. Column rs'
 
-instance    DivisionRing a
-         => MultiplicativeLeftAction
-              (EchelonTransformation a) (Matrix a)
+instance DivisionRing a
+  => MultiplicativeLeftAction
+       (EchelonTransformation a) (Matrix a)
 
 --------------------------------------------------------------------------------
 -- action on EchelonTransformationColumn
 --------------------------------------------------------------------------------
 
-instance    DivisionRing a
-         => MultiplicativeSemigroupLeftAction
-             (EchelonTransformation a)
-             (EchelonTransformationColumn a)
+instance  DivisionRing a
+  => MultiplicativeSemigroupLeftAction
+      (EchelonTransformation a)
+      (EchelonTransformationColumn a)
   where
   et@(EchelonTransformation nrs cs) *. etc@(EchelonTransformationColumn s v) =
     EchelonTransformationColumn s v'
@@ -146,12 +142,12 @@ instance    DivisionRing a
       ncs = V.length cs
       nrsZ = fromIntegral nrs
 
-      etv = et*.v
+      etv = fromColumn $ et *. Column v
       v' = case cs V.!? (nrsZ-1-nv) of
              Nothing -> etv
              Just c  -> V.zipWith (+) etv (ETC.init c)
 
-instance    DivisionRing a
-         => MultiplicativeLeftAction
-             (EchelonTransformation a)
-             (EchelonTransformationColumn a)
+instance DivisionRing a
+  => MultiplicativeLeftAction
+      (EchelonTransformation a)
+      (EchelonTransformationColumn a)
