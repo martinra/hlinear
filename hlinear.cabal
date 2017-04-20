@@ -7,13 +7,15 @@ synopsis:            Exact dense linear algebra
 -- description:
 license:             GPL-3
 license-file:        LICENSE
-author:              Martin Raum
-maintainer:          martin@raum-brothers.eu
+author:              Martin Raum <martin@raum-brothers.eu>
+maintainer:          Martin Raum <martin@raum-brothers.eu>
 -- copyright:
 category:            Math
 build-type:          Simple
 -- extra-source-files:
-cabal-version:       >=1.10
+cabal-version:       >=1.16
+
+data-files:          README.md
 
 library
   exposed-modules:
