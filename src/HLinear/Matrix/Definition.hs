@@ -1,13 +1,11 @@
 {-# LANGUAGE
     MultiParamTypeClasses
-  , FunctionalDependencies
   #-}
 
 module HLinear.Matrix.Definition
 where
 
 import Data.Vector ( Vector )
-import qualified Data.Vector as V
 import Numeric.Natural ( Natural )
 
 

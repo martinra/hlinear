@@ -1,9 +1,12 @@
 {-# LANGUAGE
-    FlexibleInstances
+    FlexibleContexts
+  , FlexibleInstances
   , DataKinds
+  , GeneralizedNewtypeDeriving
   , KindSignatures
   , MultiParamTypeClasses
   , ScopedTypeVariables
+  , StandaloneDeriving
   #-}
 
 module HLinear.Matrix.Sized
@@ -28,9 +31,14 @@ import Test.SmallCheck.Series
   ( Serial, series, decDepth )
 
 import HLinear.Matrix.Algebra ()
-import HLinear.Matrix.Basic ()
+import HLinear.Matrix.Basic ( diagonal )
 import HLinear.Matrix.Definition ( Matrix(..), IsMatrix(..) )
+import HLinear.Matrix.Invertible ( MatrixInvertible )
 
+
+--------------------------------------------------------------------------------
+-- MatrixSized
+--------------------------------------------------------------------------------
 
 newtype MatrixSized (nrs::Nat) (ncs::Nat) a =
   MatrixSized { fromMatrixSized :: Matrix a }
@@ -38,11 +46,23 @@ newtype MatrixSized (nrs::Nat) (ncs::Nat) a =
 instance IsMatrix (MatrixSized nrs ncs a) a where
   toMatrix = fromMatrixSized
 
-instance Eq a => Eq (MatrixSized nrs ncs a) where
-  (MatrixSized m) == (MatrixSized m') = m == m'
+deriving instance Eq (Matrix a) => Eq (MatrixSized nrs ncs a)
 
-instance Show a => Show (MatrixSized nrs ncs a) where
-  show (MatrixSized m) = show m
+deriving instance Show (Matrix a) => Show (MatrixSized nrs ncs a)
+
+--------------------------------------------------------------------------------
+-- MatrixInvertibleSized
+--------------------------------------------------------------------------------
+
+newtype MatrixInvertibleSized (nrs::Nat) a =
+  MatrixInvertibleSized { fromMatrixInvertibleSized :: MatrixInvertible a }
+
+instance IsMatrix (MatrixInvertibleSized nrs a) a where
+  toMatrix = fromUnit . fromMatrixInvertibleSized
+
+deriving instance Eq (Matrix a) => Eq (MatrixInvertibleSized nrs a)
+
+deriving instance Show (Matrix a) => Show (MatrixInvertibleSized nrs a)
 
 --------------------------------------------------------------------------------
 -- QuickCheck
@@ -82,15 +102,18 @@ instance ( KnownNat nrs, KnownNat ncs, Monad m, Serial m a )
     return $ MatrixSized $ Matrix (fromInteger nrs) (fromInteger ncs) rs
 
 --------------------------------------------------------------------------------
--- Algebra
+-- additive structure
 --------------------------------------------------------------------------------
 
-instance AdditiveMagma a => AdditiveMagma (MatrixSized nrs ncs a) where
-  (MatrixSized m) + (MatrixSized m') = MatrixSized $ m + m'
+deriving instance AdditiveMagma (Matrix a)
+  => AdditiveMagma (MatrixSized nrs ncs a)
 
-instance AdditiveSemigroup a => AdditiveSemigroup (MatrixSized nrs ncs a)
+deriving instance AdditiveSemigroup (Matrix a)
+  => AdditiveSemigroup (MatrixSized nrs ncs a)
 
-instance Abelian a => Abelian (MatrixSized nrs ncs a)
+deriving instance Abelian (Matrix a)
+  => Abelian (MatrixSized nrs ncs a)
+
 
 instance ( KnownNat nrs, KnownNat ncs, AdditiveMonoid a )
       => AdditiveMonoid (MatrixSized nrs ncs a)
@@ -105,23 +128,27 @@ instance ( KnownNat nrs, KnownNat ncs, AdditiveMonoid a )
 instance ( KnownNat nrs, KnownNat ncs, AdditiveGroup a )
       => AdditiveGroup (MatrixSized nrs ncs a)
   where
-  negate (MatrixSized (Matrix nrs ncs rs)) =
-    MatrixSized $ Matrix nrs ncs $ V.map (V.map negate) rs
+  negate (MatrixSized m) = MatrixSized $ fmap negate m
 
-instance Rng a => MultiplicativeMagma (MatrixSized nrs nrs a) where
-  (MatrixSized m) * (MatrixSized m') = MatrixSized $ m * m'
+--------------------------------------------------------------------------------
+-- multiplicative structure
+--------------------------------------------------------------------------------
 
-instance Rng a => MultiplicativeSemigroup (MatrixSized nrs nrs a)
+deriving instance MultiplicativeMagma (Matrix a)
+  => MultiplicativeMagma (MatrixSized nrs nrs a)
+
+deriving instance MultiplicativeSemigroup (Matrix a)
+  => MultiplicativeSemigroup (MatrixSized nrs nrs a)
+
+instance ( MultiplicativeMagma (Matrix a), Commutative a )
+  => Commutative (MatrixSized 1 1 a)
 
 instance ( KnownNat nrs, Ring a )
       => MultiplicativeMonoid (MatrixSized nrs nrs a)
   where
   one =
     let nrs = natVal (Proxy :: Proxy nrs)
-    in  MatrixSized $ Matrix (fromInteger nrs) (fromInteger nrs) $
-          V.generate (fromInteger nrs) $ \ix ->
-            V.generate (fromInteger nrs) $ \jx ->
-              if ix == jx then one else zero
+    in  MatrixSized $ diagonal $ V.replicate (fromInteger nrs) one
 
 instance Rng a => Distributive (MatrixSized nrs nrs a)
 
@@ -135,3 +162,23 @@ instance (KnownNat nrs, Ring a)
 
 instance (KnownNat nrs, Ring a)
       => Ring (MatrixSized nrs nrs a)
+
+--------------------------------------------------------------------------------
+-- group structure
+--------------------------------------------------------------------------------
+
+deriving instance MultiplicativeMagma (Matrix a)
+  => MultiplicativeMagma (MatrixInvertibleSized nrs a)
+
+deriving instance MultiplicativeSemigroup (Matrix a)
+  => MultiplicativeSemigroup (MatrixInvertibleSized nrs a)
+
+instance ( MultiplicativeMagma (Matrix a), Commutative a )
+  => Commutative (MatrixInvertibleSized 1 a)
+
+instance ( KnownNat nrs, Ring a )
+      => MultiplicativeMonoid (MatrixInvertibleSized nrs a)
+  where
+  one =
+    let nrs = natVal (Proxy :: Proxy nrs)
+    in  MatrixInvertibleSized $ Unit $ diagonal $ V.replicate (fromInteger nrs) one

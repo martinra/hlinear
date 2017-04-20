@@ -28,11 +28,12 @@ library
   other-modules:
     HLinear.Matrix.Algebra
     HLinear.Matrix.Basic
+    HLinear.Matrix.Block
     HLinear.Matrix.Definition
+    HLinear.Matrix.Invertible
     HLinear.Matrix.QuickCheck
     HLinear.Matrix.Sized
     HLinear.Matrix.SmallCheck
-    HLinear.Matrix.Block
 
     HLinear.PLE.FoldUnfold.DivisionRing
     HLinear.PLE.FoldUnfold.FractionFree

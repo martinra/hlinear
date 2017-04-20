@@ -1,9 +1,11 @@
 {-# LANGUAGE
     FlexibleInstances
   , FlexibleContexts
+  , GeneralizedNewtypeDeriving
   , MultiParamTypeClasses
   , Rank2Types
   , ScopedTypeVariables
+  , StandaloneDeriving
   #-}
 
 module HLinear.Matrix.Algebra
@@ -26,6 +28,7 @@ import Math.Structure
 import Numeric.Natural
 
 import HLinear.Matrix.Definition
+import HLinear.Matrix.Invertible
 
 --------------------------------------------------------------------------------
 -- additive structure
