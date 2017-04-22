@@ -120,12 +120,13 @@ splitOffHook (MatrixFractionFree m@(Matrix nrs ncs rs) den)
                  V.map (\a -> fromUnit pivotRecip * fromNumerator a)
                    pivotTail
 
-          matRows = V.zipWith
-                      ( \h t -> V.zipWith (\pv te -> mulSubMulDiv pivot te h pv (fromNonZero den)) pivotTail t )
-                      bottomHeads bottomTails
+          matRows = (\f -> V.zipWith f bottomHeads bottomTails) $ \h t ->
+                      (\f' -> V.zipWith f' pivotTail t) $ \pv te ->
+                        mulSubMulDiv pivot te h pv den
 
-          mulSubMulDiv :: FMPZ -> FMPZ -> FMPZ -> FMPZ -> FMPZ -> FMPZ
-          mulSubMulDiv a a' b b' c = unsafePerformIO $
+
+          mulSubMulDiv :: FMPZ -> FMPZ -> FMPZ -> FMPZ -> NonZero FMPZ -> FMPZ
+          mulSubMulDiv a a' b b' (NonZero c) = unsafePerformIO $
             withNewFlint_ $ \dptr  ->
             withFlint a   $ \aptr  ->
             withFlint a'  $ \a'ptr ->
