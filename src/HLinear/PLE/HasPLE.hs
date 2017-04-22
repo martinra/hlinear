@@ -33,7 +33,7 @@ instance {-# OVERLAPPABLE #-}
   => HasPLE (Matrix a)
   where
     type PLE (Matrix a) = PLEHook a
-    ple = FUDR.pleFoldUnfold
+    ple = FUDR.ple
 
 instance {-# OVERLAPPING #-}
   HasPLE (Matrix FMPQ)

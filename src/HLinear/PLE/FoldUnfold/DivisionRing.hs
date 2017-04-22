@@ -14,67 +14,65 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , gcd
                       , quotRem, quot, rem
                       )
+import qualified Prelude as P
 
 import Control.Arrow ( (&&&) )
 import Data.Permute ( Permute )
-import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural
+import qualified Data.Vector as V
 
-import HLinear.PLE.Hook
-import qualified HLinear.Utility.RPermute as RP
-import HLinear.Utility.RPermute ( RPermute(..) )
-import qualified HLinear.PLE.Hook.EchelonForm as EF
-import HLinear.PLE.Hook.EchelonForm ( EchelonForm(..) )
-import qualified HLinear.PLE.Hook.LeftTransformation as LT
-import HLinear.PLE.Hook.LeftTransformation ( LeftTransformation(..) )
 import HLinear.Matrix ( Matrix(..), headRows, tailRows )
+import HLinear.PLE.FoldUnfold.Matrix ( splitOffTopLeft )
+import HLinear.PLE.Hook ( PLEHook(..) )
+import HLinear.PLE.Hook.EchelonForm ( EchelonForm(..) )
+import HLinear.PLE.Hook.LeftTransformation ( LeftTransformation(..) )
+import HLinear.Utility.RPermute ( RPermute(..) )
+import qualified HLinear.PLE.Hook.Basic as Hook
 import qualified HLinear.Matrix as M
+import qualified HLinear.PLE.Hook.EchelonForm as EF
+import qualified HLinear.PLE.Hook.LeftTransformation as LT
+import qualified HLinear.Utility.RPermute as RP
 
 
-
-pleFoldUnfold
-  :: ( DivisionRing a, DecidableZero a, DecidableUnit a, MultiplicativeGroup (Unit a) )
+ple
+  :: ( DivisionRing a, DecidableZero a, DecidableUnit a
+     , MultiplicativeGroup (Unit a) )
   => Matrix a -> PLEHook a
-pleFoldUnfold m@(Matrix nrs ncs _) =
-  V.foldl (*)
-  ( PLEHook one (LT.one nrs) (EF.zero nrs ncs) )
-  ( V.unfoldr splitOffHook m )
+ple m@(Matrix nrs ncs _) =
+  case splitOffHook m of
+    Nothing -> Hook.one nrs ncs
+    Just (h,m') -> V.foldl (*) h $ V.unfoldr splitOffHook m'
 
+pivotPermutation
+  :: ( DivisionRing a, DecidableZero a )
+  => Matrix a -> Maybe RPermute
+pivotPermutation (Matrix nrs ncs rs) = do
+  pIx <- V.findIndex ((not . isZero) . V.head) rs
+  return $ RP.fromTransposition (fromIntegral nrs) (0,pIx)
 
 splitOffHook
   :: ( DivisionRing a, DecidableZero a, DecidableUnit a, MultiplicativeGroup (Unit a) )
   => Matrix a -> Maybe (PLEHook a, Matrix a)
 splitOffHook m@(Matrix nrs ncs rs)
   | nrs == 0 || ncs == 0 = Nothing
-  | otherwise            = Just $
-      case V.findIndex ((not . isZero) . V.head) rs of
-        Nothing  -> ( PLEHook one (LT.one nrs) $ EF.zero nrs ncs
-                    , Matrix nrs (pred ncs) $ V.map V.tail rs
-                    )
-        Just pIx -> ( PLEHook p lt ef
-                    , Matrix (pred nrs) (pred ncs) matRows
-                    )
-          where
-          pivotRow = rs V.! pIx
-          pivot = V.head pivotRow
-          pivotRecip = recip $ toUnit pivot
-          pivotTailRecip = V.map (fromUnit pivotRecip *) $ V.tail pivotRow
+  | Just p <- pivotPermutation m = Just $
+      ( PLEHook p lt ef
+      , Matrix (nrs P.- 1) (ncs P.- 1) bottomRight'
+      )
+  | otherwise = Just $
+      ( Hook.one nrs ncs
+      , Matrix nrs (ncs P.- 1) $ V.map V.tail rs
+      )
+    where
+      Just ((pivot, pivotBottom), (pivotTail, bottomRight)) = splitOffTopLeft m
 
-          bottomRows =
-            if pIx == 0
-            then V.tail rs
-            else V.update (V.tail rs) $ V.singleton (pred pIx,V.head rs)
-          (bottomHeads,bottomTails) =
-            V.unzip $ V.map (V.head &&& V.tail) bottomRows
- 
-          p = RP.fromTransposition (fromIntegral nrs) (0,pIx)
-          lt = LeftTransformation nrs $ V.singleton $
-                 LT.LeftTransformationColumn 0
-                   pivotRecip
-                   ( V.map negate bottomHeads )
-          ef = EF.singletonLeadingOne nrs pivotTailRecip
-          
-          matRows = V.zipWith
-                      ( \h t -> V.zipWith (\pv te -> te - h * pv) pivotTailRecip t )
-                      bottomHeads bottomTails
+      pivotRecip = recip $ toUnit pivot
+      pivotTail' = V.map (fromUnit pivotRecip *) pivotTail
+
+      lt = LT.singleton pivotRecip $ V.map negate pivotBottom
+      ef = EF.singletonLeadingOne nrs pivotTail'
+      
+      bottomRight' =
+        (\f -> V.zipWith f pivotBottom bottomRight) $ \h t ->
+          V.zipWith (\pv te -> te - h * pv) pivotTail' t

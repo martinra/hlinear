@@ -42,9 +42,11 @@ library
 
     HLinear.PLE.FoldUnfold.DivisionRing
     HLinear.PLE.FoldUnfold.FractionFree
+    HLinear.PLE.FoldUnfold.Matrix
     HLinear.PLE.FoldUnfold.ReducedEchelonForm
 
     HLinear.PLE.Hook.Algebra
+    HLinear.PLE.Hook.Basic
     HLinear.PLE.Hook.Container
     HLinear.PLE.Hook.Definition
 
