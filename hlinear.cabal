@@ -25,6 +25,8 @@ library
     HLinear.PLE.Hook
     HLinear.PLE.Hook.EchelonForm
     HLinear.PLE.Hook.LeftTransformation
+    HLinear.PLH
+    HLinear.PLH.HasPLH
     HLinear.Utility.RPermute
 
   other-modules:
@@ -70,6 +72,8 @@ library
     HLinear.PLE.Hook.LeftTransformation.Definition
     HLinear.PLE.Hook.LeftTransformation.QuickCheck
     HLinear.PLE.Hook.LeftTransformation.SmallCheck
+
+    HLinear.PLH.FoldUnfold.EuclideanDomain
 
     HLinear.Utility.Permute
 
