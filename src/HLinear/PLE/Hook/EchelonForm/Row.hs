@@ -132,6 +132,9 @@ zipWith f e@(EchelonFormRow o r) e'@(EchelonFormRow o' r') =
 zero :: Natural -> EchelonFormRow a
 zero o = EchelonFormRow o V.empty
 
+singleton :: Vector a -> EchelonFormRow a
+singleton = EchelonFormRow 0
+
 toVector :: AdditiveMonoid a => EchelonFormRow a -> Vector a
 toVector (EchelonFormRow o r) = V.replicate (fromIntegral o) MS.zero V.++ r
 

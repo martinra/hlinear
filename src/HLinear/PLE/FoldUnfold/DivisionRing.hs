@@ -73,7 +73,7 @@ splitOffHook m@(Matrix nrs ncs rs)
                  LT.LeftTransformationColumn 0
                    pivotRecip
                    ( V.map negate bottomHeads )
-          ef = EF.singletonLeadingOne nrs 0 pivotTailRecip
+          ef = EF.singletonLeadingOne nrs pivotTailRecip
           
           matRows = V.zipWith
                       ( \h t -> V.zipWith (\pv te -> te - h * pv) pivotTailRecip t )

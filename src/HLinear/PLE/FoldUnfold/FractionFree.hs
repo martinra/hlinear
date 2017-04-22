@@ -113,14 +113,12 @@ splitOffHook (MatrixFractionFree m@(Matrix nrs ncs rs) den)
             V.unzip $ V.map (V.head &&& V.tail) bottomRows
 
           p = RP.fromTransposition (fromIntegral nrs) (0,pIx)
-          lt = LeftTransformation nrs $ V.singleton $
-              LT.LeftTransformationColumn 0
-                ( denFMPQ * pivotRecip )
-                ( V.map (\a -> fromUnit denFMPQ * fromNumerator a )
-                        ( V.map negate bottomHeads ) )
-          ef = EF.singletonLeadingOne nrs 0 $
-                 V.map ( \a -> fromUnit pivotRecip * fromNumerator a )
-                       ( V.tail pivotRow )
+          lt = LT.singleton (denFMPQ * pivotRecip) $
+                 V.map (\a -> fromUnit denFMPQ * fromNumerator a) $
+                   V.map negate bottomHeads
+          ef = EF.singletonLeadingOne nrs $
+                 V.map (\a -> fromUnit pivotRecip * fromNumerator a)
+                   pivotTail
 
           matRows = V.zipWith
                       ( \h t -> V.zipWith (\pv te -> mulSubMulDiv pivot te h pv (fromNonZero den)) pivotTail t )

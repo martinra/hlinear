@@ -103,18 +103,17 @@ zero :: Natural -> Natural -> EchelonForm a
 zero nrs ncs = EchelonForm nrs ncs V.empty
 
 singleton
-  :: Natural -> Natural -> Vector a
+  :: Natural -> Vector a
   -> EchelonForm a
-singleton nrs o v = EchelonForm nrs nv $
-                      V.singleton $ EchelonFormRow o v
+singleton nrs v = EchelonForm nrs nv $ V.singleton $ EFR.singleton v
   where
     nv = fromIntegral $ V.length v
 
 singletonLeadingOne
   :: MultiplicativeMonoid a
-  => Natural -> Natural -> Vector a
+  => Natural -> Vector a
   -> EchelonForm a
-singletonLeadingOne nrs o v = singleton nrs o $ one `V.cons` v
+singletonLeadingOne nrs v = singleton nrs $ one `V.cons` v
 
 --------------------------------------------------------------------------------
 -- submatrices
