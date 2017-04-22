@@ -8,14 +8,24 @@ module HLinear.Matrix
   , fromVectors
   , fromVectors'
 
-  , fromVectorsUnsafe
-  , fromVectorsUnsafe'
-
   , fromLists
   , fromLists'
 
-  , fromListsUnsafe
-  , fromListsUnsafe'
+  , fromColumns
+  , fromColumns'
+
+  , fromVectorsSafe
+  , fromVectorsSafe'
+
+  , fromListsSafe
+  , fromListsSafe'
+
+  , fromColumnsSafe
+  , fromColumnsSafe'
+
+  , toVectors
+  , toLists
+  , toColumns
 
   , zipWith
 
@@ -41,8 +51,7 @@ module HLinear.Matrix
   , blockMatrix
   , blockMatrixL
 
-  , Column(Column)
-  , fromColumn
+  , Column(..)
   )
 where
 
@@ -51,6 +60,7 @@ import qualified Prelude
 import HLinear.Matrix.Algebra
 import HLinear.Matrix.Basic
 import HLinear.Matrix.Block
+import HLinear.Matrix.Column ( Column(..) )
 import HLinear.Matrix.Definition
 import HLinear.Matrix.Invertible ()
 

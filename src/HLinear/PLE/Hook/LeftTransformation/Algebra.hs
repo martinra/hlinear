@@ -24,7 +24,7 @@ import Math.Structure
 import Numeric.Natural ( Natural )
 import qualified Data.Vector as V
 
-import HLinear.Matrix ( Matrix(..), Column(..) )
+import HLinear.Matrix ( Matrix(..), IsMatrix(..), Column(..) )
 import qualified HLinear.PLE.Hook.LeftTransformation.Basic as LT
 import HLinear.PLE.Hook.LeftTransformation.Column hiding ( one, isOne )
 import HLinear.PLE.Hook.LeftTransformation.Definition
@@ -36,10 +36,28 @@ import qualified HLinear.PLE.Hook.LeftTransformation.Column as LTC
 -- permutation action
 --------------------------------------------------------------------------------
 
-instance MultiplicativeSemigroupLeftAction RPermute (LeftTransformation a) where
-  p *. (LeftTransformation nrs cs) = LeftTransformation nrs $ V.map (p*.) cs
+instance Ring a
+  => MultiplicativeSemigroupLeftAction RPermute (LeftTransformation a)
+  where
+  p *. lt@(LeftTransformation nrs cs)
+    | size p <= fromIntegral nrs - V.length cs =
+        LeftTransformation nrs $ V.map (p*.) cs
+    | otherwise = LeftTransformationMatrix $ p *. toMatrix lt
+  p *. (LeftTransformationMatrix m) = LeftTransformationMatrix (p *. m)
 
-instance MultiplicativeLeftAction RPermute (LeftTransformation a)
+instance Ring a
+  => MultiplicativeLeftAction RPermute (LeftTransformation a)
+
+instance Ring a
+  => MultiplicativeSemigroupRightAction RPermute (LeftTransformation a)
+  where
+  lt@(LeftTransformation nrs cs) .* p
+    | size p <= fromIntegral nrs - V.length cs = lt
+    | otherwise = LeftTransformationMatrix $ toMatrix lt .* p
+  (LeftTransformationMatrix m) .* p = LeftTransformationMatrix (m .* p)
+
+instance Ring a
+  => MultiplicativeRightAction RPermute (LeftTransformation a)
 
 --------------------------------------------------------------------------------
 -- product structure

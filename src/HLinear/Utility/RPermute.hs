@@ -22,12 +22,14 @@ import Prelude hiding ( (+), (-), negate, subtract
 
 import Control.DeepSeq ( NFData(..) )
 import qualified Data.Vector as V
-import Data.Vector ( Vector(..) )
+import Data.Vector ( Vector )
 import Data.Permute ( Permute )
 import qualified Data.Permute as P
 import Math.Structure
+import Test.QuickCheck
+import Test.SmallCheck.Series
 
-import HLinear.Utility.Permute
+import HLinear.Utility.Permute ()
 import HLinear.Matrix hiding ( zero, one )
 
 
@@ -52,6 +54,17 @@ instance Ord RPermute where
       cmps = V.dropWhile (==EQ) $ V.zipWith compare cp cp'
       cp = toVectorSize maxnp rp :: Vector Int
       cp' = toVectorSize maxnp rp' :: Vector Int
+
+---------------------------------------------------------------------------------
+-- QuickCheck and SmallCheck
+---------------------------------------------------------------------------------
+
+instance Arbitrary RPermute where
+  arbitrary = RPermute <$> arbitrary
+  shrink (RPermute p) = RPermute <$> shrink p
+
+instance Monad m => Serial m RPermute where
+  series = RPermute <$> series
 
 ---------------------------------------------------------------------------------
 -- attributes
@@ -145,8 +158,20 @@ instance
 
 instance MultiplicativeLeftAction RPermute (Vector a)
 
+instance MultiplicativeSemigroupRightAction RPermute (Vector a)
+  where
+  v .* p = recip p *. v
+
+instance MultiplicativeRightAction RPermute (Vector a)
+
 
 instance MultiplicativeSemigroupLeftAction RPermute (Matrix a) where
   p *. (Matrix nrs ncs rs) = Matrix nrs ncs $ p *. rs
 
 instance MultiplicativeLeftAction RPermute (Matrix a)
+
+instance MultiplicativeSemigroupRightAction RPermute (Matrix a)
+  where
+  (Matrix nrs ncs rs) .* p = Matrix nrs ncs $ V.map (.* p) rs
+
+instance MultiplicativeRightAction RPermute (Matrix a)

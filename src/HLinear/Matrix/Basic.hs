@@ -24,6 +24,7 @@ import Math.Structure hiding ( one, zero, isOne, isZero )
 import Numeric.Natural
 
 import HLinear.Utility.Permute
+import HLinear.Matrix.Column
 import HLinear.Matrix.Definition
 
 
@@ -109,7 +110,7 @@ instance MultiplicativeSemigroupRightAction P.Permute (Matrix a) where
       pinv = recip p
       pinvVector = V.generate np $ \ix -> pinv `P.at` ix
 
-instance MultiplicativeRightAction P.Permute (Matrix a) where
+instance MultiplicativeRightAction P.Permute (Matrix a)
 
 --------------------------------------------------------------------------------
 -- creation
@@ -162,34 +163,76 @@ isOne (Matrix _ _ vs) =
 -- construction of matrices from vectors or lists
 --------------------------------------------------------------------------------
 
-fromVectors :: Vector (Vector a) -> Either String (Matrix a)
-fromVectors rs = 
-  fromVectors' nrs ncs rs
+fromVectors = either error id . fromVectorsSafe
+fromVectors' = either error id .:. fromVectorsSafe'
+
+fromLists = either error id . fromListsSafe
+fromLists' = either error id .:. fromListsSafe'
+
+fromColumns = either error id . fromColumnsSafe
+fromColumns' = either error id .:. fromColumnsSafe'
+
+
+fromVectorsSafe :: Vector (Vector a) -> Either String (Matrix a)
+fromVectorsSafe rs = 
+  fromVectorsSafe' nrs ncs rs
     where
     nrs = fromIntegral $ V.length rs
     ncs = if nrs == 0 then 0 else fromIntegral $ V.length (V.head rs)
 
-fromVectors' :: Natural -> Natural -> Vector (Vector a)
+fromVectorsSafe' :: Natural -> Natural -> Vector (Vector a)
              -> Either String (Matrix a)
-fromVectors' nrs ncs rs
+fromVectorsSafe' nrs ncs rs
   | nrs /= fromIntegral (V.length rs) = Left
       "HLinear.Matrix fromVectors': incorrect number of rows"
   | any ((/=ncs) . fromIntegral . V.length) rs = Left
       "HLinear.Matrix fromVectors': rows must have the same length"
   | otherwise = Right $ Matrix nrs ncs rs
 
-fromLists :: [[a]] -> Either String (Matrix a)
-fromLists = fromVectors . V.map V.fromList . V.fromList
 
-fromLists' :: Natural -> Natural -> [[a]]
+fromListsSafe :: [[a]] -> Either String (Matrix a)
+fromListsSafe = fromVectorsSafe . V.map V.fromList . V.fromList
+
+fromListsSafe' :: Natural -> Natural -> [[a]]
            -> Either String (Matrix a)
-fromLists' nrs ncs = fromVectors' nrs ncs . V.map V.fromList . V.fromList
+fromListsSafe' nrs ncs = fromVectorsSafe' nrs ncs . V.map V.fromList . V.fromList
 
-fromVectorsUnsafe = either undefined id . fromVectors
-fromVectorsUnsafe' = either undefined id .:. fromVectors'
 
-fromListsUnsafe = either undefined id . fromLists
-fromListsUnsafe' = either undefined id .:. fromLists'
+fromColumnsSafe :: Vector (Column a) -> Either String (Matrix a)
+fromColumnsSafe cs = fromColumnsSafe' nrs ncs cs
+  where
+    ncs = fromIntegral $ V.length cs
+    nrs = if ncs == 0 then 0 else fromIntegral $ V.length (fromColumn $ V.head cs)
+
+fromColumnsSafe'
+  :: Natural -> Natural -> Vector (Column a)
+  -> Either String (Matrix a)
+fromColumnsSafe' nrs ncs cs
+  | ncs /= fromIntegral (V.length cs) = Left
+      "HLinear.Matrix fromColumns': incorrect number of columns"
+  | any ((/=nrs) . fromIntegral . V.length . fromColumn) cs = Left
+      "HLinear.Matrix fromColumns': columns must have the same length"
+  | otherwise =
+      let rs = V.generate (fromIntegral nrs) $ \ix ->
+                 V.generate (fromIntegral ncs) $ \jx ->
+                   (fromColumn $ cs V.! jx) V.! ix
+      in  Right $ Matrix nrs ncs rs
+
+--------------------------------------------------------------------------------
+-- conversion of matrices to vectors or lists
+--------------------------------------------------------------------------------
+
+toVectors :: Matrix a -> Vector (Vector a)
+toVectors (Matrix _ _ rs) = rs
+
+toLists :: Matrix a -> [[a]]
+toLists = V.toList . V.map V.toList . toVectors
+
+toColumns :: Matrix a -> Vector (Column a)
+toColumns (Matrix nrs ncs rs) =
+  V.generate (fromIntegral ncs) $ \jx ->
+    Column $ V.generate (fromIntegral nrs) $ \ix ->
+      rs V.! ix V.! jx
 
 --------------------------------------------------------------------------------
 -- container functionality

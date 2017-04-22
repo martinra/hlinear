@@ -4,6 +4,7 @@ where
 import Data.Vector
 import Numeric.Natural
 
+import HLinear.Matrix ( Matrix )
 import HLinear.PLE.Hook.LeftTransformation.Column
 
 
@@ -16,7 +17,8 @@ import HLinear.PLE.Hook.LeftTransformation.Column
  --   . . . .
  --
 data LeftTransformation a =
-  LeftTransformation
-    { nmbRows :: Natural
-    , columns :: Vector (LeftTransformationColumn a)
-    }
+    LeftTransformation
+      { nmbRows :: Natural
+      , columns :: Vector (LeftTransformationColumn a)
+      }
+  | LeftTransformationMatrix (Matrix a)

@@ -19,7 +19,8 @@ import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural ( Natural )
 
-import HLinear.Matrix.Algebra ( Column(..) )
+import HLinear.Matrix.Algebra ()
+import HLinear.Matrix.Column ( Column(..) )
 import HLinear.Matrix.Definition
 import HLinear.PLE.Hook.EchelonTransformation.Basic as ET
 import qualified HLinear.PLE.Hook.EchelonTransformation.Column as ETC

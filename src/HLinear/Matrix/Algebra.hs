@@ -27,6 +27,7 @@ import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural
 
+import HLinear.Matrix.Column
 import HLinear.Matrix.Definition
 import HLinear.Matrix.Invertible
 
@@ -70,10 +71,8 @@ instance    MultiplicativeMonoid a
 instance Semiring a => LinearSemiringRightAction a (Matrix a)
 
 --------------------------------------------------------------------------------
--- column vectors
+-- action on columns
 --------------------------------------------------------------------------------
-
-newtype Column a = Column {fromColumn :: Vector a}
 
 instance    ( Rng a, AdditiveMonoid b
             , LinearSemiringLeftAction a b )

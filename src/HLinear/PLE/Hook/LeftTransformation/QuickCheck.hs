@@ -11,7 +11,7 @@ import Data.Traversable ( forM )
 import qualified Data.Vector as V
 import Data.Vector ( Vector )
 import qualified Data.Vector.Mutable as VM
-import Math.Structure ( Unit(..) )
+import Math.Structure ( Ring, Unit(..), (.*), (*.) )
 
 import Math.Structure.Tasty ()
 import Test.QuickCheck ( suchThat, Gen )
@@ -23,28 +23,40 @@ import Test.QuickCheck.Modifiers ( NonNegative(..)
                                  , Small(..)
                                  )
 
+import HLinear.Utility.RPermute ( RPermute )
+import HLinear.PLE.Hook.LeftTransformation.Algebra ()
 import HLinear.PLE.Hook.LeftTransformation.Basic as LT
 import HLinear.PLE.Hook.LeftTransformation.Column as LTC
 import HLinear.PLE.Hook.LeftTransformation.Definition
 
 
-instance ( Arbitrary a, Arbitrary (Unit a) )
+instance ( Ring a, Arbitrary a, Arbitrary (Unit a) )
   => Arbitrary (LeftTransformation a)
   where
   arbitrary = do
-    -- We use this slightly odd construction of nrs to avoid infinite loops
-    -- that QuickCheck sometimes produces on using
-    --   ncs <- arbitary `suchThat` (<nrs)
-    NonNegative ncs <- arbitrary
-    NonNegative nrsDiff <- arbitrary
-    let nrs = ncs + nrsDiff
-
-    cs <- V.generateM ncs $ \jx -> do
-            a <- arbitrary
-            c <- V.replicateM (nrs-jx-1) arbitrary
-            return $ LeftTransformationColumn jx a c
-              
-    return $ LeftTransformation (fromIntegral nrs) cs
+    useLTColumn <- arbitrary
+    if useLTColumn
+    then ltFromColumns
+    else do
+      l <- ltFromColumns
+      pl <- arbitrary :: Gen RPermute
+      pr <- arbitrary :: Gen RPermute
+      return $ (pl *. l) .* pr
+    where
+      ltFromColumns = do
+        -- We use this slightly odd construction of nrs to avoid infinite loops
+        -- that QuickCheck sometimes produces on using
+        --   ncs <- arbitary `suchThat` (<nrs)
+        NonNegative ncs <- arbitrary
+        NonNegative nrsDiff <- arbitrary
+        let nrs = ncs + nrsDiff
+    
+        cs <- V.generateM ncs $ \jx -> do
+          a <- arbitrary
+          c <- V.replicateM (nrs-jx-1) arbitrary
+          return $ LeftTransformationColumn jx a c
+                  
+        return $ LeftTransformation (fromIntegral nrs) cs
 
   shrink lt@(LeftTransformation nrs cs)
     | nrs <= 1 || V.length cs <= 1 = []
@@ -65,3 +77,7 @@ instance ( Arbitrary a, Arbitrary (Unit a) )
             | ix <- [0..V.length c - 1]
             , e <- shrink (c V.! ix)
             ]
+
+  -- todo: We would need to determine invertibility for shrinking matrices
+  -- With decidable units that is possible.
+  shrink (LeftTransformationMatrix _) = []
