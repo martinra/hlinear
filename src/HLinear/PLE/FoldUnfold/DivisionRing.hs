@@ -45,7 +45,7 @@ ple m@(Matrix nrs ncs _) =
     Just (h,m') -> V.foldl (*) h $ V.unfoldr splitOffHook m'
 
 pivotPermutation
-  :: ( DivisionRing a, DecidableZero a )
+  :: DecidableZero a
   => Matrix a -> Maybe RPermute
 pivotPermutation (Matrix nrs ncs rs) = do
   pIx <- V.findIndex ((not . isZero) . V.head) rs
@@ -57,22 +57,22 @@ splitOffHook
 splitOffHook m@(Matrix nrs ncs rs)
   | nrs == 0 || ncs == 0 = Nothing
   | Just p <- pivotPermutation m = Just $
-      ( PLEHook p lt ef
-      , Matrix (nrs P.- 1) (ncs P.- 1) bottomRight'
-      )
-  | otherwise = Just $
+      let Just ((pivot, pivotBottom), (pivotTail, bottomRight)) =
+            splitOffTopLeft (p *. m)
+
+          pivotRecip = recip $ toUnit pivot
+          pivotTail' = V.map (fromUnit pivotRecip *) pivotTail
+
+          lt = LT.singleton pivotRecip $ V.map negate pivotBottom
+          ef = EF.singletonLeadingOne nrs pivotTail'
+          
+          bottomRight' =
+            (\f -> V.zipWith f pivotBottom bottomRight) $ \h t ->
+              V.zipWith (\pv te -> te - h * pv) pivotTail' t
+      in  ( PLEHook p lt ef
+          , Matrix (nrs P.- 1) (ncs P.- 1) bottomRight'
+          )
+  | otherwise = Just
       ( Hook.one nrs ncs
       , Matrix nrs (ncs P.- 1) $ V.map V.tail rs
       )
-    where
-      Just ((pivot, pivotBottom), (pivotTail, bottomRight)) = splitOffTopLeft m
-
-      pivotRecip = recip $ toUnit pivot
-      pivotTail' = V.map (fromUnit pivotRecip *) pivotTail
-
-      lt = LT.singleton pivotRecip $ V.map negate pivotBottom
-      ef = EF.singletonLeadingOne nrs pivotTail'
-      
-      bottomRight' =
-        (\f -> V.zipWith f pivotBottom bottomRight) $ \h t ->
-          V.zipWith (\pv te -> te - h * pv) pivotTail' t

@@ -39,7 +39,7 @@ instance {-# OVERLAPPING #-}
   HasPLE (Matrix FMPQ)
   where
     type PLE (Matrix FMPQ) = PLEHook FMPQ
-    ple = FUFF.pleFoldUnfold
+    ple = FUFF.ple
 
 
 class HasRREF a where
