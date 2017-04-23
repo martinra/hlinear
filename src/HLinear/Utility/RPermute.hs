@@ -165,7 +165,8 @@ instance MultiplicativeSemigroupRightAction RPermute (Vector a)
 instance MultiplicativeRightAction RPermute (Vector a)
 
 
-instance MultiplicativeSemigroupLeftAction RPermute (Matrix a) where
+instance MultiplicativeSemigroupLeftAction RPermute (Matrix a)
+  where
   p *. (Matrix nrs ncs rs) = Matrix nrs ncs $ p *. rs
 
 instance MultiplicativeLeftAction RPermute (Matrix a)

@@ -6,6 +6,8 @@
   , Rank2Types
   , ScopedTypeVariables
   , StandaloneDeriving
+  , TemplateHaskell
+  , UndecidableInstances
   #-}
 
 module HLinear.Matrix.Algebra
@@ -26,10 +28,16 @@ import Data.Vector ( Vector )
 import qualified Data.Vector as V
 import Math.Structure
 import Numeric.Natural
+import Language.Haskell.TH hiding ( reify )
+
+import HFlint.NF ( NF, ReifiesNFContext )
+import HFlint.FMPQ ( FMPQ )
+import HFlint.FMPZ ( FMPZ )
 
 import HLinear.Matrix.Column
 import HLinear.Matrix.Definition
 import HLinear.Matrix.Invertible
+import HLinear.Matrix.TH
 
 --------------------------------------------------------------------------------
 -- additive structure
@@ -44,31 +52,6 @@ instance AdditiveMagma a => AdditiveMagma (Matrix a) where
 instance AdditiveSemigroup a => AdditiveSemigroup (Matrix a)
 
 instance Abelian a => Abelian (Matrix a)
-
---------------------------------------------------------------------------------
--- action of base ring
---------------------------------------------------------------------------------
-
-instance    MultiplicativeSemigroup a
-         => MultiplicativeSemigroupLeftAction a (Matrix a)
-  where
-  a *. (Matrix nrs ncs rs) = Matrix nrs ncs $ V.map (V.map (a*)) rs
-
-instance    MultiplicativeMonoid a
-         => MultiplicativeLeftAction a (Matrix a)
-
-instance Semiring a => LinearSemiringLeftAction a (Matrix a)
-
-
-instance    MultiplicativeSemigroup a
-         => MultiplicativeSemigroupRightAction a (Matrix a)
-  where
-  (Matrix nrs ncs rs) .* a = Matrix nrs ncs $ V.map (V.map (*a)) rs
-
-instance    MultiplicativeMonoid a
-         => MultiplicativeRightAction a (Matrix a)
-
-instance Semiring a => LinearSemiringRightAction a (Matrix a)
 
 --------------------------------------------------------------------------------
 -- action on columns
@@ -147,12 +130,14 @@ instance Rng a => MultiplicativeMagma (Matrix a) where
 instance Rng a => MultiplicativeSemigroup (Matrix a)
 
 --------------------------------------------------------------------------------
--- algebra structure
+-- action of base ring
 --------------------------------------------------------------------------------
 
-instance Rng a => Distributive (Matrix a)
-instance Rng a => Semiring (Matrix a)
-
-instance ( Rng a, Commutative a ) => SemiLeftAlgebra a (Matrix a)
-instance ( Rng a, Commutative a ) => SemiRightAlgebra a (Matrix a)
-instance ( Rng a, Commutative a ) => SemiAlgebra a (Matrix a)
+baseRingAction (return []) [t|FMPZ|]
+baseRingAction (return []) [t|FMPQ|]
+do ctx <- newName "ctx"
+   reifies <- [t|ReifiesNFContext|]
+   nf <- [t|NF|]
+   baseRingAction
+     (return [AppT reifies (VarT ctx)])
+     (return $ AppT nf (VarT ctx))

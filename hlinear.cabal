@@ -39,6 +39,7 @@ library
     HLinear.Matrix.QuickCheck
     HLinear.Matrix.Sized
     HLinear.Matrix.SmallCheck
+    HLinear.Matrix.TH
 
     HLinear.PLE.FoldUnfold.DivisionRing
     HLinear.PLE.FoldUnfold.FractionFree
@@ -97,6 +98,7 @@ library
     , safe
     , smallcheck
     , split
+    , template-haskell
     , transformers
     , vector
     , vector-test
