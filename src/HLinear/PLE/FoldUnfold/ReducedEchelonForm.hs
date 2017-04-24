@@ -16,12 +16,12 @@ import qualified Data.Permute as P
 import Math.Structure
 import Numeric.Natural ( Natural )
 
-import HLinear.PLE.Hook.Definition ( RREF(..) )
-import HLinear.PLE.Hook.EchelonForm ( EchelonForm(..), PivotStructure(..) )
-import qualified HLinear.PLE.Hook.EchelonForm as EF
-import qualified HLinear.PLE.Hook.EchelonForm.Row as EFR
-import HLinear.PLE.Hook.EchelonTransformation ( EchelonTransformation(..) )
-import qualified HLinear.PLE.Hook.EchelonTransformation as ET
+import HLinear.Hook.Definition ( RREF(..) )
+import HLinear.Hook.EchelonForm ( EchelonForm(..), PivotStructure(..) )
+import qualified HLinear.Hook.EchelonForm as EF
+import qualified HLinear.Hook.EchelonForm.Row as EFR
+import HLinear.Hook.EchelonTransformation ( EchelonTransformation(..) )
+import qualified HLinear.Hook.EchelonTransformation as ET
 import HLinear.Matrix ( headRows, tailRows )
 import qualified HLinear.Matrix as M
 import HLinear.Matrix.Definition ( Matrix(..) )

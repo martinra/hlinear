@@ -19,12 +19,12 @@ data-files:          README.md
 
 library
   exposed-modules:
+    HLinear.Hook
+    HLinear.Hook.EchelonForm
+    HLinear.Hook.LeftTransformation
     HLinear.Matrix
     HLinear.PLE
     HLinear.PLE.HasPLE
-    HLinear.PLE.Hook
-    HLinear.PLE.Hook.EchelonForm
-    HLinear.PLE.Hook.LeftTransformation
     HLinear.PLH
     HLinear.PLH.HasPLH
     HLinear.Utility.RPermute
@@ -46,35 +46,35 @@ library
     HLinear.PLE.FoldUnfold.Matrix
     HLinear.PLE.FoldUnfold.ReducedEchelonForm
 
-    HLinear.PLE.Hook.Algebra
-    HLinear.PLE.Hook.Basic
-    HLinear.PLE.Hook.Container
-    HLinear.PLE.Hook.Definition
+    HLinear.Hook.Algebra
+    HLinear.Hook.Basic
+    HLinear.Hook.Container
+    HLinear.Hook.Definition
 
-    HLinear.PLE.Hook.EchelonForm.Algebra
-    HLinear.PLE.Hook.EchelonForm.Basic
-    HLinear.PLE.Hook.EchelonForm.Container
-    HLinear.PLE.Hook.EchelonForm.Definition
-    HLinear.PLE.Hook.EchelonForm.PivotStructure
-    HLinear.PLE.Hook.EchelonForm.QuickCheck
-    HLinear.PLE.Hook.EchelonForm.Row
-    HLinear.PLE.Hook.EchelonForm.SmallCheck
+    HLinear.Hook.EchelonForm.Algebra
+    HLinear.Hook.EchelonForm.Basic
+    HLinear.Hook.EchelonForm.Container
+    HLinear.Hook.EchelonForm.Definition
+    HLinear.Hook.EchelonForm.PivotStructure
+    HLinear.Hook.EchelonForm.QuickCheck
+    HLinear.Hook.EchelonForm.Row
+    HLinear.Hook.EchelonForm.SmallCheck
 
-    HLinear.PLE.Hook.EchelonTransformation
-    HLinear.PLE.Hook.EchelonTransformation.Algebra
-    HLinear.PLE.Hook.EchelonTransformation.Basic
-    HLinear.PLE.Hook.EchelonTransformation.Definition
-    HLinear.PLE.Hook.EchelonTransformation.Column
-    HLinear.PLE.Hook.EchelonTransformation.QuickCheck
-    HLinear.PLE.Hook.EchelonTransformation.SmallCheck
+    HLinear.Hook.EchelonTransformation
+    HLinear.Hook.EchelonTransformation.Algebra
+    HLinear.Hook.EchelonTransformation.Basic
+    HLinear.Hook.EchelonTransformation.Definition
+    HLinear.Hook.EchelonTransformation.Column
+    HLinear.Hook.EchelonTransformation.QuickCheck
+    HLinear.Hook.EchelonTransformation.SmallCheck
 
-    HLinear.PLE.Hook.LeftTransformation.Algebra
-    HLinear.PLE.Hook.LeftTransformation.Basic
-    HLinear.PLE.Hook.LeftTransformation.Column
-    HLinear.PLE.Hook.LeftTransformation.Container
-    HLinear.PLE.Hook.LeftTransformation.Definition
-    HLinear.PLE.Hook.LeftTransformation.QuickCheck
-    HLinear.PLE.Hook.LeftTransformation.SmallCheck
+    HLinear.Hook.LeftTransformation.Algebra
+    HLinear.Hook.LeftTransformation.Basic
+    HLinear.Hook.LeftTransformation.Column
+    HLinear.Hook.LeftTransformation.Container
+    HLinear.Hook.LeftTransformation.Definition
+    HLinear.Hook.LeftTransformation.QuickCheck
+    HLinear.Hook.LeftTransformation.SmallCheck
 
     HLinear.PLH.FoldUnfold.EuclideanDomain
 
