@@ -33,7 +33,7 @@ import HLinear.Utility.RPermute
 -- product structure 
 --------------------------------------------------------------------------------
 
-instance    DivisionRing a
+instance    Ring a
          => MultiplicativeMagma (EchelonTransformation a) where
   et@(EchelonTransformation nrs cs) * et'@(EchelonTransformation nrs' cs')
     | ncs  == 0 = et'
@@ -58,18 +58,18 @@ instance    DivisionRing a
       nrsZ = fromIntegral nrs
       nrs'Z = fromIntegral nrs'
 
-instance    DivisionRing a
+instance    Ring a
          => MultiplicativeSemigroup (EchelonTransformation a)
 
-instance    DivisionRing a
+instance    Ring a
          => MultiplicativeMonoid (EchelonTransformation a) where
   one = EchelonTransformation 0 V.empty
 
-instance    ( DivisionRing a, DecidableZero a, DecidableOne a )
+instance    ( Ring a, DecidableZero a, DecidableOne a )
          => DecidableOne (EchelonTransformation a) where
   isOne (EchelonTransformation nrs cs) = ETC.isIdentityColumn `all` cs
 
-instance    ( DivisionRing a, DecidableZero a )
+instance    ( Ring a, DecidableZero a )
          => MultiplicativeGroup (EchelonTransformation a) where
   recip (EchelonTransformation nrs cs)
     | V.length cs == 1
@@ -88,7 +88,7 @@ instance    ( DivisionRing a, DecidableZero a )
 -- action on vectors
 --------------------------------------------------------------------------------
 
-instance ( DivisionRing a, LinearSemiringLeftAction a b )
+instance ( Ring a, LinearSemiringLeftAction a b )
   => MultiplicativeSemigroupLeftAction
        (EchelonTransformation a) (Column b)
   where
@@ -109,21 +109,21 @@ instance ( DivisionRing a, LinearSemiringLeftAction a b )
            ev = V.head vn2
            (vn1,vn2) = V.splitAt (V.length v') vn
 
-instance ( DivisionRing a, LeftModule a b )
+instance ( Ring a, LeftModule a b )
   => MultiplicativeLeftAction (EchelonTransformation a) (Column b)
 
 --------------------------------------------------------------------------------
 -- action on matrices
 --------------------------------------------------------------------------------
 
-instance DivisionRing a
+instance Ring a
   => MultiplicativeSemigroupLeftAction
        (EchelonTransformation a) (Matrix a)
   where
   et *. (Matrix nrs' ncs' rs') =
     Matrix nrs' ncs' $ fromColumn $ et *. Column rs'
 
-instance DivisionRing a
+instance Ring a
   => MultiplicativeLeftAction
        (EchelonTransformation a) (Matrix a)
 
@@ -131,7 +131,7 @@ instance DivisionRing a
 -- action on EchelonTransformationColumn
 --------------------------------------------------------------------------------
 
-instance  DivisionRing a
+instance  Ring a
   => MultiplicativeSemigroupLeftAction
       (EchelonTransformation a)
       (EchelonTransformationColumn a)
@@ -148,7 +148,7 @@ instance  DivisionRing a
              Nothing -> etv
              Just c  -> V.zipWith (+) etv (ETC.init c)
 
-instance DivisionRing a
+instance Ring a
   => MultiplicativeLeftAction
       (EchelonTransformation a)
       (EchelonTransformationColumn a)

@@ -10,8 +10,10 @@ where
 import Math.Structure ( EuclideanDomain, DecidableZero, DecidableUnit, MultiplicativeGroup, Unit )
 
 import HLinear.Matrix ( Matrix )
-import HLinear.Hook.PLEHook ( PLEHook(..) )
+import HLinear.Hook.PLEHook ( PLEHook(..), PLREHook(..), RREF(..) )
+import HLinear.NormalForm.FoldUnfold.RREF.EuclideanDomain ( rref )
 import HLinear.NormalForm.FoldUnfold.PLH.EuclideanDomain as FUED
+import HLinear.NormalForm.FoldUnfold.PLH.Normalization ( HasPLHNormalization )
 
 
 class HasPLH a where
@@ -20,8 +22,12 @@ class HasPLH a where
   plh :: a -> PLH a
 
 instance {-# OVERLAPPABLE #-}
-  ( EuclideanDomain a, DecidableZero a, DecidableUnit a, MultiplicativeGroup (Unit a) )
+  ( EuclideanDomain a, DecidableZero a, MultiplicativeGroup (Unit a)
+  , HasPLHNormalization a )
   => HasPLH (Matrix a)
   where
-    type PLH (Matrix a) = PLEHook a
-    plh = FUED.plhFoldUnfold
+    type PLH (Matrix a) = PLREHook a
+    plh m =
+      let PLEHook p l e = FUED.plh m
+          RREF r e' = rref e
+      in  PLREHook p l r e'

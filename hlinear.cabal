@@ -19,11 +19,12 @@ data-files:          README.md
 
 library
   exposed-modules:
-    HLinear.Hook.PLEHook
-    HLinear.Hook.EchelonForm
-    HLinear.Hook.LeftTransformation
     HLinear.Matrix
     HLinear.NormalForm
+    HLinear.Hook.EchelonForm
+    HLinear.Hook.EchelonTransformation
+    HLinear.Hook.LeftTransformation
+    HLinear.Hook.PLEHook
     HLinear.Utility.RPermute
 
   other-modules:
@@ -41,11 +42,14 @@ library
     HLinear.NormalForm.PLE
     HLinear.NormalForm.PLH
     HLinear.NormalForm.RREF
-
-    HLinear.PLE.FoldUnfold.DivisionRing
-    HLinear.PLE.FoldUnfold.FractionFree
-    HLinear.PLE.FoldUnfold.Matrix
-    HLinear.PLE.FoldUnfold.ReducedEchelonForm
+    HLinear.NormalForm.FoldUnfold.Fraction
+    HLinear.NormalForm.FoldUnfold.Matrix
+    HLinear.NormalForm.FoldUnfold.PLE.DivisionRing
+    HLinear.NormalForm.FoldUnfold.PLE.FractionFree
+    HLinear.NormalForm.FoldUnfold.PLH.EuclideanDomain
+    HLinear.NormalForm.FoldUnfold.PLH.Normalization
+    HLinear.NormalForm.FoldUnfold.RREF.DivisionRing
+    HLinear.NormalForm.FoldUnfold.RREF.EuclideanDomain
 
     HLinear.Hook.EchelonForm.Algebra
     HLinear.Hook.EchelonForm.Basic
@@ -56,7 +60,6 @@ library
     HLinear.Hook.EchelonForm.Row
     HLinear.Hook.EchelonForm.SmallCheck
 
-    HLinear.Hook.EchelonTransformation
     HLinear.Hook.EchelonTransformation.Algebra
     HLinear.Hook.EchelonTransformation.Basic
     HLinear.Hook.EchelonTransformation.Definition
@@ -77,7 +80,9 @@ library
     HLinear.Hook.PLEHook.Container
     HLinear.Hook.PLEHook.Definition
 
-    HLinear.PLH.FoldUnfold.EuclideanDomain
+    HLinear.Hook.ERHook.Algebra
+    HLinear.Hook.ERHook.Basic
+    HLinear.Hook.ERHook.Definition
 
     HLinear.Utility.Permute
 

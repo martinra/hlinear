@@ -1,9 +1,6 @@
 {-# LANGUAGE
-    FlexibleInstances
-  , FlexibleContexts
+    FlexibleContexts
   , MultiParamTypeClasses
-  , TypeFamilies
-  , TupleSections
   #-}
 
 module HLinear.NormalForm.FoldUnfold.PLE.DivisionRing
@@ -16,16 +13,12 @@ import Prelude hiding ( (+), (-), negate, subtract
                       )
 import qualified Prelude as P
 
-import Control.Arrow ( (&&&) )
-import Data.Permute ( Permute )
 import Math.Structure
-import Numeric.Natural
+import Numeric.Natural ( Natural )
 import qualified Data.Vector as V
 
-import HLinear.Hook.EchelonForm ( EchelonForm(..) )
-import HLinear.Hook.LeftTransformation ( LeftTransformation(..) )
 import HLinear.Hook.PLEHook ( PLEHook(..) )
-import HLinear.Matrix ( Matrix(..), headRows, tailRows )
+import HLinear.Matrix ( Matrix(..) )
 import HLinear.NormalForm.FoldUnfold.Matrix ( splitOffTopLeft )
 import HLinear.Utility.RPermute ( RPermute(..) )
 import qualified HLinear.Hook.PLEHook.Basic as Hook

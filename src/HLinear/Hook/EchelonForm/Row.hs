@@ -11,6 +11,7 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       , length
                       )
+import qualified Prelude as P
 
 import Control.DeepSeq
 import Control.Arrow ( first )
@@ -62,12 +63,10 @@ instance NFData a => NFData (EchelonFormRow a) where
 length :: EchelonFormRow a -> Int
 length (EchelonFormRow o r) = fromIntegral o + V.length r
 
-setLength :: Int -> EchelonFormRow a -> EchelonFormRow a
-setLength ncs (EchelonFormRow o r)
-  | o' < 0 = error "EchelonFormRow.setLength: to long row"
-  | otherwise = EchelonFormRow (fromIntegral o') r
+setLength :: Natural -> EchelonFormRow a -> EchelonFormRow a
+setLength ncs (EchelonFormRow o r) = EchelonFormRow o' r
   where
-    o' = ncs - V.length r
+    o' = ncs P.- fromIntegral (V.length r)
   
 (!) :: AdditiveMonoid a => EchelonFormRow a -> Int -> a
 (!) er@(EchelonFormRow o v) ix

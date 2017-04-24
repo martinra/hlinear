@@ -1,4 +1,4 @@
-module HLinear.NormalForm.FoldUnfold.RREF.DivisionRing
+module HLinear.NormalForm.FoldUnfold.RREF.EuclideanDomain
 where
 
 import qualified Prelude as P
@@ -29,7 +29,7 @@ import HLinear.Matrix.Definition ( Matrix(..) )
 
 
 rref
-  :: ( DivisionRing a, DecidableZero a )
+  :: ( EuclideanDomain a, DecidableZero a )
   => EchelonForm a -> RREF a
 rref ef =
   case reduceLastPivot (ef, EF.pivotStructure ef) of
@@ -44,7 +44,7 @@ rref ef =
 
 
 reduceLastPivot
-  :: ( DivisionRing a, DecidableZero a )
+  :: ( EuclideanDomain a, DecidableZero a )
   => (EchelonForm a, PivotStructure)
   -> Maybe (ERHook a, (EchelonForm a, PivotStructure))
 reduceLastPivot ( ef@(EchelonForm nrs ncs _), PivotStructure pivots )
@@ -54,10 +54,11 @@ reduceLastPivot ( ef@(EchelonForm nrs ncs _), PivotStructure pivots )
             EF.splitAtHook pivotRC ef
 
           pivotRow = efBottomRight `EF.atRow` 0
-          -- since we reduce EchelonForms over a division ring,
-          -- the pivot entry is one
+          pivot = V.head pivotRow
           pivotTop = V.map V.head efTopRight 
-          pivotTopNormalization =  pivotTop
+
+          (pivotTop', pivotTopNormalization) =
+            V.unzip $ V.map (`quotRem` pivot) pivotTop
 
           et = ET.singleton $ V.map negate pivotTopNormalization
 
