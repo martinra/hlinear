@@ -3,7 +3,7 @@
   , MultiParamTypeClasses
   #-}
 
-module HLinear.Hook.Definition
+module HLinear.Hook.PLEHook.Definition
 where
 
 import Prelude hiding ( (+), (-), negate, subtract

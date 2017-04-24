@@ -1,11 +1,11 @@
-module HLinear.Hook.Basic
+module HLinear.Hook.PLEHook.Basic
 where
 
 
 import Numeric.Natural ( Natural )
 import qualified Math.Structure as MS
 
-import HLinear.Hook.Definition ( PLEHook(..) )
+import HLinear.Hook.PLEHook.Definition ( PLEHook(..) )
 import HLinear.Utility.RPermute ( RPermute )
 import qualified HLinear.Hook.EchelonForm.Basic as EF
 import qualified HLinear.Hook.LeftTransformation.Basic as LT

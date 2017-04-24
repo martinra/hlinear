@@ -19,7 +19,7 @@ data-files:          README.md
 
 library
   exposed-modules:
-    HLinear.Hook
+    HLinear.Hook.PLEHook
     HLinear.Hook.EchelonForm
     HLinear.Hook.LeftTransformation
     HLinear.Matrix
@@ -46,11 +46,6 @@ library
     HLinear.PLE.FoldUnfold.Matrix
     HLinear.PLE.FoldUnfold.ReducedEchelonForm
 
-    HLinear.Hook.Algebra
-    HLinear.Hook.Basic
-    HLinear.Hook.Container
-    HLinear.Hook.Definition
-
     HLinear.Hook.EchelonForm.Algebra
     HLinear.Hook.EchelonForm.Basic
     HLinear.Hook.EchelonForm.Container
@@ -75,6 +70,11 @@ library
     HLinear.Hook.LeftTransformation.Definition
     HLinear.Hook.LeftTransformation.QuickCheck
     HLinear.Hook.LeftTransformation.SmallCheck
+
+    HLinear.Hook.PLEHook.Algebra
+    HLinear.Hook.PLEHook.Basic
+    HLinear.Hook.PLEHook.Container
+    HLinear.Hook.PLEHook.Definition
 
     HLinear.PLH.FoldUnfold.EuclideanDomain
 

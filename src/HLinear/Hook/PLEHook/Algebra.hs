@@ -3,7 +3,7 @@
   , UndecidableInstances
   #-}
 
-module HLinear.Hook.Algebra
+module HLinear.Hook.PLEHook.Algebra
 where
 
 import Prelude hiding ( (+), (-), negate, subtract
@@ -16,10 +16,10 @@ import Data.Permute ( Permute )
 import qualified Data.Vector as V
 import Math.Structure
 
-import HLinear.Hook.Definition
-import HLinear.Utility.RPermute ()
 import HLinear.Hook.EchelonForm ()
 import HLinear.Hook.LeftTransformation ()
+import HLinear.Hook.PLEHook.Definition
+import HLinear.Utility.RPermute ()
 
 
 instance ( Ring a, MultiplicativeGroup (Unit a) )

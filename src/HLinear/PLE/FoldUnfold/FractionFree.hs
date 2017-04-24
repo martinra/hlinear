@@ -32,17 +32,17 @@ import HFlint.FMPZ.FFI ( fmpz_mul, fmpz_submul, fmpz_divexact )
 import HFlint.Internal ( withFlint, withNewFlint_ )
 
 
-import HLinear.Matrix ( Matrix(..), headRows, tailRows )
-import HLinear.PLE.FoldUnfold.Matrix ( splitOffTopLeft )
-import HLinear.Hook ( PLEHook(..) )
 import HLinear.Hook.EchelonForm ( EchelonForm(..) )
 import HLinear.Hook.LeftTransformation ( LeftTransformation(..) )
+import HLinear.Hook.PLEHook ( PLEHook(..) )
+import HLinear.Matrix ( Matrix(..), headRows, tailRows )
+import HLinear.PLE.FoldUnfold.Matrix ( splitOffTopLeft )
 import HLinear.Utility.RPermute ( RPermute(..) )
-import qualified HLinear.Matrix as M
-import qualified HLinear.PLE.FoldUnfold.DivisionRing as DR
-import qualified HLinear.Hook.Basic as Hook
 import qualified HLinear.Hook.EchelonForm as EF
 import qualified HLinear.Hook.LeftTransformation as LT
+import qualified HLinear.Hook.PLEHook.Basic as Hook
+import qualified HLinear.Matrix as M
+import qualified HLinear.PLE.FoldUnfold.DivisionRing as DR
 import qualified HLinear.Utility.RPermute as RP
 
 

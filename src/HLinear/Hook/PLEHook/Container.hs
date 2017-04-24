@@ -1,9 +1,9 @@
-module HLinear.Hook.Container
+module HLinear.Hook.PLEHook.Container
 where
 
-import HLinear.Hook
 import HLinear.Hook.EchelonForm.Container
 import HLinear.Hook.LeftTransformation.Container
+import HLinear.Hook.PLEHook.Definition
 
 
 instance Functor PLEHook where

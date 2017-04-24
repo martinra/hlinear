@@ -16,7 +16,7 @@ import qualified Data.Permute as P
 import Math.Structure
 import Numeric.Natural ( Natural )
 
-import HLinear.Hook.Definition ( RREF(..) )
+import HLinear.Hook.PLEHook ( RREF(..) )
 import HLinear.Hook.EchelonForm ( EchelonForm(..), PivotStructure(..) )
 import qualified HLinear.Hook.EchelonForm as EF
 import qualified HLinear.Hook.EchelonForm.Row as EFR

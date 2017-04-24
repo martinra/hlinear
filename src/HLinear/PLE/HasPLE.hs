@@ -13,8 +13,8 @@ import qualified HFlint.FMPQMat as FMPQMat
 import Math.Structure ( DivisionRing, DecidableZero, DecidableUnit, MultiplicativeGroup, Unit )
 import HLinear.Hook.EchelonForm ( EchelonForm )
 import HLinear.Hook.EchelonTransformation ( EchelonTransformation )
-import HLinear.Hook ( PLEHook(..), PLREHook(..) )
-import qualified HLinear.Hook as H
+import HLinear.Hook.PLEHook ( PLEHook(..), PLREHook(..) )
+import qualified HLinear.Hook.PLEHook as H
 import HLinear.Matrix ( Matrix )
 import qualified HLinear.PLE.FoldUnfold.FractionFree as FUFF
 import qualified HLinear.PLE.FoldUnfold.DivisionRing as FUDR

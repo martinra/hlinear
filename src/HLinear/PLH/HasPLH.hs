@@ -10,7 +10,7 @@ where
 import Math.Structure ( EuclideanDomain, DecidableZero, DecidableUnit, MultiplicativeGroup, Unit )
 
 import HLinear.Matrix ( Matrix )
-import HLinear.Hook ( PLEHook(..) )
+import HLinear.Hook.PLEHook ( PLEHook(..) )
 import HLinear.PLH.FoldUnfold.EuclideanDomain as FUED
 
 
