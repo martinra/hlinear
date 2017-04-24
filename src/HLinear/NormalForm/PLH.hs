@@ -4,7 +4,7 @@
   , UndecidableInstances
   #-}
 
-module HLinear.PLH.HasPLH
+module HLinear.NormalForm.PLH
 where
 
 import Math.Structure ( EuclideanDomain, DecidableZero, DecidableUnit, MultiplicativeGroup, Unit )

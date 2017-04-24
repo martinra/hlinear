@@ -23,10 +23,7 @@ library
     HLinear.Hook.EchelonForm
     HLinear.Hook.LeftTransformation
     HLinear.Matrix
-    HLinear.PLE
-    HLinear.PLE.HasPLE
-    HLinear.PLH
-    HLinear.PLH.HasPLH
+    HLinear.NormalForm
     HLinear.Utility.RPermute
 
   other-modules:
@@ -40,6 +37,10 @@ library
     HLinear.Matrix.Sized
     HLinear.Matrix.SmallCheck
     HLinear.Matrix.TH
+
+    HLinear.NormalForm.PLE
+    HLinear.NormalForm.PLH
+    HLinear.NormalForm.RREF
 
     HLinear.PLE.FoldUnfold.DivisionRing
     HLinear.PLE.FoldUnfold.FractionFree

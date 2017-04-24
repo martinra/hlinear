@@ -5,41 +5,18 @@
   , UndecidableInstances
   #-}
 
-module HLinear.PLE.HasPLE
+module HLinear.NormalForm.RREF
 where
 
-import HFlint.FMPQ
-import qualified HFlint.FMPQMat as FMPQMat
 import Math.Structure ( DivisionRing, DecidableZero, DecidableUnit, MultiplicativeGroup, Unit )
+import qualified HFlint.FMPQMat as FMPQMat
+
 import HLinear.Hook.EchelonForm ( EchelonForm )
-import HLinear.Hook.EchelonTransformation ( EchelonTransformation )
 import HLinear.Hook.PLEHook ( PLEHook(..), PLREHook(..) )
-import qualified HLinear.Hook.PLEHook as H
 import HLinear.Matrix ( Matrix )
-import qualified HLinear.PLE.FoldUnfold.FractionFree as FUFF
-import qualified HLinear.PLE.FoldUnfold.DivisionRing as FUDR
+import HLinear.NormalForm.PLE ( ple )
+import qualified HLinear.Hook.PLEHook as H
 import qualified HLinear.PLE.FoldUnfold.ReducedEchelonForm as REF
-
-
-
-class HasPLE a where
-  type PLE a :: *
-
-  ple :: a -> PLE a
-
-
-instance {-# OVERLAPPABLE #-}
-     ( DivisionRing a, DecidableZero a, DecidableUnit a, MultiplicativeGroup (Unit a) )
-  => HasPLE (Matrix a)
-  where
-    type PLE (Matrix a) = PLEHook a
-    ple = FUDR.ple
-
-instance {-# OVERLAPPING #-}
-  HasPLE (Matrix FMPQ)
-  where
-    type PLE (Matrix FMPQ) = PLEHook FMPQ
-    ple = FUFF.ple
 
 
 class HasRREF a where
