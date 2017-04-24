@@ -8,7 +8,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module HLinear.PLE.FoldUnfold.FractionFree
+module HLinear.NormalForm.FoldUnfold.PLE.FractionFree
 where
 
 import Prelude hiding ( (+), (-), negate, subtract
@@ -36,53 +36,15 @@ import HLinear.Hook.EchelonForm ( EchelonForm(..) )
 import HLinear.Hook.LeftTransformation ( LeftTransformation(..) )
 import HLinear.Hook.PLEHook ( PLEHook(..) )
 import HLinear.Matrix ( Matrix(..), headRows, tailRows )
-import HLinear.PLE.FoldUnfold.Matrix ( splitOffTopLeft )
+import HLinear.NormalForm.FoldUnfold.Matrix ( splitOffTopLeft )
+import HLinear.NormalForm.FoldUnfold.Fraction ( IsFraction(..) )
 import HLinear.Utility.RPermute ( RPermute(..) )
 import qualified HLinear.Hook.EchelonForm as EF
 import qualified HLinear.Hook.LeftTransformation as LT
 import qualified HLinear.Hook.PLEHook.Basic as Hook
 import qualified HLinear.Matrix as M
-import qualified HLinear.PLE.FoldUnfold.DivisionRing as DR
+import qualified HLinear.NormalForm.FoldUnfold.PLE.DivisionRing as DR
 import qualified HLinear.Utility.RPermute as RP
-
-
-class IsFraction a n d | a -> n d where
-  toFraction :: a -> (n, d)
-  fromNumerator :: n -> a
-  fromDenominator :: d -> a
-
-instance IsFraction FMPQ FMPZ (NonZero FMPZ) where
-  toFraction = toFMPZs
-  fromNumerator n = fromFMPZs n one
-  fromDenominator = fromFMPZs one . fromNonZero
-
-
-instance
-     ( IsFraction a n (NonZero d)
-     , EuclideanDomain d, MultiplicativeSemigroupRightAction d n )
-  => IsFraction (Vector a) (Vector n) (NonZero d)
-  where
-  toFraction v 
-    | V.null v  = (V.empty, NonZero one)
-    | otherwise =
-        let (ns,ds) = V.unzip $ V.map (second fromNonZero . toFraction) v
-            den = V.foldr1 lcm ds
-        in ( V.zipWith (\n d -> n .* (den `quot` d)) ns ds
-           , NonZero den
-           )
-  fromNumerator = V.map fromNumerator
-  fromDenominator = undefined
-
-
-instance
-     ( IsFraction a n (NonZero d)
-     , Ring a, EuclideanDomain d, MultiplicativeSemigroupRightAction d n )
-  => IsFraction (Matrix a) (Matrix n) (Vector (NonZero d))
-  where
-  toFraction (Matrix nrs ncs rs) =
-    first (Matrix nrs ncs) $ V.unzip $ V.map toFraction rs
-  fromNumerator = fmap fromNumerator
-  fromDenominator = M.diagonal . fmap fromDenominator
 
 
 data MatrixFraction a n d where

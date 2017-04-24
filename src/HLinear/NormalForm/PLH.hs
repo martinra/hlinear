@@ -11,7 +11,7 @@ import Math.Structure ( EuclideanDomain, DecidableZero, DecidableUnit, Multiplic
 
 import HLinear.Matrix ( Matrix )
 import HLinear.Hook.PLEHook ( PLEHook(..) )
-import HLinear.PLH.FoldUnfold.EuclideanDomain as FUED
+import HLinear.NormalForm.FoldUnfold.PLH.EuclideanDomain as FUED
 
 
 class HasPLH a where

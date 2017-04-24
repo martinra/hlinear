@@ -12,8 +12,8 @@ import HFlint.FMPQ
 import Math.Structure ( DivisionRing, DecidableZero, DecidableUnit, MultiplicativeGroup, Unit )
 import HLinear.Hook.PLEHook ( PLEHook(..) )
 import HLinear.Matrix ( Matrix )
-import qualified HLinear.PLE.FoldUnfold.FractionFree as FUFF
-import qualified HLinear.PLE.FoldUnfold.DivisionRing as FUDR
+import qualified HLinear.NormalForm.FoldUnfold.PLE.FractionFree as FUFF
+import qualified HLinear.NormalForm.FoldUnfold.PLE.DivisionRing as FUDR
 
 
 class HasPLE a where

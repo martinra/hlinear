@@ -16,7 +16,7 @@ import HLinear.Hook.PLEHook ( PLEHook(..), PLREHook(..) )
 import HLinear.Matrix ( Matrix )
 import HLinear.NormalForm.PLE ( ple )
 import qualified HLinear.Hook.PLEHook as H
-import qualified HLinear.PLE.FoldUnfold.ReducedEchelonForm as REF
+import qualified HLinear.NormalForm.FoldUnfold.RREF.DivisionRing as DR
 
 
 class HasRREF a where
@@ -49,7 +49,7 @@ instance
   where
     type RREF (EchelonForm a) = H.RREF a
 
-    rref = REF.reducedEchelonForm
+    rref = DR.rref
 
 instance HasRREF FMPQMat.FMPQMat where
   type RREF FMPQMat.FMPQMat = FMPQMat.FMPQMat

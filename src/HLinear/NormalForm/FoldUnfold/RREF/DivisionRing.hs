@@ -1,4 +1,4 @@
-module HLinear.PLE.FoldUnfold.ReducedEchelonForm
+module HLinear.NormalForm.FoldUnfold.RREF.DivisionRing
 where
 
 import qualified Prelude as P
@@ -27,10 +27,10 @@ import qualified HLinear.Matrix as M
 import HLinear.Matrix.Definition ( Matrix(..) )
 
 
-reducedEchelonForm
+rref
   :: ( DivisionRing a, DecidableZero a )
   => EchelonForm a -> RREF a
-reducedEchelonForm ef =
+rref ef =
   let EchelonReduction et' _ ef' =
         V.foldl (*) firstReduction $
         V.unfoldr reduceLastPivot (ef, pivots)

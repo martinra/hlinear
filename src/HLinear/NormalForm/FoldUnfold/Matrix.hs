@@ -1,4 +1,4 @@
-module HLinear.PLE.FoldUnfold.Matrix
+module HLinear.NormalForm.FoldUnfold.Matrix
 where
 
 import Control.Arrow ( (&&&) )

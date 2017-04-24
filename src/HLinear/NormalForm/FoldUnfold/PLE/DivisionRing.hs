@@ -6,7 +6,7 @@
   , TupleSections
   #-}
 
-module HLinear.PLE.FoldUnfold.DivisionRing
+module HLinear.NormalForm.FoldUnfold.PLE.DivisionRing
 where
 
 import Prelude hiding ( (+), (-), negate, subtract
@@ -26,7 +26,7 @@ import HLinear.Hook.EchelonForm ( EchelonForm(..) )
 import HLinear.Hook.LeftTransformation ( LeftTransformation(..) )
 import HLinear.Hook.PLEHook ( PLEHook(..) )
 import HLinear.Matrix ( Matrix(..), headRows, tailRows )
-import HLinear.PLE.FoldUnfold.Matrix ( splitOffTopLeft )
+import HLinear.NormalForm.FoldUnfold.Matrix ( splitOffTopLeft )
 import HLinear.Utility.RPermute ( RPermute(..) )
 import qualified HLinear.Hook.PLEHook.Basic as Hook
 import qualified HLinear.Matrix as M
