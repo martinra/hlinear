@@ -2,7 +2,7 @@
     FlexibleContexts
   #-}
 
-module HLinear.Test.Utils
+module HLinear.Test.Utility.Misc
 where
 
 -- copied from HFlint. This should be implemented in a separate package.
@@ -36,6 +36,9 @@ testPropertyMatrix s p = testGroup "(QuickCheck & SmallCheck)"
   ] 
 
 testPropertyMatrixSC s = SC.testProperty s . SC.changeDepth (const 2)
+
+testAlgebraicStructureQC = (`runTestR` QC.testProperty ) .  fmap concat . sequence 
+
 
 equal :: Eq a
       => (b -> c) -> (c -> b)

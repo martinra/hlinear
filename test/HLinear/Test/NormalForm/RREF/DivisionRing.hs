@@ -42,35 +42,20 @@ import HLinear.Test.Utils
 import Debug.Trace
 
 
-reducedEchelonFormProperties :: TestTree
-reducedEchelonFormProperties =
-  testGroup "ReducedEchelonForm"
-  [ testPropertyMatrix "recombine reduceLastPivot" $
-      \ef -> fromMaybe True $ do
-               let _ = ef :: EchelonForm FMPQ
-               let ps = pivotStructure ef
-               (EchelonReduction et m ef'', (ef',ps)) <- reduceLastPivot (ef,ps)
-
-               let efm = toMatrix ef
-               let ef'm = toMatrix ef'
-               let ef''m = toMatrix ef''
-               let etm = toMatrix et
-               let zm = M.zero (EF.nmbRows ef'') (EF.nmbCols ef')
-               let im = M.one (EF.nmbRows ef P.- ET.nmbRows et)
-               return $ M.blockSum etm im * efm == M.blockMatrixL [[ef'm,m],[zm,ef''m]]
-
-  , testPropertyMatrix "recombine reducedEchelonForm (small prime)" $
-      recombineReducedEF 3
+properties :: TestTree
+properties =
+  testGroup "Reduced Row Echelon Form Properties"
+  [ testPropertyMatrix "recombine reducedEchelonForm (small prime)" $
+      recombineRREF 3
 
   , testPropertyMatrix "recombine reducedEchelonForm (large prime)" $
-      recombineReducedEF 1125899906842679
-  ]
+      recombineRREF 1125899906842679
+          ]
 
-recombineReducedEF :: FlintLimb -> Matrix FMPZ -> Bool
-recombineReducedEF p m =
+recombineRREF :: FlintLimb -> Matrix FMPZ -> Bool
+recombineRREF p m =
   withNModContext p $ \(_ :: ReifiesNModContext ctx => Proxy ctx) ->
     let mNMod = fmap toNMod m :: Matrix (NMod ctx)
-        PLEHook _ _ e = ple mNMod
-        RREF r e' = rref e
+        PLREHook p l r e = rref mNMod
         im = M.one (EF.nmbRows e P.- ET.nmbRows r) :: Matrix (NMod ctx)
-    in  (M.blockSum (toMatrix r) im) * toMatrix e == toMatrix e'
+    in  toMatrix p * toMatrix l * toMatrix r * toMatrix e == mNMod

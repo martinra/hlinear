@@ -11,8 +11,9 @@ import Test.Tasty.Ingredients.Rerun
   ( rerunningTests )
 
 
-import HLinear.Test.PLE ( pleTests )
-import HLinear.Test.Matrix ( matrixTests )
+import qualified HLinear.Test.Hook as Hook
+import qualified HLinear.Test.Matrix as Matrix
+import qualified HLinear.Test.NormalForm as NormalForm
 
 
 main :: IO ()
@@ -20,7 +21,7 @@ main =
   defaultMainWithIngredients
   [ rerunningTests [ listingTests, consoleTestReporter ] ] $
   testGroup "HLinear Tests"
-    [ matrixTests
---    , brMatrixTests
---    , pleTests
+    [ Matrix.tests
+    , Hook.tests
+    , NormalForm.tests
     ]

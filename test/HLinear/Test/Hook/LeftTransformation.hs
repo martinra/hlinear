@@ -26,19 +26,12 @@ import HLinear.PLE.Hook.LeftTransformation as LT
 import HLinear.Matrix ( Matrix(..) )
 import qualified HLinear.Matrix as M
 
-import HLinear.Test.Utils
+import HLinear.Test.Utility.Misc
 
 
-leftTransformationTests :: TestTree
-leftTransformationTests =
-  testGroup "LeftTransformation"
-  [ leftTransformationUnitTests
-  , leftTransformationProperties
-  ]
-
-leftTransformationUnitTests :: TestTree
-leftTransformationUnitTests =
-  testGroup "Unit Tests"
+unitTests :: TestTree
+unitTests =
+  testGroup "LeftTransformation Unit Tests"
   [ HU.testCase "toMatrix trivial" $
       let lt = LeftTransformation 2 V.empty :: LeftTransformation Rational
       in  M.toMatrix lt @?= M.fromListsUnsafe
@@ -73,9 +66,23 @@ leftTransformationUnitTests =
                            ([[7%5,0,0], [21%40,3%2,0], [9%10,3%14,8%14]] :: [[Rational]])
   ]
 
-leftTransformationProperties :: TestTree
-leftTransformationProperties =
-  testGroup "Properties"
+properties :: TestTree
+properties =
+  testGroup "LeftTransformation Properties" $
+    testAlgebraicStructureQC
+    [ isMultiplicativeGroup
+        ( Proxy :: Proxy (LeftTransformation Rational) )
+    , isMultiplicativeLeftAction
+        ( Proxy ::  Proxy (LeftTransformation Rational) )
+        ( Proxy ::  Proxy (Vector Rational) )
+    ]
+    ++
+    [ QC.testProperty "toMatrix *. vector == *. vector" $
+        \lt v -> matrixActionOnBottomVector
+                   (LT.nmbRows lt) (lt :: LeftTransformation Rational)
+                   (v :: Vector Rational)
+    ]
+    ++
     [ testPropertyMatrixSC "toMatrix * toInverseMatrix" $
         \lt -> let m = M.toMatrix (lt :: LeftTransformation Rational) :: Matrix Rational
                    mi = M.toMatrix $ recip lt

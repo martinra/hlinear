@@ -17,15 +17,14 @@ import Test.Vector
 
 import HLinear.PLE.Hook.EchelonForm as EF
 
-import HLinear.Test.Utils
+import HLinear.Test.Utility.Misc
 
 
-echelonFormProperties :: TestTree
-echelonFormProperties =
-  testGroup "EchelonForm" $
-    ( (`runTestR` QC.testProperty ) $
-      fmap concat $ sequence
-      [ isAdditiveSemigroup
-          ( Proxy :: Proxy (EchelonForm Rational) )
-      ]
-    ) 
+properties :: TestTree
+properties =
+  testGroup "Echelon Form Properties" $
+    testAlgebraicStructureQC
+    [ isAbelianSemigroup
+        ( Proxy :: Proxy (EchelonForm Rational) )
+    ]
+    

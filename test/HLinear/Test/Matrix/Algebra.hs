@@ -22,17 +22,18 @@ import Test.Vector
 import HLinear.Matrix
 import HLinear.Matrix.Sized
 
-import HLinear.Test.Utils
+import HLinear.Test.Utility.Misc
 
 
 properties :: TestTree
 properties =
   testGroup "Matrix" $
-    ( (`runTestR` QC.testProperty ) $
-      fmap concat $ sequence
-      [ isRing ( Proxy :: Proxy (MatrixSized 1 1 Rational) )
-      , isRing ( Proxy :: Proxy (MatrixSized 2 2 Rational) )
-      , isRing ( Proxy :: Proxy (MatrixSized 3 3 Rational) )
-      , isRing ( Proxy :: Proxy (MatrixSized 9 9 Rational) )
-      ]
-    ) 
+    testAlgebraicStructureQC
+    [ isRing ( Proxy :: Proxy (MatrixSized 1 1 Rational) )
+    , isRing ( Proxy :: Proxy (MatrixSized 2 2 Rational) )
+    , isRing ( Proxy :: Proxy (MatrixSized 3 3 Rational) )
+    , isRing ( Proxy :: Proxy (MatrixSized 9 9 Rational) )
+    , isMultiplicativeLeftAction
+        ( Proxy :: Proxy ( MatrixSized 3 3 Rational ) )
+        ( Proxy :: Proxy ( MatrixSized 3 5 Rational ) )
+    ]

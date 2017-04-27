@@ -12,15 +12,13 @@ import Test.Tasty ( testGroup,
 
 import qualified HLinear.Test.Matrix.Algebra as Algebra 
 import qualified HLinear.Test.Matrix.Basic as Basic 
-import qualified HLinear.Test.Matrix.Creation as Creation
 import qualified HLinear.Test.Matrix.QSTests as QSTests
 
 
-matrixTests :: TestTree
-matrixTests =
+tests :: TestTree
+tests =
   testGroup "Matrix Tests"
   [ QSTests.unitTests
   , Algebra.properties
   , Basic.properties
-  , Creation.properties
   ]
