@@ -34,6 +34,7 @@ import HLinear.Matrix.Algebra ()
 import HLinear.Matrix.Basic ( diagonal )
 import HLinear.Matrix.Definition ( Matrix(..), IsMatrix(..) )
 import HLinear.Matrix.Invertible ( MatrixInvertible )
+import qualified HLinear.Matrix.Basic as M
 
 
 --------------------------------------------------------------------------------
@@ -125,6 +126,11 @@ instance ( KnownNat nrs, KnownNat ncs, AdditiveMonoid a )
           V.replicate (fromInteger nrs) $
             V.replicate (fromInteger ncs) zero
 
+instance ( KnownNat nrs, KnownNat ncs, AdditiveMonoid a, DecidableZero a )
+      => DecidableZero (MatrixSized nrs ncs a)
+  where
+  isZero (MatrixSized m) = M.isZero m
+
 instance ( KnownNat nrs, KnownNat ncs, AdditiveGroup a )
       => AdditiveGroup (MatrixSized nrs ncs a)
   where
@@ -182,3 +188,31 @@ instance ( KnownNat nrs, Ring a )
   one =
     let nrs = natVal (Proxy :: Proxy nrs)
     in  MatrixInvertibleSized $ Unit $ diagonal $ V.replicate (fromInteger nrs) one
+
+instance ( KnownNat nrs, Ring a, DecidableZero a, DecidableOne a )
+  => DecidableOne (MatrixInvertibleSized nrs a)
+  where
+  isOne (MatrixInvertibleSized (Unit (Matrix _ _ rs))) =
+    V.all id $ (`V.imap` rs) $ \ix r ->
+      V.all id $ (`V.imap` r) $ \jx e ->
+        if ix == jx then isOne e else isZero e
+
+--------------------------------------------------------------------------------
+-- group action
+--------------------------------------------------------------------------------
+
+instance MultiplicativeSemigroup (Matrix a)
+  => MultiplicativeSemigroupLeftAction (MatrixSized nrs nrs a) (MatrixSized nrs ncs a)
+  where
+    (MatrixSized m) *. (MatrixSized m') = MatrixSized $ m * m'
+
+instance ( KnownNat nrs, Ring a, MultiplicativeSemigroup (Matrix a) )
+  => MultiplicativeLeftAction (MatrixSized nrs nrs a) (MatrixSized nrs ncs a)
+
+instance MultiplicativeSemigroup (Matrix a)
+  => MultiplicativeSemigroupRightAction (MatrixSized nrs nrs a) (MatrixSized nrs ncs a)
+  where
+    (MatrixSized m') .* (MatrixSized m) = MatrixSized $ m * m'
+
+instance ( KnownNat nrs, Ring a, MultiplicativeSemigroup (Matrix a) )
+  => MultiplicativeRightAction (MatrixSized nrs nrs a) (MatrixSized nrs ncs a)
