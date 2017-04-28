@@ -1,4 +1,4 @@
-module HLinear.Test.PLE
+module HLinear.Test.NormalForm
 where
 
 import Test.Tasty

@@ -1,4 +1,4 @@
-module HLinear.Test.PLE
+module HLinear.Test.Hook
 where
 
 import Test.Tasty
@@ -11,8 +11,7 @@ import qualified HLinear.Test.Hook.LeftTransformation as LT
 tests :: TestTree
 tests =
   testGroup "Hook Tests"
-  [ EF.unitTests
-  , EF.properties
+  [ EF.properties
 
   , EFT.unitTests
   , EFT.properties

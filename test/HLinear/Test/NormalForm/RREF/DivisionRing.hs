@@ -4,7 +4,7 @@
   , ScopedTypeVariables
   #-}
 
-module HLinear.Test.PLE.FoldUnfold.ReducedEchelonForm
+module HLinear.Test.NormalForm.RREF.DivisionRing
 where
 
 import qualified Prelude as P
@@ -14,43 +14,32 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       )
 
-
 import Data.Proxy
 import Data.Maybe
-import qualified Data.Vector as V
-import HFlint.FMPQ
 import HFlint.FMPZ
 import HFlint.NMod
 import Math.Structure
-
+import Math.Structure.Tasty
 import Test.Tasty
-import qualified Test.Tasty.SmallCheck as SC
-import qualified Test.Tasty.QuickCheck as QC
+import qualified Data.Vector as V
 
-import HLinear.Matrix
-
-import HLinear.PLE.HasPLE
-import HLinear.PLE.FoldUnfold.ReducedEchelonForm
-import HLinear.PLE.Hook
-import HLinear.PLE.Hook.EchelonForm as EF
-import HLinear.PLE.Hook.EchelonForm.Container ()
-import HLinear.PLE.Hook.EchelonTransformation as ET
+import HLinear.Hook.PLEHook ( PLREHook(..) )
+import HLinear.Matrix ( Matrix, IsMatrix(..) )
+import HLinear.NormalForm.RREF
+import qualified HLinear.Hook.EchelonForm as EF
+import qualified HLinear.Hook.EchelonTransformation as ET
 import qualified HLinear.Matrix as M
-
-import HLinear.Test.Utils
-
-import Debug.Trace
 
 
 properties :: TestTree
 properties =
-  testGroup "Reduced Row Echelon Form Properties"
-  [ testPropertyMatrix "recombine reducedEchelonForm (small prime)" $
+  testGroup "Reduced row echelon form over division rings"
+  [ testPropertyQSnC 2 "recombine rref (small prime)" $
       recombineRREF 3
 
-  , testPropertyMatrix "recombine reducedEchelonForm (large prime)" $
+  , testPropertyQSnC 2 "recombine rref (large prime)" $
       recombineRREF 1125899906842679
-          ]
+  ]
 
 recombineRREF :: FlintLimb -> Matrix FMPZ -> Bool
 recombineRREF p m =

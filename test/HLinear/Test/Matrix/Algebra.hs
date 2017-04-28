@@ -22,13 +22,11 @@ import Test.Vector
 import HLinear.Matrix
 import HLinear.Matrix.Sized
 
-import HLinear.Test.Utility.Misc
-
 
 properties :: TestTree
 properties =
-  testGroup "Matrix" $
-    testAlgebraicStructureQC
+  testGroup "Algebraic properties" $
+    runTestsQC
     [ isRing ( Proxy :: Proxy (MatrixSized 1 1 Rational) )
     , isRing ( Proxy :: Proxy (MatrixSized 2 2 Rational) )
     , isRing ( Proxy :: Proxy (MatrixSized 3 3 Rational) )

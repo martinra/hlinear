@@ -2,7 +2,7 @@
     ScopedTypeVariables
   #-}
 
-module HLinear.Test.PLE.FoldUnfold.DivisionRing
+module HLinear.Test.NormalForm.PLE.DivisionRing
 where
 
 import qualified Prelude as P
@@ -12,34 +12,26 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       )
 
-import Data.Maybe
 import Data.Proxy
-import HFlint.FMPQ
 import HFlint.FMPZ
 import HFlint.NMod
 import Math.Structure
 import Math.Structure.Tasty
-
 import Test.Tasty
-import Test.Tasty.QuickCheck as QC
-import Test.Vector
 
 import HLinear.Matrix as M
 
-import HLinear.PLE.FoldUnfold.DivisionRing ( splitOffHook )
-import HLinear.PLE.HasPLE
-import HLinear.PLE.Hook
-
-import HLinear.Test.Utils
+import HLinear.Hook.PLEHook ( PLEHook(..) )
+import HLinear.NormalForm.PLE ( ple )
 
 
 properties :: TestTree
 properties =
   testGroup "PLE Properties"
-  [ testPropertyMatrix "recombine ple decomposition (small prime)" $
+  [ testPropertyQSnC 2 "recombine ple decomposition (small prime)" $
       recombinePLE 3
       
-  , testPropertyMatrix "recombine ple decomposition (large prime)" $
+  , testPropertyQSnC 2 "recombine ple decomposition (large prime)" $
       recombinePLE 1125899906842679
   ]
 

@@ -2,7 +2,7 @@
     FlexibleContexts
   #-}
 
-module HLinear.Test.Utility.Misc
+module HLinear.Test.Utility.Intertwine
 where
 
 -- copied from HFlint. This should be implemented in a separate package.
@@ -17,27 +17,6 @@ import Control.Monad ( liftM
                      , liftM2
                      )
 import System.IO.Unsafe ( unsafePerformIO )
-
-import Test.Tasty
-import qualified Test.Tasty.SmallCheck as SC
-import qualified Test.Tasty.QuickCheck as QC
-
-
-testProperty s p = testGroup "(QuickCheck & SmallCheck)"
-  [ QC.testProperty s p
-  , SC.testProperty s p
-  ]
-
-testPropertyMatrix :: (QC.Testable p, SC.Testable IO p)
-                     => String -> p -> TestTree
-testPropertyMatrix s p = testGroup "(QuickCheck & SmallCheck)"
-  [ QC.testProperty s p
-  , testPropertyMatrixSC s p
-  ] 
-
-testPropertyMatrixSC s = SC.testProperty s . SC.changeDepth (const 2)
-
-testAlgebraicStructureQC = (`runTestR` QC.testProperty ) .  fmap concat . sequence 
 
 
 equal :: Eq a
@@ -91,26 +70,3 @@ intertwining2' :: Eq b
                -> Bool
 intertwining2' bToC b'ToC' cToB f g x y
   = f x y == cToB ( g (bToC x) (b'ToC' y))
-
-
-catchDivisionByZero :: IO (Maybe a) -> IO (Maybe a)
-catchDivisionByZero a = a `catch` \e -> case e of
-  DivideByZero         -> return Nothing
-  RatioZeroDenominator -> return Nothing
-  _                    -> throw e
-
-wrapDivideByZero :: (a -> b)
-                  -> Maybe a -> Maybe b
-wrapDivideByZero f a = unsafePerformIO $
-  catchDivisionByZero $
-  case liftM f a of
-    Nothing -> return Nothing
-    Just c' -> Just <$> evaluate c'
-
-wrapDivideByZero2 :: (a -> b -> c)
-                  -> Maybe a -> Maybe b -> Maybe c
-wrapDivideByZero2 f a b = unsafePerformIO $
-  catchDivisionByZero $
-  case liftM2 f a b of
-    Nothing -> return Nothing
-    Just c' -> Just <$> evaluate c'

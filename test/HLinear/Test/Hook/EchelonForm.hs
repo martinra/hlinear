@@ -1,4 +1,4 @@
-module HLinear.Test.PLE.Hook.EchelonForm
+module HLinear.Test.Hook.EchelonForm
 where
 
 import qualified Prelude as P
@@ -9,22 +9,19 @@ import Prelude hiding ( (+), (-), negate, subtract
                       )
 
 import Data.Proxy
+import HFlint.FMPQ
 import Math.Structure.Tasty
 
 import Test.Tasty
-import Test.Tasty.QuickCheck as QC
-import Test.Vector
 
-import HLinear.PLE.Hook.EchelonForm as EF
-
-import HLinear.Test.Utility.Misc
+import HLinear.Hook.EchelonForm
 
 
 properties :: TestTree
 properties =
   testGroup "Echelon Form Properties" $
-    testAlgebraicStructureQC
+    runTestsQC
     [ isAbelianSemigroup
-        ( Proxy :: Proxy (EchelonForm Rational) )
+        ( Proxy :: Proxy (EchelonForm FMPQ) )
     ]
     

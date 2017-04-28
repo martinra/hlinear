@@ -17,7 +17,7 @@ import qualified HLinear.Test.Matrix.QSTests as QSTests
 
 tests :: TestTree
 tests =
-  testGroup "Matrix Tests"
+  testGroup "Matrix tests"
   [ QSTests.unitTests
   , Algebra.properties
   , Basic.properties

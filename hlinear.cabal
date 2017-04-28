@@ -157,6 +157,7 @@ test-suite test-hlinear
     , tasty-quickcheck
     , tasty-hunit
     , tasty-rerun
+    , template-haskell
     , transformers
     , vector
     , vector-test
