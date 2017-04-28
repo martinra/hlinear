@@ -18,6 +18,10 @@ import Test.SmallCheck.Series ( Serial, series )
 
 
 newtype Column a = Column {fromColumn :: Vector a}
+  deriving ( Eq, Show )
+
+
+deriving instance Monoid (Column a)
 
 
 deriving instance Functor Column
