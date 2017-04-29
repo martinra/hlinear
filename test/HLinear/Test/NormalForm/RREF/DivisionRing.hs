@@ -15,13 +15,11 @@ import Prelude hiding ( (+), (-), negate, subtract
                       )
 
 import Data.Proxy
-import Data.Maybe
 import HFlint.FMPZ
 import HFlint.NMod
 import Math.Structure
 import Math.Structure.Tasty
 import Test.Tasty
-import qualified Data.Vector as V
 
 import HLinear.Hook.PLEHook ( PLREHook(..) )
 import HLinear.Matrix ( Matrix, IsMatrix(..) )

@@ -11,7 +11,6 @@ import Prelude hiding ( (+), (-), negate, subtract
 import Data.Proxy
 import HFlint.FMPQ
 import Math.Structure.Tasty
-
 import Test.Tasty
 
 import HLinear.Hook.EchelonForm

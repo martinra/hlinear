@@ -19,9 +19,8 @@ import Math.Structure
 import Math.Structure.Tasty
 import Test.Tasty
 
-import HLinear.Matrix as M
-
 import HLinear.Hook.PLEHook ( PLEHook(..) )
+import HLinear.Matrix ( Matrix, IsMatrix(..) )
 import HLinear.NormalForm.PLE ( ple )
 
 

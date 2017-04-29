@@ -17,11 +17,10 @@ import Numeric.Natural ()
 import Test.Tasty
 import qualified Data.Vector as V
 
+import HLinear.Utility.NmbRowColumn
 import HLinear.Matrix ( Matrix )
 import qualified HLinear.Matrix as M
 import HLinear.Matrix.Sized ( MatrixSized )
-
-import HLinear.Test.Utility.Intertwine
 
 
 properties :: TestTree
@@ -34,13 +33,13 @@ properties = testGroup "Basic properties"
 
   , testPropertyQSC "nmbRows/Cols .: zeroMatrix" $
       \nrs ncs -> ( let m = M.zero nrs ncs :: Matrix Int
-                    in    M.nmbRows m == nrs
-                       && M.nmbCols m == ncs )
+                    in    nmbRows m == nrs
+                       && nmbCols m == ncs )
 
   , testPropertyQSC "nmbRows/Cols .: identityMatrix" $
       \nrs -> ( let m = M.one nrs :: Matrix Int
-                in    M.nmbRows m == nrs
-                   && M.nmbCols m == nrs )
+                in    nmbRows m == nrs
+                   && nmbCols m == nrs )
 
   , testPropertyQSnC 2 "diagonalMatrix . * == * . diagonalMatrix" $
       \abs -> ( let (as,bs) = V.unzip (abs :: Vector (Int,Int))

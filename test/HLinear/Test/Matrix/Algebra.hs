@@ -14,10 +14,7 @@ import Prelude hiding ( (+), (-), negate, subtract
 
 import Data.Proxy
 import Math.Structure.Tasty
-
 import Test.Tasty
-import Test.Tasty.QuickCheck as QC
-import Test.Vector
 
 import HLinear.Matrix
 import HLinear.Matrix.Sized
