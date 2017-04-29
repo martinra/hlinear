@@ -23,6 +23,7 @@ import qualified Math.Structure as MS
 import Math.Structure hiding ( one, zero, isOne, isZero )
 import Numeric.Natural
 
+import HLinear.Utility.NmbRowColumn
 import HLinear.Utility.Permute
 import HLinear.Matrix.Column
 import HLinear.Matrix.Definition
@@ -67,14 +68,20 @@ instance Binary a => Binary (Matrix a) where
     return $ Matrix nrs ncs rs
   
 --------------------------------------------------------------------------------
--- row access
+-- rows and columns
 --------------------------------------------------------------------------------
+
+instance HasNmbRows (Matrix a) where
+  nmbRows (Matrix nrs _ _) = nrs
+
+instance HasNmbCols (Matrix a) where
+  nmbCols (Matrix _ ncs _) = ncs
 
 (!) :: Matrix a -> Int -> Vector a
 (!) = fromJust .: (!?)
 
 (!?) :: Matrix a -> Int -> Maybe (Vector a)
-(!?) = (V.!?) . rows
+(!?) (Matrix _ _ rs) = (V.!?) rs
 
 --------------------------------------------------------------------------------
 -- Permutation of rows and columns

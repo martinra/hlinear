@@ -25,6 +25,7 @@ library
     HLinear.Hook.EchelonTransformation
     HLinear.Hook.LeftTransformation
     HLinear.Hook.PLEHook
+    HLinear.Utility.NmbRowColumn
     HLinear.Utility.RPermute
 
   other-modules:
