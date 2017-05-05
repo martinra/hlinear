@@ -119,6 +119,12 @@ instance MultiplicativeSemigroupRightAction P.Permute (Matrix a) where
 
 instance MultiplicativeRightAction P.Permute (Matrix a)
 
+transpose :: Matrix a -> Matrix a
+transpose (Matrix nrs ncs rs) = Matrix ncs nrs $
+  V.generate (fromIntegral ncs) $ \ix ->
+    V.generate (fromIntegral nrs) $ \jx ->
+      rs V.! jx V.! ix
+
 --------------------------------------------------------------------------------
 -- creation
 --------------------------------------------------------------------------------
