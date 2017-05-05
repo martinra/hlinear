@@ -7,27 +7,16 @@
 module HLinear.Hook.EchelonForm.Basic
 where
 
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      , splitAt
-                      )
+import Prelude ()
+import HLinear.Utility.Prelude hiding ( zero )
 
-import Control.DeepSeq ( NFData(..) )
-import Data.Maybe
-import Data.Vector ( Vector(..) )
 import qualified Data.Vector as V
-import Math.Structure hiding (zero )
 import qualified Math.Structure as MS
-import Numeric.Natural ( Natural )
-import Safe ( atMay )
 
-import HLinear.Matrix.Definition ( Matrix(..), IsMatrix(..) )
 import HLinear.Hook.EchelonForm.Definition as EF
-import HLinear.Hook.EchelonForm.PivotStructure ( rank )
-import qualified HLinear.Hook.EchelonForm.Row as EFR
 import HLinear.Hook.EchelonForm.Row ( EchelonFormRow(..) )
+import HLinear.Matrix.Definition ( Matrix(..), IsMatrix(..) )
+import qualified HLinear.Hook.EchelonForm.Row as EFR
 
 
 --------------------------------------------------------------------------------
@@ -45,6 +34,16 @@ instance NFData a => NFData (EchelonForm a) where
     seq (rnf nrs) $
     seq (rnf ncs) $
     seq (V.map rnf rs) ()
+
+--------------------------------------------------------------------------------
+-- rows and columns
+--------------------------------------------------------------------------------
+
+instance HasNmbRows (EchelonForm a) where
+  nmbRows (EchelonForm nrs _ _) = nrs
+
+instance HasNmbCols (EchelonForm a) where
+  nmbCols (EchelonForm _ ncs _) = ncs
 
 --------------------------------------------------------------------------------
 -- attributes
@@ -131,11 +130,6 @@ splitAt ix (EchelonForm nrs ncs rs) =
     nrs' = fromIntegral $ nrsZ - ixB
 
     (rsTop,rsBottom) = V.splitAt ix rs
-
-truncateAtRank
- :: DecidableZero a
- => EchelonForm a -> EchelonForm a
-truncateAtRank e = fst $ splitAt (fromIntegral $ rank e) e
 
 splitAtHook
   :: ( AdditiveMonoid a, DecidableZero a )

@@ -17,12 +17,9 @@ import Prelude hiding ( (+), (-), negate, subtract
                       , quotRem, quot, rem
                       )
 import qualified Prelude as P
+import HLinear.Utility.Prelude
 
-import Control.Arrow ( (&&&), first, second )
 import Data.Permute ( Permute )
-import Data.Vector ( Vector )
-import Math.Structure
-import Numeric.Natural ( Natural )
 import System.IO.Unsafe ( unsafePerformIO )
 import qualified Data.Vector as V
 
@@ -35,14 +32,14 @@ import HFlint.Internal ( withFlint, withNewFlint_ )
 import HLinear.Hook.EchelonForm ( EchelonForm(..) )
 import HLinear.Hook.LeftTransformation ( LeftTransformation(..) )
 import HLinear.Hook.PLEHook ( PLEHook(..) )
-import HLinear.Matrix ( Matrix(..), headRows, tailRows )
+import HLinear.Matrix.Definition ( Matrix(..) )
+import HLinear.Matrix.Block ( headRows, tailRows )
 import HLinear.NormalForm.FoldUnfold.Matrix ( splitOffTopLeft )
 import HLinear.NormalForm.FoldUnfold.Fraction ( IsFraction(..) )
 import HLinear.Utility.RPermute ( RPermute(..) )
 import qualified HLinear.Hook.EchelonForm as EF
 import qualified HLinear.Hook.LeftTransformation as LT
 import qualified HLinear.Hook.PLEHook.Basic as Hook
-import qualified HLinear.Matrix as M
 import qualified HLinear.NormalForm.FoldUnfold.PLE.DivisionRing as DR
 import qualified HLinear.Utility.RPermute as RP
 

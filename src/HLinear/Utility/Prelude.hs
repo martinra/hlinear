@@ -15,9 +15,12 @@ import Prelude as Import hiding
 import GHC.Exts ( IsList )
 import Data.Vector ( Vector )
 
+import Control.Arrow       as Import
+  ( (&&&), (***), first, second )
 import Control.Applicative as Import
 import Control.DeepSeq     as Import
 import Control.Monad       as Import
+import Control.Monad.Zip   as Import
 import Data.Either         as Import
 import Data.Foldable       as Import
 import Data.Functor        as Import
@@ -27,3 +30,5 @@ import Data.Proxy          as Import
 import Data.Traversable    as Import
 import Math.Structure      as Import
 import Numeric.Natural     as Import
+
+import HLinear.Utility.NmbRowColumn            as Import

@@ -5,13 +5,13 @@
 module HLinear.Hook.EchelonForm.PivotStructure
 where
 
-import Control.DeepSeq ( NFData )
-import Data.Maybe
+import Prelude ()
+import HLinear.Utility.Prelude
+
+import Control.Monad.State as St
 import Data.Sequence ( Seq )
 import qualified Data.Sequence as S
 import qualified Data.Vector as V
-import Math.Structure ( DecidableZero, isZero )
-import Numeric.Natural
 
 import HLinear.Hook.EchelonForm.Definition
 import qualified HLinear.Hook.EchelonForm.Row as EFR
@@ -43,6 +43,18 @@ pivotEntries
   => EchelonForm a -> Seq a
 pivotEntries = mapPivot (\_ _ a -> a)
 
+pivotEntryVector
+  :: DecidableZero a
+  => EchelonForm a -> Vector a
+pivotEntryVector = V.fromList . toList . pivotEntries
+  
 
 rank :: DecidableZero a => EchelonForm a -> Natural
-rank e@(EchelonForm _ _ rs) = fromIntegral $ S.length $ fromPivotStructure $ pivotStructure e
+rank = (`execState` 0) . sequenceA_ . mapPivot (\_ _ _ -> St.modify succ)
+
+
+hasNonzeroDiagonal :: DecidableZero a => EchelonForm a -> Bool
+hasNonzeroDiagonal = and . mapPivot (\ix jx _ -> ix == jx)
+
+hasUnitDiagonal :: (DecidableZero a, DecidableUnit a) => EchelonForm a -> Bool
+hasUnitDiagonal = and . mapPivot (\ix jx a -> ix == jx && isUnit a)

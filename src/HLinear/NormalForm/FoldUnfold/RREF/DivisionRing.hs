@@ -2,30 +2,23 @@ module HLinear.NormalForm.FoldUnfold.RREF.DivisionRing
 where
 
 import qualified Prelude as P
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
+import HLinear.Utility.Prelude
 
 import Data.Sequence ( ViewR(..), viewr )
 import qualified Data.Sequence as S
-import Data.Vector ( Vector )
 import qualified Data.Vector as V
 import qualified Data.Permute as P
-import Math.Structure
-import Numeric.Natural ( Natural )
 
-import HLinear.Hook.PLEHook ( RREF(..) )
 import HLinear.Hook.ERHook ( ERHook(..) )
 import HLinear.Hook.EchelonForm ( EchelonForm(..), PivotStructure(..) )
+import HLinear.Hook.EchelonTransformation ( EchelonTransformation(..) )
+import HLinear.Hook.PLEHook ( RREF(..) )
+import HLinear.Matrix.Block ( headRows, tailRows )
+import HLinear.Matrix.Definition ( Matrix(..) )
 import qualified HLinear.Hook.EchelonForm as EF
 import qualified HLinear.Hook.EchelonForm.Row as EFR
-import HLinear.Hook.EchelonTransformation ( EchelonTransformation(..) )
 import qualified HLinear.Hook.EchelonTransformation as ET
-import HLinear.Matrix ( headRows, tailRows )
-import qualified HLinear.Matrix as M
-import HLinear.Matrix.Definition ( Matrix(..) )
+import qualified HLinear.Matrix.Basic as M
 
 
 rref

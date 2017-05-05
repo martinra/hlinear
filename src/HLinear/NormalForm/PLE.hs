@@ -1,36 +1,12 @@
-{-# LANGUAGE
-    FlexibleContexts
-  , FlexibleInstances
-  , TypeFamilies
-  , UndecidableInstances
-  #-}
-
 module HLinear.NormalForm.PLE
 where
 
-import HFlint.FMPQ
-import Math.Structure ( DivisionRing, DecidableZero, DecidableUnit, MultiplicativeGroup, Unit )
+import Prelude ()
+import HLinear.Utility.Prelude
+
 import HLinear.Hook.PLEHook ( PLEHook(..) )
-import HLinear.Matrix ( Matrix )
-import qualified HLinear.NormalForm.FoldUnfold.PLE.FractionFree as FUFF
-import qualified HLinear.NormalForm.FoldUnfold.PLE.DivisionRing as FUDR
+import HLinear.Matrix.Definition ( Matrix )
 
 
 class HasPLE a where
-  type PLE a :: *
-
-  ple :: a -> PLE a
-
-
-instance {-# OVERLAPPABLE #-}
-     ( DivisionRing a, DecidableZero a, DecidableUnit a, MultiplicativeGroup (Unit a) )
-  => HasPLE (Matrix a)
-  where
-    type PLE (Matrix a) = PLEHook a
-    ple = FUDR.ple
-
-instance {-# OVERLAPPING #-}
-  HasPLE (Matrix FMPQ)
-  where
-    type PLE (Matrix FMPQ) = PLEHook FMPQ
-    ple = FUFF.ple
+  ple :: Matrix a -> PLEHook a

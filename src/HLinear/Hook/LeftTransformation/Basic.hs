@@ -8,24 +8,13 @@ module HLinear.Hook.LeftTransformation.Basic
 where
 
 import qualified Prelude as P
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
+import HLinear.Utility.Prelude hiding ( one )
 
-import Control.Applicative ( (<$>) )
-import Control.Arrow ( first )
-import Control.DeepSeq ( NFData(..) )
-import Data.Maybe
-import Data.Vector ( Vector(..) )
 import qualified Data.Vector as V
-import Math.Structure hiding ( one )
 import qualified Math.Structure as MS
-import Numeric.Natural ( Natural )
 
 
-import HLinear.Matrix ( Matrix(..), IsMatrix(..) )
+import HLinear.Matrix.Definition ( Matrix(..), IsMatrix(..) )
 import HLinear.Hook.LeftTransformation.Column hiding ( one, isOne )
 import qualified HLinear.Hook.LeftTransformation.Column as LTC
 import HLinear.Hook.LeftTransformation.Definition
@@ -66,6 +55,16 @@ instance    ( Eq a, DecidableZero a, DecidableOne a )
 
 instance NFData a => NFData (LeftTransformation a) where
   rnf (LeftTransformation nrs cs) = seq (rnf nrs) $ seq (rnf cs) ()
+
+--------------------------------------------------------------------------------
+-- rows and columns
+--------------------------------------------------------------------------------
+
+instance HasNmbRows (LeftTransformation a) where
+  nmbRows (LeftTransformation nrs _) = nrs
+
+instance HasNmbCols (LeftTransformation a) where
+  nmbCols (LeftTransformation nrs _) = nrs
 
 --------------------------------------------------------------------------------
 -- creation

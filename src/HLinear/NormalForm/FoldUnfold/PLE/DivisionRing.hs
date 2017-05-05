@@ -18,11 +18,10 @@ import Numeric.Natural ( Natural )
 import qualified Data.Vector as V
 
 import HLinear.Hook.PLEHook ( PLEHook(..) )
-import HLinear.Matrix ( Matrix(..) )
+import HLinear.Matrix.Definition ( Matrix(..) )
 import HLinear.NormalForm.FoldUnfold.Matrix ( splitOffTopLeft )
 import HLinear.Utility.RPermute ( RPermute(..) )
 import qualified HLinear.Hook.PLEHook.Basic as Hook
-import qualified HLinear.Matrix as M
 import qualified HLinear.Hook.EchelonForm as EF
 import qualified HLinear.Hook.LeftTransformation as LT
 import qualified HLinear.Utility.RPermute as RP

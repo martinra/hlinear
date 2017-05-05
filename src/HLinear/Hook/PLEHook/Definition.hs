@@ -6,16 +6,10 @@
 module HLinear.Hook.PLEHook.Definition
 where
 
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
+import Prelude ()
+import HLinear.Utility.Prelude
 
-import Control.DeepSeq ( NFData(..) )
-import Math.Structure
-
-import HLinear.Matrix ( Matrix, IsMatrix(..) )
+import HLinear.Matrix.Definition ( Matrix, IsMatrix(..) )
 import HLinear.Hook.EchelonForm as EF
 import HLinear.Hook.EchelonTransformation as ET
 import HLinear.Hook.LeftTransformation as LT

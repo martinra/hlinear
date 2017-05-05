@@ -1,20 +1,17 @@
 module HLinear.Hook.EchelonForm.Algebra
 where
 
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
-import qualified Data.Vector as V
-import Data.Vector ( Vector(..) )
-import Math.Structure
-import Numeric.Natural ( Natural )
+import Prelude ()
+import HLinear.Utility.Prelude as P
 
-import HLinear.Matrix.Definition ( Matrix(..) )
+import qualified Data.Vector as V
+import qualified Math.Structure as MS
+
 import HLinear.Hook.EchelonForm.Basic as EF
 import HLinear.Hook.EchelonForm.Definition
+import HLinear.Hook.EchelonForm.PivotStructure
 import HLinear.Hook.EchelonForm.Row as EFR
+import HLinear.Matrix.Definition ( Matrix(..) )
 
 
 --------------------------------------------------------------------------------
@@ -64,3 +61,14 @@ instance AdditiveMagma a => AdditiveMagma (EchelonForm a) where
 instance AdditiveSemigroup a => AdditiveSemigroup (EchelonForm a)
 
 instance Abelian a => Abelian (EchelonForm a)
+
+--------------------------------------------------------------------------------
+-- determinant and invertibility
+--------------------------------------------------------------------------------
+
+det :: ( Ring a, DecidableZero a ) => EchelonForm a -> a
+det ef@(EchelonForm nrs ncs _)
+  | nrs /= ncs = MS.zero
+  | otherwise  =
+      let dsMay = mapPivot (\ix jx d -> if ix == jx then Just d else Nothing) ef
+      in  fromMaybe MS.zero $ foldlM (\a a' -> (a*) <$> a') one dsMay

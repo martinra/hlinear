@@ -29,7 +29,6 @@ import HFlint.FMPZ ( FMPZ )
 import HLinear.Matrix.Block as M ( concatMap )
 import HLinear.Matrix.Column
 import HLinear.Matrix.Definition
-import HLinear.Matrix.Invertible
 import HLinear.Matrix.TH
 
 --------------------------------------------------------------------------------
@@ -42,9 +41,18 @@ instance AdditiveMagma a => AdditiveMagma (Matrix a) where
     | otherwise =
       Matrix nrs ncs $ V.zipWith (V.zipWith (+)) rs rs'
 
+instance Abelian a => Abelian (Matrix a)
+
 instance AdditiveSemigroup a => AdditiveSemigroup (Matrix a)
 
-instance Abelian a => Abelian (Matrix a)
+instance AdditiveMonoid a => AdditiveMonoid (Matrix a) where
+  zero = undefined
+
+instance DecidableZero a => DecidableZero (Matrix a) where
+  isZero = all isZero
+
+instance AdditiveGroup a => AdditiveGroup (Matrix a) where
+  negate = fmap negate
 
 --------------------------------------------------------------------------------
 -- action on columns
@@ -121,6 +129,16 @@ instance Rng a => MultiplicativeMagma (Matrix a) where
                    m *. (Column $ V.map Row rs' :: Column (Row ctx a))
 
 instance Rng a => MultiplicativeSemigroup (Matrix a)
+
+instance Ring a => MultiplicativeMonoid (Matrix a) where
+  one = undefined
+
+instance ( Ring a, DecidableZero a, DecidableOne a ) => DecidableOne (Matrix a) where
+  isOne (Matrix nrs ncs rs)
+    | nrs /= ncs = False
+    | otherwise = and $ (`V.imap` rs) $ \ix r ->
+                    and $ (`V.imap` r) $ \jx ->
+                      if ix == jx then isOne else isZero
 
 tensorProduct :: Semiring a => Matrix a -> Matrix a -> Matrix a
 tensorProduct m = M.concatMap (\a -> fmap (*a) m)

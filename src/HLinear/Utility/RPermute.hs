@@ -14,23 +14,17 @@ where
 --------------------------------------------------------------------------------
 
 import qualified Prelude as P
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
+import HLinear.Utility.Prelude
 
-import Control.DeepSeq ( NFData(..) )
 import qualified Data.Vector as V
-import Data.Vector ( Vector )
 import Data.Permute ( Permute )
 import qualified Data.Permute as P
-import Math.Structure
 import Test.QuickCheck
 import Test.SmallCheck.Series
 
 import HLinear.Utility.Permute ()
-import HLinear.Matrix hiding ( zero, one )
+import HLinear.Matrix.Definition
+import HLinear.Matrix.Basic hiding ( zero, one )
 
 
 newtype RPermute = RPermute Permute

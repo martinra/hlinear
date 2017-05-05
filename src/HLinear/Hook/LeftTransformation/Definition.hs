@@ -4,7 +4,7 @@ where
 import Data.Vector
 import Numeric.Natural
 
-import HLinear.Matrix ( Matrix )
+import HLinear.Matrix.Definition ( Matrix )
 import HLinear.Hook.LeftTransformation.Column
 
 

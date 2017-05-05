@@ -10,26 +10,19 @@ module HLinear.Hook.LeftTransformation.Algebra
 where
 
 import qualified Prelude as P
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
+import HLinear.Utility.Prelude
 
-import Data.Maybe
-import Data.Proxy
 import Data.Reflection
-import Data.Vector ( Vector(..) )
-import Math.Structure
-import Numeric.Natural ( Natural )
 import qualified Data.Vector as V
 
-import HLinear.Matrix ( Matrix(..), IsMatrix(..), Column(..) )
+import HLinear.Matrix.Column ( Column(..) )
+import HLinear.Matrix.Definition ( Matrix(..), IsMatrix(..) )
 import qualified HLinear.Hook.LeftTransformation.Basic as LT
 import HLinear.Hook.LeftTransformation.Column hiding ( one, isOne )
 import HLinear.Hook.LeftTransformation.Definition
 import HLinear.Utility.RPermute
 import qualified HLinear.Matrix.Algebra as M
+import qualified HLinear.Matrix.Naive as MNaive
 import qualified HLinear.Hook.LeftTransformation.Column as LTC
 
 --------------------------------------------------------------------------------
@@ -109,7 +102,7 @@ instance ( Ring a, MultiplicativeGroup (Unit a)
     ||
     (`all` cs) (\(LeftTransformationColumn _ a v) -> isOne a && all isZero v)
 
-instance ( Ring a, MultiplicativeGroup (Unit a) )
+instance ( Ring a, DecidableUnit a, MultiplicativeGroup (Unit a) )
   => MultiplicativeGroup (LeftTransformation a)
   where
   recip (LeftTransformation nrs cs)
@@ -124,6 +117,17 @@ instance ( Ring a, MultiplicativeGroup (Unit a) )
         go (LeftTransformationColumn _ a c) =
           LeftTransformation (fromIntegral $ succ $ V.length c) $
                              V.singleton $ LeftTransformationColumn 0 a c
+  recip (LeftTransformationMatrix m) = LeftTransformationMatrix $ MNaive.recip m
+
+--------------------------------------------------------------------------------
+-- determinant
+--------------------------------------------------------------------------------
+
+det :: Ring a => LeftTransformation a -> a
+det (LeftTransformation _ cs) = foldl' (*) one $ fmap LTC.head cs
+-- to define the determinant, fall back to a naive
+-- algorithm, so that we don't have circular imports
+det (LeftTransformationMatrix m) = MNaive.det m
 
 --------------------------------------------------------------------------------
 -- action on columns

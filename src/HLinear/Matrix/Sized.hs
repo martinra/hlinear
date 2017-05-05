@@ -126,15 +126,11 @@ instance ( KnownNat nrs, KnownNat ncs, AdditiveMonoid a )
           V.replicate (fromInteger nrs) $
             V.replicate (fromInteger ncs) zero
 
-instance ( KnownNat nrs, KnownNat ncs, AdditiveMonoid a, DecidableZero a )
+deriving instance ( KnownNat nrs, KnownNat ncs, AdditiveMonoid a, DecidableZero a )
       => DecidableZero (MatrixSized nrs ncs a)
-  where
-  isZero (MatrixSized m) = M.isZero m
 
-instance ( KnownNat nrs, KnownNat ncs, AdditiveGroup a )
+deriving instance ( KnownNat nrs, KnownNat ncs, AdditiveGroup a )
       => AdditiveGroup (MatrixSized nrs ncs a)
-  where
-  negate (MatrixSized m) = MatrixSized $ fmap negate m
 
 --------------------------------------------------------------------------------
 -- multiplicative structure
@@ -192,10 +188,7 @@ instance ( KnownNat nrs, Ring a )
 instance ( KnownNat nrs, Ring a, DecidableZero a, DecidableOne a )
   => DecidableOne (MatrixInvertibleSized nrs a)
   where
-  isOne (MatrixInvertibleSized (Unit (Matrix _ _ rs))) =
-    V.all id $ (`V.imap` rs) $ \ix r ->
-      V.all id $ (`V.imap` r) $ \jx e ->
-        if ix == jx then isOne e else isZero e
+  isOne (MatrixInvertibleSized (Unit m)) = isOne m
 
 --------------------------------------------------------------------------------
 -- group action

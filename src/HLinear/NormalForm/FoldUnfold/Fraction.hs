@@ -12,23 +12,16 @@
 module HLinear.NormalForm.FoldUnfold.Fraction
 where
 
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , lcm, gcd
-                      , quotRem, quot, rem
-                      )
+import Prelude ()
+import HLinear.Utility.Prelude
 
-import Control.Arrow ( first, second )
-import Data.Vector ( Vector )
-import Math.Structure
-import Numeric.Natural ( Natural )
 import qualified Data.Vector as V
 
 import HFlint.FMPQ ( FMPQ, toFMPZs, fromFMPZs )
 import HFlint.FMPZ ( FMPZ )
 
-import HLinear.Matrix ( Matrix(..) )
-import qualified HLinear.Matrix as M
+import HLinear.Matrix.Definition ( Matrix(..) )
+import qualified HLinear.Matrix.Basic as M
 
 
 class IsFraction a n d | a -> n d where
@@ -48,14 +41,14 @@ instance
   => IsFraction (Vector a) (Vector n) (NonZero d)
   where
   toFraction v 
-    | V.null v  = (V.empty, NonZero one)
+    | V.null v  = (mempty, NonZero one)
     | otherwise =
-        let (ns,ds) = V.unzip $ V.map (second fromNonZero . toFraction) v
-            den = V.foldr1 lcm ds
+        let (ns,ds) = V.unzip $ fmap (second fromNonZero . toFraction) v
+            den = foldr1 lcm ds
         in ( V.zipWith (\n d -> n .* (den `quot` d)) ns ds
            , NonZero den
            )
-  fromNumerator = V.map fromNumerator
+  fromNumerator = fmap fromNumerator
   fromDenominator = undefined
 
 
@@ -65,7 +58,7 @@ instance
   => IsFraction (Matrix a) (Matrix n) (Vector (NonZero d))
   where
   toFraction (Matrix nrs ncs rs) =
-    first (Matrix nrs ncs) $ V.unzip $ V.map toFraction rs
+    first (Matrix nrs ncs) $ V.unzip $ fmap toFraction rs
   fromNumerator = fmap fromNumerator
   fromDenominator = M.diagonal . fmap fromDenominator
 

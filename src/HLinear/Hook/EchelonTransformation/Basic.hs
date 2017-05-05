@@ -21,7 +21,7 @@ import Math.Structure hiding ( one )
 import qualified Math.Structure as MS
 import Numeric.Natural ( Natural )
 
-import HLinear.Matrix ( Matrix(..), IsMatrix(..) )
+import HLinear.Matrix.Definition ( Matrix(..), IsMatrix(..) )
 import HLinear.Hook.EchelonTransformation.Column
 import HLinear.Hook.EchelonTransformation.Definition
 import qualified HLinear.Hook.EchelonTransformation.Column as ETC

@@ -6,7 +6,7 @@ import Data.Maybe
 import Data.Vector ( Vector )
 import qualified Data.Vector as V
 
-import HLinear.Matrix ( Matrix(..) )
+import HLinear.Matrix.Definition ( Matrix(..) )
 
 
 splitOffTopLeft :: Matrix a -> Maybe ((a, Vector a), (Vector a, Vector (Vector a)))

@@ -8,14 +8,16 @@
 module HLinear.Hook.LeftTransformation.SmallCheck
 where
 
-import Control.Monad ( guard )
+import Prelude ()
+import HLinear.Utility.Prelude
+
 import qualified Data.Vector as V
 import Test.SmallCheck.Series ( Serial, series, (\/) )
-import Math.Structure ( Ring, Unit(..) )
 import Numeric.Natural ()
 
 import Test.Natural ()
 
+import HLinear.Matrix.SmallCheck
 import HLinear.Hook.LeftTransformation.Column
 import HLinear.Hook.LeftTransformation.Definition
 
