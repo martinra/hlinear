@@ -85,6 +85,7 @@ library
     HLinear.Hook.ERHook.Basic
     HLinear.Hook.ERHook.Definition
 
+    HLinear.Utility.Prelude
     HLinear.Utility.Permute
 
   build-depends:
