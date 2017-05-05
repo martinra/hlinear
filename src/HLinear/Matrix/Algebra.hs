@@ -13,27 +13,20 @@
 module HLinear.Matrix.Algebra
 where
 
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
+import Prelude ()
+import HLinear.Utility.Prelude
 
 import Control.Applicative ( liftA, liftA2 )
-import Control.Monad
 import Control.Monad.Reader
-import Data.Proxy
 import Data.Reflection
-import Data.Vector ( Vector )
 import qualified Data.Vector as V
-import Math.Structure
-import Numeric.Natural
 import Language.Haskell.TH hiding ( reify )
 
 import HFlint.NF ( NF, ReifiesNFContext )
 import HFlint.FMPQ ( FMPQ )
 import HFlint.FMPZ ( FMPZ )
 
+import HLinear.Matrix.Block as M ( concatMap )
 import HLinear.Matrix.Column
 import HLinear.Matrix.Definition
 import HLinear.Matrix.Invertible
@@ -128,6 +121,9 @@ instance Rng a => MultiplicativeMagma (Matrix a) where
                    m *. (Column $ V.map Row rs' :: Column (Row ctx a))
 
 instance Rng a => MultiplicativeSemigroup (Matrix a)
+
+tensorProduct :: Semiring a => Matrix a -> Matrix a -> Matrix a
+tensorProduct m = M.concatMap (\a -> fmap (*a) m)
 
 --------------------------------------------------------------------------------
 -- action of base ring

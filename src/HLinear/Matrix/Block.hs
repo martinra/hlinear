@@ -2,16 +2,9 @@ module HLinear.Matrix.Block
 where
 
 import qualified Prelude as P
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
+import HLinear.Utility.Prelude
 
-import Data.Vector ( Vector )
 import qualified Data.Vector as V
-import Math.Structure
-import Numeric.Natural
 
 import HLinear.Matrix.Basic hiding ( zero )
 import qualified HLinear.Matrix.Basic as M
@@ -25,9 +18,8 @@ import HLinear.Matrix.Definition
 blockSum :: (AdditiveMonoid a)
          => Matrix a -> Matrix a -> Matrix a
 Matrix nrs ncs rs `blockSum` Matrix nrs' ncs' rs' =
-  Matrix (nrs+nrs') (ncs+ncs') $ (V.++)
-    ( V.map (V.++ zeros') rs )
-    ( V.map (zeros V.++) rs' )
+  Matrix (nrs+nrs') (ncs+ncs') $
+    ( V.map (<> zeros') rs ) <> ( V.map (zeros <>) rs' )
   where
     zeros = V.replicate (fromIntegral ncs) zero 
     zeros' = V.replicate (fromIntegral ncs') zero 
@@ -36,12 +28,12 @@ blockSumRows :: Matrix a -> Matrix a -> Matrix a
 blockSumRows (Matrix nrs ncs rs) (Matrix nrs' ncs' rs')
   | nrs /= nrs' = error "Matrix.blockSumRows: unequal number of rows"
   | otherwise   = Matrix nrs (ncs+ncs') $
-                    V.zipWith (V.++) rs rs'
+                    V.zipWith (<>) rs rs'
 
 blockSumCols :: Matrix a -> Matrix a -> Matrix a
 blockSumCols (Matrix nrs ncs rs) (Matrix nrs' ncs' rs')
   | ncs /= ncs' = error "Matrix.blockSumCols: unequal number of cols"
-  | otherwise   = Matrix (nrs+nrs') ncs $ rs V.++ rs'
+  | otherwise   = Matrix (nrs+nrs') ncs $ rs <> rs'
 
 blockMatrix :: Vector (Vector (Matrix a)) -> Matrix a
 blockMatrix = V.foldl1' blockSumCols . V.map (V.foldl1' blockSumRows)
@@ -52,6 +44,13 @@ blockMatrixL = blockMatrix . V.map V.fromList . V.fromList
 instance AdditiveMonoid a => Monoid (Matrix a) where
   mempty = M.zero 0 0
   mappend = blockSum
+
+--------------------------------------------------------------------------------
+-- concatMap
+--------------------------------------------------------------------------------
+
+concatMap :: (a -> Matrix b) -> Matrix a -> Matrix b
+concatMap f (Matrix nrs ncs rs) = blockMatrix $ V.map (V.map f) rs
 
 --------------------------------------------------------------------------------
 -- submatrices
