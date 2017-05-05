@@ -81,14 +81,19 @@ setLength ncs (EchelonFormRow o r) = EchelonFormRow o' r
 --------------------------------------------------------------------------------
 
 pivotIx :: DecidableZero a => EchelonFormRow a -> Maybe Int
-pivotIx (EchelonFormRow o v) = (oZ+) <$> V.findIndex (not . isZero) v
-  where
-    oZ = fromIntegral o
+pivotIx = pivotIx' 0
 
-pivotIx' :: DecidableZero a => EchelonFormRow a -> Int -> Maybe Int
-pivotIx' (EchelonFormRow o v) ix
-  | ix > oZ   = (ix+) <$> V.findIndex (not . isZero) (V.drop (ix-oZ) v)
-  | otherwise = (oZ+) <$> V.findIndex (not . isZero) v
+pivotIx' :: DecidableZero a => Int -> EchelonFormRow a -> Maybe Int
+pivotIx' ix ef = fst <$> pivotIxEntry' ix ef
+
+pivotIxEntry' :: DecidableZero a => Int -> EchelonFormRow a -> Maybe (Int,a)
+pivotIxEntry' ix (EchelonFormRow o v)
+  | ix > oZ   = do
+      jx <- V.findIndex (not . isZero) (V.drop (ix-oZ) v)
+      return (ix+jx, v V.! jx)
+  | otherwise = do
+      jx <- V.findIndex (not . isZero) v
+      return (oZ+jx, v V.! jx)
   where
     oZ = fromIntegral o
 
