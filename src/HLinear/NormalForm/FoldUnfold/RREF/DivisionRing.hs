@@ -32,8 +32,8 @@ rref ef =
                                V.unfoldr reduceLastPivot efp'
       in  RREF et' ef'
   where
-    nrs = EF.nmbRows ef
-    ncs = EF.nmbCols ef
+    nrs = nmbRows ef
+    ncs = nmbCols ef
 
 
 reduceLastPivot

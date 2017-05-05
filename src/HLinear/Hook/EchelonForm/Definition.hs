@@ -16,7 +16,7 @@ import HLinear.Hook.EchelonForm.Row
 
 data EchelonForm a =
   EchelonForm
-    { nmbRows :: Natural
-    , nmbCols :: Natural
+    { _nmbRows :: Natural
+    , _nmbCols :: Natural
     , rows :: Vector (EchelonFormRow a)
     }

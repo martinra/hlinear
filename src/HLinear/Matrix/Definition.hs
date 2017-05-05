@@ -15,7 +15,7 @@ import Numeric.Natural ( Natural )
 -- even zero cannot be defined for all the spaces
 -- simultaneously.
 data Matrix a =
-  Matrix {  nmbRows :: !Natural
+  Matrix { _nmbRows :: !Natural
          , _nmbCols  :: !Natural
          , _rows :: Vector (Vector a)
          }

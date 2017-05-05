@@ -29,12 +29,14 @@ library
     HLinear.Utility.RPermute
 
   other-modules:
+
     HLinear.Matrix.Algebra
     HLinear.Matrix.Basic
     HLinear.Matrix.Block
     HLinear.Matrix.Column
     HLinear.Matrix.Definition
     HLinear.Matrix.Invertible
+    HLinear.Matrix.Naive
     HLinear.Matrix.QuickCheck
     HLinear.Matrix.Sized
     HLinear.Matrix.SmallCheck
@@ -51,6 +53,9 @@ library
     HLinear.NormalForm.FoldUnfold.PLH.Normalization
     HLinear.NormalForm.FoldUnfold.RREF.DivisionRing
     HLinear.NormalForm.FoldUnfold.RREF.EuclideanDomain
+    HLinear.NormalForm.Instance.PLE
+    HLinear.NormalForm.Instance.PLH
+    HLinear.NormalForm.Instance.RREF
 
     HLinear.Hook.EchelonForm.Algebra
     HLinear.Hook.EchelonForm.Basic
@@ -81,6 +86,7 @@ library
     HLinear.Hook.PLEHook.Container
     HLinear.Hook.PLEHook.Definition
 
+    HLinear.Hook.ERHook
     HLinear.Hook.ERHook.Algebra
     HLinear.Hook.ERHook.Basic
     HLinear.Hook.ERHook.Definition

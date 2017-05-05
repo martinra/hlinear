@@ -16,7 +16,7 @@ import HLinear.Hook.EchelonTransformation.Column
 --  which is expressed by their offset parameter.
 data EchelonTransformation a =
   EchelonTransformation
-    { nmbRows :: Natural
+    { _nmbRows :: Natural
     , columns :: Vector (EchelonTransformationColumn a)
     }
 
