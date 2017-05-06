@@ -1,9 +1,3 @@
-{-# LANGUAGE
-    FlexibleInstances
-  , GeneralizedNewtypeDeriving
-  , MultiParamTypeClasses
-  #-}
-
 module HLinear.Utility.RPermute
 where
 

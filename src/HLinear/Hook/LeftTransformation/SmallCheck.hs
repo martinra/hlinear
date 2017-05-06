@@ -1,9 +1,4 @@
-{-# LANGUAGE
-    FlexibleContexts
-  , FlexibleInstances
-  , MultiParamTypeClasses
-  , UndecidableInstances
-  #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module HLinear.Hook.LeftTransformation.SmallCheck
 where

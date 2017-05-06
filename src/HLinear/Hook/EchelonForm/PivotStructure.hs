@@ -1,7 +1,3 @@
-{-# LANGUAGE
-    GeneralizedNewtypeDeriving
-  #-}
-
 module HLinear.Hook.EchelonForm.PivotStructure
 where
 

@@ -1,7 +1,4 @@
-{-# LANGUAGE
-    FlexibleContexts
-  , UndecidableInstances
-  #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module HLinear.Hook.PLEHook.Algebra
 where

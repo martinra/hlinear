@@ -1,8 +1,3 @@
-{-# LANGUAGE
-    FlexibleInstances
-  , MultiParamTypeClasses
-  #-}
-
 module HLinear.Hook.EchelonForm.SmallCheck
 where
 

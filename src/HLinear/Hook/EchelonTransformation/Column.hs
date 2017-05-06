@@ -1,7 +1,3 @@
-{-# LANGUAGE
-    StandaloneDeriving
-  #-}
-
 module HLinear.Hook.EchelonTransformation.Column
 where
 

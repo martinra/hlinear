@@ -1,12 +1,5 @@
 {-# LANGUAGE
-    FlexibleContexts
-  , FlexibleInstances
-  , DataKinds
-  , GeneralizedNewtypeDeriving
-  , KindSignatures
-  , MultiParamTypeClasses
-  , ScopedTypeVariables
-  , StandaloneDeriving
+    ScopedTypeVariables
   #-}
 
 module HLinear.Matrix.Sized

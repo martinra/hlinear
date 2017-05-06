@@ -1,11 +1,5 @@
 {-# LANGUAGE
-    FlexibleInstances
-  , FlexibleContexts
-  , GeneralizedNewtypeDeriving
-  , MultiParamTypeClasses
-  , Rank2Types
-  , ScopedTypeVariables
-  , StandaloneDeriving
+    ScopedTypeVariables
   , TemplateHaskell
   , UndecidableInstances
   #-}

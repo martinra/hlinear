@@ -1,9 +1,3 @@
-{-# LANGUAGE
-    FlexibleContexts
-  , FlexibleInstances
-  , MultiParamTypeClasses
-  #-}
-
 module HLinear.Hook.EchelonTransformation.Algebra
 where
 

@@ -1,9 +1,4 @@
-{-# LANGUAGE
-    FlexibleContexts
-  , MultiParamTypeClasses
-  , StandaloneDeriving
-  , UndecidableInstances
-  #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module HLinear.Hook.LeftTransformation.Column
 where

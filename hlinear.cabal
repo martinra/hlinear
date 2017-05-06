@@ -91,6 +91,19 @@ library
     HLinear.Utility.Prelude
     HLinear.Utility.Permute
 
+  default-extensions:
+      DataKinds
+    , FlexibleContexts
+    , FlexibleInstances
+    , FunctionalDependencies
+    , GADTs
+    , GeneralizedNewtypeDeriving
+    , KindSignatures
+    , MultiParamTypeClasses
+    , Rank2Types
+    , StandaloneDeriving
+    , TypeFamilies
+
   build-depends:
       base
     , algebraic-structures

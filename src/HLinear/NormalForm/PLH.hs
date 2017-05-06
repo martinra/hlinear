@@ -1,8 +1,3 @@
-{-# LANGUAGE
-    FlexibleContexts
-  , TypeFamilies
-  #-}
-
 module HLinear.NormalForm.PLH
 where
 

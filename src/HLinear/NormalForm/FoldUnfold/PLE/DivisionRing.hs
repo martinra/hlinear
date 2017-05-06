@@ -1,8 +1,3 @@
-{-# LANGUAGE
-    FlexibleContexts
-  , MultiParamTypeClasses
-  #-}
-
 module HLinear.NormalForm.FoldUnfold.PLE.DivisionRing
 where
 

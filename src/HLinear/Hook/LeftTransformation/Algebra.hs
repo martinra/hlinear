@@ -1,10 +1,5 @@
-{-# LANGUAGE
-    ScopedTypeVariables
-  , FlexibleContexts
-  , FlexibleInstances
-  , MultiParamTypeClasses
-  , UndecidableInstances
-  #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module HLinear.Hook.LeftTransformation.Algebra
 where

@@ -1,8 +1,5 @@
 {-# LANGUAGE
-    FlexibleContexts
-  , FlexibleInstances
-  , TypeFamilies
-  , UndecidableInstances
+    UndecidableInstances
   #-}
 
 module HLinear.NormalForm.RREF

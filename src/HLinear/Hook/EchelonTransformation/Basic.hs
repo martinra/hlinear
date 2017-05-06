@@ -1,9 +1,3 @@
-{-# LANGUAGE
-    FlexibleInstances
-  , MultiParamTypeClasses
-  , StandaloneDeriving
-  #-}
-
 module HLinear.Hook.EchelonTransformation.Basic
 where
 

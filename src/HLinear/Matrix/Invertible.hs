@@ -1,10 +1,3 @@
-{-# LANGUAGE
-    MultiParamTypeClasses
-  , FlexibleContexts
-  , FlexibleInstances
-  , TypeSynonymInstances
-  #-}
-
 module HLinear.Matrix.Invertible
 where
 
@@ -25,6 +18,9 @@ type MatrixInvertible a = Unit (Matrix a)
 
 instance IsMatrix (MatrixInvertible a) a where
   toMatrix = fromUnit
+
+deriving instance HasNmbRows (Unit (Matrix a))
+deriving instance HasNmbCols (Unit (Matrix a))
 
 instance
      ( Ring a, DecidableZero a, DecidableUnit a, HasPLE a )

@@ -1,7 +1,3 @@
-{-# LANGUAGE
-    FlexibleContexts
-  #-}
-
 module HLinear.Matrix.Naive
 where
 

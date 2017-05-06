@@ -1,9 +1,5 @@
 {-# LANGUAGE
     DeriveTraversable
-  , FlexibleInstances
-  , GeneralizedNewtypeDeriving
-  , MultiParamTypeClasses
-  , StandaloneDeriving
   #-}
 
 module HLinear.Matrix.Column

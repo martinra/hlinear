@@ -1,9 +1,4 @@
-{-# LANGUAGE
-    FlexibleContexts
-  , FlexibleInstances
-  , TypeFamilies
-  , UndecidableInstances
-  #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module HLinear.NormalForm.Instance.PLE
 where

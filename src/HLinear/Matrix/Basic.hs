@@ -1,7 +1,3 @@
-{-# LANGUAGE
-    MultiParamTypeClasses
-  #-}
-
 module HLinear.Matrix.Basic
 where
 

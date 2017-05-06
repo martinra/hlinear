@@ -1,9 +1,3 @@
-{-# LANGUAGE
-    FlexibleInstances
-  , FlexibleContexts
-  , MultiParamTypeClasses
-  #-}
-
 module HLinear.Utility.Permute
 where
 
