@@ -6,24 +6,13 @@ module HLinear.Hook.EchelonTransformation.Column
 where
 
 import qualified Prelude as P
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
-
-import Control.DeepSeq ( NFData(..) )
-import Data.Vector ( Vector(..) )
-import qualified Data.Vector as V
-import Math.Structure
-
+import HLinear.Utility.Prelude hiding ( one, isOne )
 
 import Math.Structure.Tasty ()
-import Test.QuickCheck.Arbitrary ( Arbitrary
-                                 , arbitrary
-                                 , shrink
-                                 )
+import Test.QuickCheck.Arbitrary ( Arbitrary, arbitrary, shrink )
 import Test.QuickCheck.Modifiers ( NonNegative(..) )
+import qualified Data.Vector as V
+import qualified Math.Structure as MS
 
 
 data EchelonTransformationColumn a =
@@ -32,7 +21,9 @@ data EchelonTransformationColumn a =
     , init :: Vector a
     }
 
--- lenght and offset
+--------------------------------------------------------------------------------
+-- attributes
+--------------------------------------------------------------------------------
 
 length :: EchelonTransformationColumn a -> Int
 length (EchelonTransformationColumn o v) = V.length v + 1 + o
@@ -48,13 +39,29 @@ setLength n (EchelonTransformationColumn _ v)
   where
     o' = n - 1 - V.length v
 
+--------------------------------------------------------------------------------
+-- container
+--------------------------------------------------------------------------------
+
+instance Functor EchelonTransformationColumn where
+  fmap = fmapDefault
+
+instance Foldable EchelonTransformationColumn where
+  foldMap = foldMapDefault
+
+instance Traversable EchelonTransformationColumn where
+  traverse f (EchelonTransformationColumn o v) =
+    EchelonTransformationColumn o <$> traverse f v
+
+--------------------------------------------------------------------------------
 -- access and conversion
+--------------------------------------------------------------------------------
 
 (!) :: Ring a
     => EchelonTransformationColumn a -> Int -> a
 (!) (EchelonTransformationColumn o v) ix
   | ix < l    = v V.! ix
-  | ix == l   = one
+  | ix == l   = MS.one
   | ix < o+l  = zero
   | otherwise = error "EchelonTransformationColumn.(!): out of range"
   where
@@ -64,7 +71,7 @@ toVector
   :: Ring a
   => EchelonTransformationColumn a -> Vector a
 toVector (EchelonTransformationColumn o v) =
-  v `V.snoc` one V.++ V.replicate (fromIntegral o) zero
+  v `V.snoc` MS.one <> V.replicate (fromIntegral o) zero
 
 --------------------------------------------------------------------------------
 -- Eq, Show, and NFData instancs
@@ -81,22 +88,26 @@ instance NFData a => NFData (EchelonTransformationColumn a) where
     seq (rnf o) $
     seq (V.map rnf v) ()
 
-isIdentityColumn
+isOne
   :: ( DecidableZero a, DecidableOne a )
   => EchelonTransformationColumn a -> Bool
-isIdentityColumn (EchelonTransformationColumn _ v) = V.all isZero v
+isOne = all isZero
 
+--------------------------------------------------------------------------------
 -- creation
+--------------------------------------------------------------------------------
 
-identityColumn
+one
   :: AdditiveMonoid a
   => Int -> Int -> EchelonTransformationColumn a
-identityColumn n o
-  | n <= o = error "identityColumn: to large offset"
+one n o
+  | n <= o = error "EchelonTransformationColumn.one: to large offset"
   | otherwise = EchelonTransformationColumn o $
                 V.replicate (n-o-1) zero
 
+--------------------------------------------------------------------------------
 -- QuickCheck
+--------------------------------------------------------------------------------
 
 instance    ( DecidableZero a, Arbitrary a )
          => Arbitrary (EchelonTransformationColumn a) where

@@ -39,7 +39,7 @@ instance    Ring a
     | ncs  == 0 = et'
     | ncs' == 0 = et
     | nrsZ - ncs >= nrs'Z = 
-        let etcOnes = V.map (ETC.identityColumn nrsZ) $
+        let etcOnes = V.map (ETC.one nrsZ) $
                         V.enumFromN nrs'Z (nrsZ - ncs - nrs'Z)
             cs'Shifted = V.map (ETC.setLength nrsZ) cs' 
         in EchelonTransformation nrs $  cs V.++ etcOnes V.++ cs'Shifted
@@ -67,7 +67,7 @@ instance    Ring a
 
 instance    ( Ring a, DecidableZero a, DecidableOne a )
          => DecidableOne (EchelonTransformation a) where
-  isOne (EchelonTransformation nrs cs) = ETC.isIdentityColumn `all` cs
+  isOne (EchelonTransformation nrs cs) = all ETC.isOne cs
 
 instance    ( Ring a, DecidableZero a )
          => MultiplicativeGroup (EchelonTransformation a) where

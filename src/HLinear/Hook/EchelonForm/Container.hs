@@ -1,32 +1,23 @@
 module HLinear.Hook.EchelonForm.Container
 where
 
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      , length
-                      )
+import Prelude ()
+import HLinear.Utility.Prelude
 
 import qualified Data.Vector as V
-import Data.Vector ( Vector(..) )
-import Math.Structure
-import Numeric.Natural ( Natural )
 
 import HLinear.Hook.EchelonForm.Definition
 import HLinear.Hook.EchelonForm.Row as EFR
 
 
 instance Functor EchelonForm where
-  fmap f (EchelonForm nrs ncs rs) = EchelonForm nrs ncs $ V.map (fmap f) rs
+  fmap = fmapDefault
 
 instance Foldable EchelonForm where
-  foldl f a (EchelonForm nrs ncs rs) = V.foldl (\a' r -> foldl f a' r) a rs
-  foldr f a (EchelonForm nrs ncs rs) = V.foldr (\r a' -> foldr f a' r) a rs
+  foldMap = foldMapDefault
 
 instance Traversable EchelonForm where
-  traverse f (EchelonForm nrs ncs rs) =
-    EchelonForm nrs ncs <$> sequenceA (V.map (traverse f) rs)
+  traverse f (EchelonForm nrs ncs rs) = EchelonForm nrs ncs <$> traverse (traverse f) rs
 
 zipWith
   :: ( AdditiveMonoid a, AdditiveMonoid b )

@@ -8,24 +8,16 @@ module HLinear.Hook.EchelonTransformation.Basic
 where
 
 import qualified Prelude as P
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
+import HLinear.Utility.Prelude hiding ( one )
 
-import Control.DeepSeq ( NFData(..) )
-import Data.Vector ( Vector(..) )
 import qualified Data.Vector as V
-import Math.Structure hiding ( one )
 import qualified Math.Structure as MS
-import Numeric.Natural ( Natural )
 
-import HLinear.Matrix.Definition ( Matrix(..), IsMatrix(..) )
-import HLinear.Hook.EchelonTransformation.Column
+import HLinear.Hook.EchelonTransformation.Column hiding ( isOne, one )
 import HLinear.Hook.EchelonTransformation.Definition
-import qualified HLinear.Hook.EchelonTransformation.Column as ETC
+import HLinear.Matrix.Definition ( Matrix(..), IsMatrix(..) )
 import HLinear.Utility.RPermute
+import qualified HLinear.Hook.EchelonTransformation.Column as ETC
 
 
 --------------------------------------------------------------------------------
@@ -42,7 +34,7 @@ minimizeSize (EchelonTransformation nrs cs) =
   then EchelonTransformation 0 V.empty
   else EchelonTransformation nrs' cs'
   where
-    cs' = V.dropWhile isIdentityColumn cs
+    cs' = V.dropWhile ETC.isOne cs
     nrs' = fromIntegral $ fromIntegral nrs - (V.length cs - V.length cs')
 
 --------------------------------------------------------------------------------
@@ -68,6 +60,20 @@ instance NFData a => NFData (EchelonTransformation a) where
   rnf (EchelonTransformation nrs cs) =
     seq (rnf nrs) $
     seq (V.map rnf cs) ()
+
+--------------------------------------------------------------------------------
+-- container
+--------------------------------------------------------------------------------
+
+instance Functor EchelonTransformation where
+  fmap = fmapDefault
+
+instance Foldable EchelonTransformation where
+  foldMap = foldMapDefault
+
+instance Traversable EchelonTransformation where
+  traverse f (EchelonTransformation nrs rs) =
+    EchelonTransformation nrs <$> traverse (traverse f) rs
 
 --------------------------------------------------------------------------------
 -- creation
