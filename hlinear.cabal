@@ -19,6 +19,7 @@ data-files:          README.md
 
 library
   exposed-modules:
+    HLinear.FramedModule
     HLinear.Matrix
     HLinear.NormalForm
     HLinear.Hook.EchelonForm
@@ -57,6 +58,9 @@ library
     HLinear.NormalForm.Instance.PLH
     HLinear.NormalForm.Instance.RREF
 
+    HLinear.FramedModule.Definition
+    HLinear.FramedModule.Basic
+
     HLinear.Hook.EchelonForm.Algebra
     HLinear.Hook.EchelonForm.Basic
     HLinear.Hook.EchelonForm.Definition
@@ -92,7 +96,8 @@ library
     HLinear.Utility.Permute
 
   default-extensions:
-      DataKinds
+      ConstraintKinds
+    , DataKinds
     , FlexibleContexts
     , FlexibleInstances
     , FunctionalDependencies
@@ -114,6 +119,8 @@ library
     , hflint
     , mtl
     , monad-par
+    , monad-loops
+    , mono-traversable
     , natural-test
     , parallel
     , permutation

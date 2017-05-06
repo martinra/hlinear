@@ -8,6 +8,7 @@ import Control.Monad.State as St
 import Data.Sequence ( Seq )
 import qualified Data.Sequence as S
 import qualified Data.Vector as V
+import qualified Data.Vector.Mutable as MV
 
 import HLinear.Hook.EchelonForm.Definition
 import qualified HLinear.Hook.EchelonForm.Row as EFR
@@ -28,11 +29,25 @@ mapPivot f (EchelonForm nrs ncs rs) = go S.empty rs 0 0
           go (s S.|> f ix jx' a) (V.tail rs) (succ ix) (succ jx')
       | otherwise = s
 
+-- todo: as soon as traversables for Seq are in LTS, use the
+-- mutable code
+seqToVector :: Seq a -> Vector a
+seqToVector = V.fromList . toList
+--  V.create $ do
+--    v <- MV.new (S.length seq)
+--    void $ S.traverseWithIndex (\ix a -> MV.write v (np-ix-1) a) seq
+--    return v
 
 pivotStructure
   :: DecidableZero a
   => EchelonForm a -> PivotStructure
 pivotStructure = PivotStructure . mapPivot (\ix jx _ -> (ix,jx))
+
+pivotVector
+  :: DecidableZero a
+  => EchelonForm a -> Vector Int
+pivotVector = fmap snd . seqToVector . fromPivotStructure . pivotStructure
+
 
 pivotEntries
   :: DecidableZero a
@@ -42,7 +57,7 @@ pivotEntries = mapPivot (\_ _ a -> a)
 pivotEntryVector
   :: DecidableZero a
   => EchelonForm a -> Vector a
-pivotEntryVector = V.fromList . toList . pivotEntries
+pivotEntryVector = seqToVector . pivotEntries
   
 
 rank :: DecidableZero a => EchelonForm a -> Natural

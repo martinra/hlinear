@@ -2,27 +2,17 @@ module HLinear.Matrix.Basic
 where
 
 import qualified Prelude as P
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
+import HLinear.Utility.Prelude hiding ( one, zero, isOne, isZero )
 
-import Control.DeepSeq ( NFData, rnf )
 import Data.Binary
-import Data.Composition ( (.:), (.:.) )
-import Data.Maybe
 import qualified Data.Permute as P
-import Data.Vector ( Vector )
 import qualified Data.Vector as V
 import qualified Math.Structure as MS
-import Math.Structure hiding ( one, zero, isOne, isZero )
-import Numeric.Natural
 
-import HLinear.Utility.NmbRowColumn
-import HLinear.Utility.Permute
 import HLinear.Matrix.Column
 import HLinear.Matrix.Definition
+import HLinear.Utility.NmbRowColumn
+import HLinear.Utility.Permute
 
 
 instance Eq a => Eq (Matrix a) where
@@ -272,3 +262,12 @@ zipWith :: (a -> b -> c) -> Matrix a -> Matrix b -> Matrix c
 zipWith f (Matrix nrs ncs rs) (Matrix nrs' ncs' rs')
   | nrs /= nrs' || ncs /= ncs' = error "Matrix.zipWith: incompatible dimensions"
   | otherwise = Matrix nrs ncs $ V.zipWith (V.zipWith f) rs rs'
+
+
+type instance Element (Matrix a) = Vector a
+
+instance MonoFunctor (Matrix a) where
+  omap f (Matrix nrs ncs rs) = Matrix nrs ncs' rs'
+    where
+      ncs' = maybe ncs (fromIntegral . V.length) $ headMay rs'
+      rs' = fmap f rs

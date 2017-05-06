@@ -74,10 +74,11 @@ instance Rng a => MultiplicativeSemigroupLeftAction (Matrix a) (Vector a)
 --------------------------------------------------------------------------------
 
 newtype Row ctx a = Row { fromRow :: Vector a }
+type ReifiesNmbRows ctx = Reifies ctx Natural 
 
 withRowLength
   :: Natural
-  -> (forall ctx. Reifies ctx Natural => Proxy ctx -> a)
+  -> (forall ctx. ReifiesNmbRows ctx => Proxy ctx -> a)
   -> a
 withRowLength = reify 
 
@@ -90,7 +91,7 @@ instance Abelian a => Abelian (Row ctx a)
 instance AdditiveSemigroup a => AdditiveSemigroup (Row ctx a)
 
 
-instance ( Reifies ctx Natural, AdditiveMonoid a )
+instance ( ReifiesNmbRows ctx, AdditiveMonoid a )
       => AdditiveMonoid (Row ctx a)
   where
   zero = zeroRow
@@ -98,7 +99,7 @@ instance ( Reifies ctx Natural, AdditiveMonoid a )
       zeroRow :: Row ctx a
       zeroRow = Row $ V.replicate (fromIntegral $ reflect (Proxy::Proxy ctx)) zero
 
-instance ( Reifies ctx Natural, DecidableZero a )
+instance ( ReifiesNmbRows ctx, DecidableZero a )
       => DecidableZero (Row ctx a)
   where
   isZero = V.all isZero . fromRow
@@ -117,7 +118,7 @@ instance Rng a => MultiplicativeMagma (Matrix a) where
     | ncs /= nrs' = error "Matrix * Matrix: incompatible dimensions"
     | otherwise = Matrix nrs ncs' $ withRowLength ncs' go
         where
-          go :: forall ctx. Reifies ctx Natural
+          go :: forall ctx. ReifiesNmbRows ctx
              => Proxy ctx -> Vector (Vector a)
           go _ = V.map fromRow $ fromColumn $
                    m *. (Column $ V.map Row rs' :: Column (Row ctx a))
