@@ -43,6 +43,7 @@ module HLinear.Matrix
   , isZero
   , one
   , isOne
+  , elementary
   , tensorProduct
   , transpose
   , diagonal

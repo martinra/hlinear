@@ -154,6 +154,16 @@ one ::
   => Natural -> Matrix a
 one = diagonal . (`V.replicate` MS.one) . fromIntegral
 
+elementary
+  :: Ring a
+  => Natural -> Natural -> Int -> Int -> Matrix a
+elementary nrs ncs ix jx = Matrix nrs ncs $
+  V.generate (fromIntegral nrs) $ \ix' ->
+    if ix == ix'
+    then V.generate (fromIntegral ncs) $ \jx' ->
+           if jx == jx' then MS.one else MS.zero
+    else V.replicate (fromIntegral ncs) MS.zero
+
 --------------------------------------------------------------------------------
 -- predicates
 --------------------------------------------------------------------------------
