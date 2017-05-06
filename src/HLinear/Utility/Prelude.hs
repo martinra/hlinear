@@ -1,7 +1,5 @@
 module HLinear.Utility.Prelude
   ( module Import
-  , IsList(..)
-  , Vector
   )
 where
 
@@ -21,6 +19,8 @@ import Control.Applicative as Import
 import Control.DeepSeq     as Import
 import Control.Monad       as Import
 import Control.Monad.Zip   as Import
+import Data.Composition    as Import
+  ( (.:), (.:.) )
 import Data.Either         as Import
 import Data.Foldable       as Import
 import Data.Functor        as Import
@@ -28,6 +28,10 @@ import Data.Maybe          as Import
 import Data.Monoid         as Import
 import Data.Proxy          as Import
 import Data.Traversable    as Import
+import Data.Vector as Import
+  ( Vector )
+import GHC.Exts            as Import
+  ( IsList )
 import Math.Structure      as Import
 import Numeric.Natural     as Import
 
