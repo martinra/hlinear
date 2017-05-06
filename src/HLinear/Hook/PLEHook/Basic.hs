@@ -2,7 +2,9 @@ module HLinear.Hook.PLEHook.Basic
 where
 
 
-import Numeric.Natural ( Natural )
+import qualified Prelude as P
+import HLinear.Utility.Prelude hiding ( one )
+
 import qualified Math.Structure as MS
 
 import HLinear.Hook.PLEHook.Definition ( PLEHook(..) )
@@ -13,3 +15,16 @@ import qualified HLinear.Hook.LeftTransformation.Basic as LT
 
 one :: Natural -> Natural -> PLEHook a
 one nrs ncs = PLEHook MS.one (LT.one nrs) (EF.zero nrs ncs)
+
+--------------------------------------------------------------------------------
+-- container
+--------------------------------------------------------------------------------
+
+instance Functor PLEHook where
+  fmap = fmapDefault
+
+instance Foldable PLEHook where
+  foldMap = foldMapDefault
+
+instance Traversable PLEHook where
+  traverse f (PLEHook p l e) = PLEHook p <$> traverse f l <*> traverse f e

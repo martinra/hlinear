@@ -83,6 +83,19 @@ atCol (EchelonForm nrs ncs rs) ix
       ncsZ = fromIntegral ncs
 
 --------------------------------------------------------------------------------
+-- container
+--------------------------------------------------------------------------------
+
+instance Functor EchelonForm where
+  fmap = fmapDefault
+
+instance Foldable EchelonForm where
+  foldMap = foldMapDefault
+
+instance Traversable EchelonForm where
+  traverse f (EchelonForm nrs ncs rs) = EchelonForm nrs ncs <$> traverse (traverse f) rs
+
+--------------------------------------------------------------------------------
 -- conversion
 --------------------------------------------------------------------------------
 

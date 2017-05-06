@@ -59,7 +59,6 @@ library
 
     HLinear.Hook.EchelonForm.Algebra
     HLinear.Hook.EchelonForm.Basic
-    HLinear.Hook.EchelonForm.Container
     HLinear.Hook.EchelonForm.Definition
     HLinear.Hook.EchelonForm.PivotStructure
     HLinear.Hook.EchelonForm.QuickCheck
@@ -76,14 +75,12 @@ library
     HLinear.Hook.LeftTransformation.Algebra
     HLinear.Hook.LeftTransformation.Basic
     HLinear.Hook.LeftTransformation.Column
-    HLinear.Hook.LeftTransformation.Container
     HLinear.Hook.LeftTransformation.Definition
     HLinear.Hook.LeftTransformation.QuickCheck
     HLinear.Hook.LeftTransformation.SmallCheck
 
     HLinear.Hook.PLEHook.Algebra
     HLinear.Hook.PLEHook.Basic
-    HLinear.Hook.PLEHook.Container
     HLinear.Hook.PLEHook.Definition
 
     HLinear.Hook.ERHook

@@ -9,27 +9,14 @@ module HLinear.Hook.LeftTransformation.Column
 where
 
 import qualified Prelude as P
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
-
-import Control.Applicative ( (<$>) )
-import Control.DeepSeq ( NFData(..) )
-import Data.Vector ( Vector )
-import qualified Data.Vector as V
-import Math.Structure hiding ( one, isOne )
-import qualified Math.Structure as MS
-
+import HLinear.Utility.Prelude hiding ( one, isOne )
 
 import Math.Structure.Tasty ()
-import Test.QuickCheck.Arbitrary ( Arbitrary
-                                 , arbitrary
-                                 , shrink
-                                 )
+import Test.QuickCheck.Arbitrary ( Arbitrary, arbitrary, shrink )
 import Test.QuickCheck.Modifiers ( NonNegative(..) )
 import Test.Vector ()
+import qualified Data.Vector as V
+import qualified Math.Structure as MS
 
 import HLinear.Utility.RPermute as RP
 
@@ -63,6 +50,20 @@ shiftOffset :: Int -> LeftTransformationColumn a
             -> LeftTransformationColumn a
 shiftOffset s (LeftTransformationColumn o a vs) =
   LeftTransformationColumn (o+s) a vs
+
+--------------------------------------------------------------------------------
+-- container
+--------------------------------------------------------------------------------
+
+instance Functor LeftTransformationColumn where
+  fmap = fmapDefault
+
+instance Foldable LeftTransformationColumn where
+  foldMap = foldMapDefault
+
+instance Traversable LeftTransformationColumn where
+  traverse f (LeftTransformationColumn o (Unit a) v) =
+    LeftTransformationColumn o <$> fmap Unit (f a) <*> traverse f v
 
 --------------------------------------------------------------------------------
 -- access and conversion
@@ -110,43 +111,6 @@ isOne (LeftTransformationColumn _ a v) =
 instance NFData a => NFData (LeftTransformationColumn a) where
   rnf (LeftTransformationColumn s (Unit a) c) =
     seq (rnf s) $ seq (rnf a) $ seq (rnf c) ()
-
---------------------------------------------------------------------------------
--- container
---------------------------------------------------------------------------------
-
-instance Functor LeftTransformationColumn where
-  fmap f (LeftTransformationColumn s (Unit a) c) =
-    LeftTransformationColumn s (Unit $ f a) $ V.map f c
-
-instance Foldable LeftTransformationColumn where
-  foldl f b (LeftTransformationColumn _ (Unit a) r) =
-    V.foldl f b $ a `V.cons` r
-  foldr f b (LeftTransformationColumn _ (Unit a) r) =
-    V.foldr f b $ a `V.cons` r
-
-instance Traversable LeftTransformationColumn where
-  traverse f (LeftTransformationColumn s (Unit a) c) =
-    LeftTransformationColumn s <$> (Unit <$> f a) <*> traverse f c
-
-zipWith
-  :: ( AdditiveMonoid a, AdditiveMonoid b )
-  => (a -> b -> c) -> LeftTransformationColumn a -> LeftTransformationColumn b
-  -> LeftTransformationColumn c
-zipWith f (LeftTransformationColumn s (Unit a) c)
-          (LeftTransformationColumn s' (Unit a') c')
-  | s /= s' = error "LeftTransformation.zipWith: incompatible shifts"
-  | otherwise = LeftTransformationColumn s (Unit $ f a a') $
-                  V.zipWith f cT cT' V.++ V.zipWith f cB cB'
-  where
-    nc = V.length c
-    nc' = V.length c'
-    minnc = max nc nc'
-
-    cT  = V.take minnc c
-    cT' = V.take minnc c'
-    cB  = V.replicate (nc' - minnc) zero
-    cB' = V.replicate (nc  - minnc) zero
 
 --------------------------------------------------------------------------------
 -- creation

@@ -67,6 +67,20 @@ instance HasNmbCols (LeftTransformation a) where
   nmbCols (LeftTransformation nrs _) = nrs
 
 --------------------------------------------------------------------------------
+-- container
+--------------------------------------------------------------------------------
+
+instance Functor LeftTransformation where
+  fmap = fmapDefault
+
+instance Foldable LeftTransformation where
+  foldMap = foldMapDefault
+
+instance Traversable LeftTransformation where
+  traverse f (LeftTransformation nrs rs) =
+    LeftTransformation nrs <$> traverse (traverse f) rs
+
+--------------------------------------------------------------------------------
 -- creation
 --------------------------------------------------------------------------------
 
