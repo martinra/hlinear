@@ -1,6 +1,7 @@
 module HLinear.Matrix
   ( Matrix(..)
   , IsMatrix(..)
+  , MatrixInvertible
 
   , (!)
   , (!?)
@@ -65,7 +66,7 @@ import HLinear.Matrix.Basic
 import HLinear.Matrix.Block
 import HLinear.Matrix.Column ( Column(..) )
 import HLinear.Matrix.Definition
-import HLinear.Matrix.Invertible ()
+import HLinear.Matrix.Invertible
 
 import HLinear.Matrix.QuickCheck ()
 import HLinear.Matrix.SmallCheck ()
