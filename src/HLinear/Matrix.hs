@@ -43,6 +43,8 @@ module HLinear.Matrix
   , isZero
   , one
   , isOne
+  , tensorProduct
+  , transpose
   , diagonal
 
   , blockSum
