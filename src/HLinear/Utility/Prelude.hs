@@ -10,9 +10,6 @@ import Prelude as Import hiding
   , quotRem, quot, rem
   )
 
-import GHC.Exts ( IsList )
-import Data.Vector ( Vector )
-
 import Control.Arrow       as Import
   ( (&&&), (***), first, second )
 import Control.Applicative as Import
