@@ -1,4 +1,4 @@
-module HLinear.NormalForm.FoldUnfold.RREF.EuclideanDomain
+module HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.EuclideanDomain
 where
 
 import qualified Prelude as P
@@ -21,10 +21,10 @@ import qualified HLinear.Hook.EchelonTransformation as ET
 import qualified HLinear.Matrix as M
 
 
-rref
+reduceEchelonForm
   :: ( EuclideanDomain a, DecidableZero a )
   => EchelonForm a -> RREF a
-rref ef =
+reduceEchelonForm ef =
   case reduceLastPivot (ef, EF.pivotStructure ef) of
     Nothing -> RREF (ET.one nrs) (EF.zero nrs ncs)
     Just (er, efp') ->

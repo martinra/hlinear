@@ -1,12 +1,11 @@
 module HLinear.NormalForm.PLH
+  ( plh, HasPLH
+  , PLREHook(..)
+  )
 where
 
 import Prelude ()
 import HLinear.Utility.Prelude
 
-import HLinear.Matrix.Definition ( Matrix )
 import HLinear.Hook.PLEHook ( PLREHook(..) )
-
-
-class HasPLH a where
-  plh :: Matrix a -> PLREHook a
+import HLinear.NormalForm.FoldUnfold.PLH.EuclideanDomain ( plh, HasPLH )

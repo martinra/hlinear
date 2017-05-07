@@ -8,4 +8,4 @@ import Prelude ()
 import HLinear.Utility.Prelude
 
 import HLinear.Hook.PLEHook ( PLREHook(..) )
-import HLinear.NormalForm.FoldUnfold.RREF.DivisionRing ( rref, HasRREF )
+import HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.DivisionRing ( rref, HasRREF )

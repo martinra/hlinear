@@ -53,9 +53,8 @@ library
     HLinear.NormalForm.FoldUnfold.PLE.FractionFree
     HLinear.NormalForm.FoldUnfold.PLH.EuclideanDomain
     HLinear.NormalForm.FoldUnfold.PLH.Normalization
-    HLinear.NormalForm.FoldUnfold.RREF.DivisionRing
-    HLinear.NormalForm.FoldUnfold.RREF.EuclideanDomain
-    HLinear.NormalForm.Instance.PLH
+    HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.DivisionRing
+    HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.EuclideanDomain
 
     HLinear.FramedModule.Definition
     HLinear.FramedModule.Basic

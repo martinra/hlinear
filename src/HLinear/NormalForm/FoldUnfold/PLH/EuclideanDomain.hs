@@ -13,10 +13,11 @@ import Math.Structure
 import Numeric.Natural ( Natural )
 import qualified Data.Vector as V
 
-import HLinear.Hook.PLEHook ( PLEHook(..) )
+import HLinear.Hook.PLEHook ( PLEHook(..), PLREHook(..), RREF(..) )
 import HLinear.Matrix ( Matrix(..) )
 import HLinear.NormalForm.FoldUnfold.Matrix ( splitOffTopLeft )
 import HLinear.NormalForm.FoldUnfold.PLH.Normalization ( HasPLHNormalization(..) )
+import HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.EuclideanDomain ( reduceEchelonForm )
 import HLinear.Utility.RPermute ( RPermute(..) )
 import qualified HLinear.Hook.PLEHook.Basic as Hook
 import qualified HLinear.Hook.EchelonForm as EF
@@ -24,14 +25,28 @@ import qualified HLinear.Hook.LeftTransformation as LT
 import qualified HLinear.Utility.RPermute as RP
 
 
-plh
+-- note: PLH exists for all PIDs, but to implement this we would have to
+-- introduce something like several stage Euclidean domains. 
+type HasPLH a =
+  ( EuclideanDomain a, DecidableZero a, MultiplicativeGroup (Unit a)
+  , HasPLHNormalization a )
+
+plh :: HasPLH a => Matrix a -> PLREHook a
+plh m =
+  let PLEHook p l e = plhNonReduced m
+      RREF r e' = reduceEchelonForm e
+  in  PLREHook p l r e'
+
+
+plhNonReduced
   :: ( EuclideanDomain a, DecidableZero a, MultiplicativeGroup (Unit a)
      , HasPLHNormalization a )
   => Matrix a -> PLEHook a
-plh m@(Matrix nrs ncs _) =
+plhNonReduced m@(Matrix nrs ncs _) =
   case splitOffHook m of
     Nothing -> Hook.one nrs ncs
     Just (h,m') -> V.foldl (*) h $ V.unfoldr splitOffHook m'
+
 
 pivotPermutation
   :: EuclideanDomain a

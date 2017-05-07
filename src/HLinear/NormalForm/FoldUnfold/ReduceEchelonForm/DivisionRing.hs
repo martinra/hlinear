@@ -1,4 +1,4 @@
-module HLinear.NormalForm.FoldUnfold.RREF.DivisionRing
+module HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.DivisionRing
 where
 
 import qualified Prelude as P
