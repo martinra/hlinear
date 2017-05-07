@@ -4,6 +4,7 @@ module HLinear.FramedModule
   , kernelRightAction
   , null
   , intersect
+  , span
   )
 where
 

@@ -119,10 +119,10 @@ kernelRightAction
 kernelRightAction = kernelLeftAction . transpose
 
 
-union
+span
   :: ( HasRREF a, Ring a, DecidableZero a )
   => FramedModule a -> FramedModule a -> FramedModule a
-union m m' =
+span m m' =
   let ep  = asFramedModuleBasisWithPivotStructure m
       ep' = asFramedModuleBasisWithPivotStructure m'
       e'' = mergeEchelonForms ep ep'
