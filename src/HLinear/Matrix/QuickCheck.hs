@@ -41,7 +41,7 @@ instance Arbitrary a => Arbitrary (Matrix a) where
       , e  <- shrink $ rs V.! ix V.! jx
       ]
       where
-        nrsD2 = nrs `P.quot` 2
+        nrsD2 = nrs `P.div` 2
         nrsR2 = nrs P.- nrsD2
-        ncsD2 = ncs `P.quot` 2
+        ncsD2 = ncs `P.div` 2
         ncsR2 = ncs P.- ncsD2

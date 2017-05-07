@@ -59,7 +59,7 @@ instance ( Ring a, Arbitrary a, Arbitrary (Unit a) )
         ]
         where
           ncs = V.length cs
-          (ltLeft,ltRight) = LT.splitAt (fromIntegral $ ncs `P.quot` 2) lt
+          (ltLeft,ltRight) = LT.splitAt (fromIntegral $ ncs `P.div` 2) lt
 
           shrinkColumn (LeftTransformationColumn s a c) =
             [ LeftTransformationColumn s a' c | a' <- shrink a ]

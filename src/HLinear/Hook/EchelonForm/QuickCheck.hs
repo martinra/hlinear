@@ -44,7 +44,7 @@ instance    ( Arbitrary a, Ring a, DecidableZero a )
         | nrs <= 1 = []
         | otherwise = [left,right]
           where
-            nrs' = nrs `P.quot` 2
+            nrs' = nrs `P.div` 2
             left = EchelonForm nrs' ncs leftrs
             (EchelonForm _ _ leftrs,right) =
               EF.splitAt (fromIntegral nrs') e
@@ -55,7 +55,7 @@ instance    ( Arbitrary a, Ring a, DecidableZero a )
                       , EchelonForm nrs ncs'' right
                       ]
           where
-            ncs' = ncs `P.quot` 2
+            ncs' = ncs `P.div` 2
             ncs'' = ncs P.- ncs'
             (left,right) = V.unzip $
                            fmap (EFR.splitAt $ fromIntegral ncs') rs

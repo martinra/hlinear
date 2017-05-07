@@ -44,7 +44,7 @@ instance    (DecidableZero a, Arbitrary a)
         where
           nrsZ = fromIntegral nrs
           ncs = V.length cs
-          (etLeft,etRight) = ET.splitAt (fromIntegral $ nrsZ - (ncs `P.quot` 2)) et
+          (etLeft,etRight) = ET.splitAt (fromIntegral $ nrsZ - (ncs `P.div` 2)) et
 
           shrinkColumn (EchelonTransformationColumn s c) =
             [ EchelonTransformationColumn s $ V.update c $ V.singleton (ix,e)

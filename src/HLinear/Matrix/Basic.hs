@@ -32,7 +32,7 @@ instance Show a => Show (Matrix a) where
         rShown = V.foldl1 (\a a' -> a <> " " <> a') $ fmap center r
       center s = P.replicate n ' ' <> s <> P.replicate n' ' '
         where
-        n = (maxLength - length s) `P.quot` 2
+        n = (maxLength - length s) `P.div` 2
         n' = maxLength - n - length s
 
 instance NFData a => NFData (Matrix a) where

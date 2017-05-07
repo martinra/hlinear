@@ -125,7 +125,7 @@ instance    ( DecidableZero a, Arbitrary a )
       shrinkVector v 
          | V.length v <= 1 = []
          | otherwise = 
-           let (v1,v2) = V.splitAt (V.length v `P.quot` 2) v
+           let (v1,v2) = V.splitAt (V.length v `P.div` 2) v
            in
            [v1,v2]
            <>
