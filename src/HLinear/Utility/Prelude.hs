@@ -29,7 +29,7 @@ import Control.Monad.Zip                 as Import
 import Data.Bool                         as Import
 import Data.Composition                  as Import
   ( (.:), (.:.) )
-import Data.IntMap                       as Import
+import Data.IntMap.Strict                as Import
   ( IntMap )
 import Data.IntSet                       as Import
   ( IntSet )
