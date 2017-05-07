@@ -7,7 +7,6 @@
 module HLinear.Matrix.Algebra
 where
 
-import Prelude ()
 import HLinear.Utility.Prelude
 
 import Control.Applicative ( liftA, liftA2 )
@@ -60,7 +59,7 @@ instance    ( Rng a, AdditiveMonoid b
     | ncs /= nv = error "Matrix *. Column: incompatible dimensions"
     | ncs == 0 = Column $ V.replicate nrsZ zero
     | otherwise = Column $ 
-      (`V.map` rs) $ \r -> V.foldl1' (+) $ V.zipWith (*.) r v
+      (`fmap` rs) $ \r -> V.foldl1' (+) $ V.zipWith (*.) r v
     where
       nv = fromIntegral $ V.length v
       nrsZ = fromIntegral nrs
@@ -105,7 +104,7 @@ instance ( ReifiesNmbRows ctx, DecidableZero a )
   isZero = V.all isZero . fromRow
 
 instance Semiring a => MultiplicativeSemigroupLeftAction a (Row ctx a) where
-  (*.) a = Row . V.map (a*) . fromRow
+  (*.) a = Row . fmap (a*) . fromRow
 
 instance Semiring a => LinearSemiringLeftAction a (Row ctx a)
 
@@ -120,8 +119,8 @@ instance Rng a => MultiplicativeMagma (Matrix a) where
         where
           go :: forall ctx. ReifiesNmbRows ctx
              => Proxy ctx -> Vector (Vector a)
-          go _ = V.map fromRow $ fromColumn $
-                   m *. (Column $ V.map Row rs' :: Column (Row ctx a))
+          go _ = fmap fromRow $ fromColumn $
+                   m *. (Column $ fmap Row rs' :: Column (Row ctx a))
 
 instance Rng a => MultiplicativeSemigroup (Matrix a)
 

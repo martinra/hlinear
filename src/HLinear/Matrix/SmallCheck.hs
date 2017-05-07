@@ -1,12 +1,11 @@
 module HLinear.Matrix.SmallCheck
 where
 
-import qualified Data.Vector as V
+import HLinear.Utility.Prelude
 
-import Test.SmallCheck.Series ( Serial, series
-                              , decDepth
-                              )
+import Test.SmallCheck.Series (Serial, series, decDepth )
 import Test.Natural ()
+import qualified Data.Vector as V
 
 import HLinear.Matrix.Definition ( Matrix(..) )
 

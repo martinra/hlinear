@@ -5,12 +5,12 @@
 module HLinear.Matrix.Column
 where
 
-import Data.Vector ( Vector )
-import qualified Data.Vector as V
+import HLinear.Utility.Prelude
 
 import Test.Vector ()
 import Test.QuickCheck.Arbitrary ( Arbitrary )
 import Test.SmallCheck.Series ( Serial, series )
+import qualified Data.Vector as V
 
 
 newtype Column a = Column {fromColumn :: Vector a}

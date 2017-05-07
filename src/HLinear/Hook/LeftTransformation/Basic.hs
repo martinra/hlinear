@@ -139,7 +139,7 @@ splitAt ix lt@(LeftTransformation nrs cs)
   | otherwise =
       let (csLeft, csRight) = V.splitAt ix cs
       in ( LeftTransformation nrs csLeft
-         , LeftTransformation nrs' $ V.map (LTC.setLength nrs'Z) csRight
+         , LeftTransformation nrs' $ fmap (LTC.setLength nrs'Z) csRight
          )
   where
     ncs = V.length cs

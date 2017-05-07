@@ -3,22 +3,16 @@
 module HLinear.Hook.LeftTransformation.QuickCheck
 where
 
-import Control.Arrow ( (&&&) )
-import Data.Traversable ( forM )
+import HLinear.Utility.Prelude
+import qualified Prelude as P
+
 import qualified Data.Vector as V
-import Data.Vector ( Vector )
 import qualified Data.Vector.Mutable as VM
-import Math.Structure ( Ring, Unit(..), (.*), (*.) )
 
 import Math.Structure.Tasty ()
 import Test.QuickCheck ( suchThat, Gen )
-import Test.QuickCheck.Arbitrary ( Arbitrary
-                                 , arbitrary
-                                 , shrink
-                                 )
-import Test.QuickCheck.Modifiers ( NonNegative(..)
-                                 , Small(..)
-                                 )
+import Test.QuickCheck.Arbitrary ( Arbitrary, arbitrary, shrink )
+import Test.QuickCheck.Modifiers ( NonNegative(..), Small(..) )
 
 import HLinear.Utility.RPermute ( RPermute )
 import HLinear.Hook.LeftTransformation.Algebra ()
@@ -65,11 +59,11 @@ instance ( Ring a, Arbitrary a, Arbitrary (Unit a) )
         ]
         where
           ncs = V.length cs
-          (ltLeft,ltRight) = LT.splitAt (fromIntegral $ ncs `div` 2) lt
+          (ltLeft,ltRight) = LT.splitAt (fromIntegral $ ncs `P.quot` 2) lt
 
           shrinkColumn (LeftTransformationColumn s a c) =
             [ LeftTransformationColumn s a' c | a' <- shrink a ]
-            ++
+            <>
             [ LeftTransformationColumn s a $ V.update c $ V.singleton (ix,e)
             | ix <- [0..V.length c - 1]
             , e <- shrink (c V.! ix)

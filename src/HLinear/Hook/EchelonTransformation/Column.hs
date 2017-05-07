@@ -1,8 +1,8 @@
 module HLinear.Hook.EchelonTransformation.Column
 where
 
-import qualified Prelude as P
 import HLinear.Utility.Prelude hiding ( one, isOne )
+import qualified Prelude as P
 
 import Math.Structure.Tasty ()
 import Test.QuickCheck.Arbitrary ( Arbitrary, arbitrary, shrink )
@@ -82,7 +82,7 @@ instance Eq a => Eq (EchelonTransformationColumn a) where
 instance NFData a => NFData (EchelonTransformationColumn a) where
   rnf (EchelonTransformationColumn o v) =
     seq (rnf o) $
-    seq (V.map rnf v) ()
+    seq (fmap rnf v) ()
 
 isOne
   :: ( DecidableZero a, DecidableOne a )
@@ -117,7 +117,7 @@ instance    ( DecidableZero a, Arbitrary a )
     [ EchelonTransformationColumn s' v
     | s' <- shrink s, s' >= 0
     ]
-    ++
+    <>
     [ EchelonTransformationColumn s v'
     | v' <- shrinkVector v
     ]
@@ -125,10 +125,10 @@ instance    ( DecidableZero a, Arbitrary a )
       shrinkVector v 
          | V.length v <= 1 = []
          | otherwise = 
-           let (v1,v2) = V.splitAt (V.length v `div` 2) v
+           let (v1,v2) = V.splitAt (V.length v `P.quot` 2) v
            in
            [v1,v2]
-           ++
+           <>
            [ V.update v $ V.singleton (ix,e) 
            | ix <- [0..V.length v-1]
            , e <- shrink (v V.! ix)

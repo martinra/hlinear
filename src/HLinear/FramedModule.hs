@@ -8,7 +8,6 @@ module HLinear.FramedModule
   )
 where
 
-import Prelude ()
 
 import HLinear.FramedModule.Definition
 import HLinear.FramedModule.Basic

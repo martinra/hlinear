@@ -53,7 +53,7 @@ instance    ( Eq a, DecidableZero a, DecidableOne a )
 instance NFData a => NFData (EchelonTransformation a) where
   rnf (EchelonTransformation nrs cs) =
     seq (rnf nrs) $
-    seq (V.map rnf cs) ()
+    seq (fmap rnf cs) ()
 
 --------------------------------------------------------------------------------
 -- container
@@ -109,7 +109,7 @@ splitAt ix et@(EchelonTransformation nrs cs)
   | ix >= nrsZ        = (et, one nrs)
   | otherwise =
       let (csRight, csLeft) = V.splitAt (ix-nrsZ+ncsZ) cs
-      in ( EchelonTransformation ixN $ V.map (ETC.setLength ix) csLeft
+      in ( EchelonTransformation ixN $ fmap (ETC.setLength ix) csLeft
          , EchelonTransformation nrs csRight
          )
   where

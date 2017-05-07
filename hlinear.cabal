@@ -103,6 +103,7 @@ library
     , GeneralizedNewtypeDeriving
     , KindSignatures
     , MultiParamTypeClasses
+    , NoImplicitPrelude
     , Rank2Types
     , StandaloneDeriving
     , TypeFamilies

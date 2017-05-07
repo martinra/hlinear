@@ -2,9 +2,9 @@ module HLinear.Matrix.Basic
 where
 
 import qualified Prelude as P
-import HLinear.Utility.Prelude hiding ( one, zero, isOne, isZero )
+import HLinear.Utility.Prelude hiding ( one, zero, isOne, isZero, get, put )
 
-import Data.Binary
+import Data.Binary ( Binary, get, put )
 import qualified Data.Permute as P
 import qualified Data.Vector as V
 import qualified Math.Structure as MS
@@ -20,19 +20,19 @@ instance Eq a => Eq (Matrix a) where
     nrs == nrs' && ncs == ncs' && rs == rs'
 
 instance Show a => Show (Matrix a) where
-  show (Matrix 0 ncs rs) = "[ Matrix 0 x " ++ show ncs ++ " ]"
-  show (Matrix nrs 0 rs) = "[ Matrix " ++ show nrs ++ " x 0 ]"
+  show (Matrix 0 ncs rs) = "[ Matrix 0 x " <> show ncs <> " ]"
+  show (Matrix nrs 0 rs) = "[ Matrix " <> show nrs <> " x 0 ]"
   show (Matrix _ _ rs) =
-    V.foldl1 (\r r' -> r ++ "\n" ++ r') $ V.map show' shownEntries
+    V.foldl1 (\r r' -> r <> "\n" <> r') $ fmap show' shownEntries
       where
-      shownEntries = V.map (V.map show) rs
-      maxLength = V.maximum $ V.map (V.maximum . V.map length) shownEntries
-      show' r= "[ " ++ rShown ++ " ]"
+      shownEntries = fmap (fmap show) rs
+      maxLength = V.maximum $ fmap (V.maximum . fmap length) shownEntries
+      show' r= "[ " <> rShown <> " ]"
         where
-        rShown = V.foldl1 (\a a' -> a ++ " " ++ a') $ V.map center r
-      center s = replicate n ' ' ++ s ++ replicate n' ' '
+        rShown = V.foldl1 (\a a' -> a <> " " <> a') $ fmap center r
+      center s = P.replicate n ' ' <> s <> P.replicate n' ' '
         where
-        n = (maxLength - length s) `div` 2
+        n = (maxLength - length s) `P.quot` 2
         n' = maxLength - n - length s
 
 instance NFData a => NFData (Matrix a) where
@@ -45,7 +45,7 @@ instance Binary a => Binary (Matrix a) where
   put (Matrix nrs ncs rs) = do
     put nrs
     put ncs
-    V.forM_ rs $ V.mapM_ put
+    V.forM_ rs $ mapM_ put
 
   get = do
     nrs <- get
@@ -93,7 +93,7 @@ instance MultiplicativeSemigroupRightAction P.Permute (Matrix a) where
   (Matrix nrs ncs rs) .* p =
     case compare np ncsZ of
       EQ -> Matrix nrs ncs $ 
-              V.map (`V.backpermute` pinvVector) rs
+              fmap (`V.backpermute` pinvVector) rs
       GT -> error "Matrix .* Permute: permutation size too big"
       -- fixme: let all permutations of size <= ncs act
       LT -> error "Matrix .* Permute: not implemented"
@@ -200,11 +200,11 @@ fromVectorsSafe' nrs ncs rs
 
 
 fromListsSafe :: [[a]] -> Either String (Matrix a)
-fromListsSafe = fromVectorsSafe . V.map V.fromList . V.fromList
+fromListsSafe = fromVectorsSafe . fmap V.fromList . V.fromList
 
 fromListsSafe' :: Natural -> Natural -> [[a]]
            -> Either String (Matrix a)
-fromListsSafe' nrs ncs = fromVectorsSafe' nrs ncs . V.map V.fromList . V.fromList
+fromListsSafe' nrs ncs = fromVectorsSafe' nrs ncs . fmap V.fromList . V.fromList
 
 
 fromColumnsSafe :: Vector (Column a) -> Either String (Matrix a)
@@ -235,7 +235,7 @@ toVectors :: Matrix a -> Vector (Vector a)
 toVectors (Matrix _ _ rs) = rs
 
 toLists :: Matrix a -> [[a]]
-toLists = V.toList . V.map V.toList . toVectors
+toLists = V.toList . fmap V.toList . toVectors
 
 toColumns :: Matrix a -> Vector (Column a)
 toColumns (Matrix nrs ncs rs) =
@@ -248,7 +248,7 @@ toColumns (Matrix nrs ncs rs) =
 --------------------------------------------------------------------------------
 
 instance Functor Matrix where
-  fmap f (Matrix nrs ncs rs) = Matrix nrs ncs $ V.map (V.map f) rs
+  fmap f (Matrix nrs ncs rs) = Matrix nrs ncs $ fmap (fmap f) rs
 
 instance Foldable Matrix where
   foldl f a (Matrix nrs ncs rs) = foldl (\a' r -> foldl f a' r) a rs

@@ -19,7 +19,7 @@ blockSum :: (AdditiveMonoid a)
          => Matrix a -> Matrix a -> Matrix a
 Matrix nrs ncs rs `blockSum` Matrix nrs' ncs' rs' =
   Matrix (nrs+nrs') (ncs+ncs') $
-    ( V.map (<> zeros') rs ) <> ( V.map (zeros <>) rs' )
+    ( fmap (<> zeros') rs ) <> ( fmap (zeros <>) rs' )
   where
     zeros = V.replicate (fromIntegral ncs) zero 
     zeros' = V.replicate (fromIntegral ncs') zero 
@@ -36,10 +36,10 @@ blockSumCols (Matrix nrs ncs rs) (Matrix nrs' ncs' rs')
   | otherwise   = Matrix (nrs+nrs') ncs $ rs <> rs'
 
 blockMatrix :: Vector (Vector (Matrix a)) -> Matrix a
-blockMatrix = V.foldl1' blockSumCols . V.map (V.foldl1' blockSumRows)
+blockMatrix = V.foldl1' blockSumCols . fmap (V.foldl1' blockSumRows)
 
 blockMatrixL :: [[Matrix a]] -> Matrix a
-blockMatrixL = blockMatrix . V.map V.fromList . V.fromList 
+blockMatrixL = blockMatrix . fmap V.fromList . V.fromList 
 
 instance AdditiveMonoid a => Monoid (Matrix a) where
   mempty = M.zero 0 0
@@ -50,7 +50,7 @@ instance AdditiveMonoid a => Monoid (Matrix a) where
 --------------------------------------------------------------------------------
 
 concatMap :: (a -> Matrix b) -> Matrix a -> Matrix b
-concatMap f (Matrix nrs ncs rs) = blockMatrix $ V.map (V.map f) rs
+concatMap f (Matrix nrs ncs rs) = blockMatrix $ fmap (fmap f) rs
 
 --------------------------------------------------------------------------------
 -- submatrices
@@ -63,10 +63,10 @@ tailRows :: Matrix a -> Matrix a
 tailRows (Matrix nrs ncs rs) = Matrix (pred nrs) ncs $ V.tail rs
 
 headCols :: Matrix a -> Vector a
-headCols (Matrix _ _ rs) = V.map V.head rs
+headCols (Matrix _ _ rs) = fmap V.head rs
 
 tailCols :: Matrix a -> Matrix a
-tailCols (Matrix nrs ncs rs) = Matrix nrs (pred ncs) $ V.map V.tail rs
+tailCols (Matrix nrs ncs rs) = Matrix nrs (pred ncs) $ fmap V.tail rs
 
 
 splitAtRows :: Int -> Matrix a -> (Matrix a, Matrix a)
@@ -82,7 +82,7 @@ splitAtRows ix m@(Matrix nrs ncs rs)
 
    ncsLeft = fromIntegral ix
    ncsRight = fromIntegral $ ncsZ - ix
-   (rsLeft,rsRight) = V.unzip $ V.map (V.splitAt ix) rs
+   (rsLeft,rsRight) = V.unzip $ fmap (V.splitAt ix) rs
 
 splitAtCols :: Int -> Matrix a -> (Matrix a, Matrix a)
 splitAtCols ix m@(Matrix nrs ncs rs)
@@ -113,7 +113,7 @@ sliceCols jx sz m@(Matrix nrs ncs rs)
   | jx < 0 = sliceCols 0 (sz+jx) m
   | jx >= ncsZ || sz < 0 = Matrix nrs 0 $ V.replicate ncsZ V.empty
   | jx+sz > ncsZ = sliceCols jx (ncsZ-jx) m
-  | otherwise = Matrix nrs szN $ V.map (V.slice jx sz) rs
+  | otherwise = Matrix nrs szN $ fmap (V.slice jx sz) rs
   where
    ncsZ = fromIntegral ncs
    szN = fromIntegral sz

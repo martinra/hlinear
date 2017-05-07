@@ -1,7 +1,6 @@
 module HLinear.Hook.EchelonForm.Basic
 where
 
-import Prelude ()
 import HLinear.Utility.Prelude hiding ( zero )
 
 import qualified Data.Vector as V
@@ -27,7 +26,7 @@ instance NFData a => NFData (EchelonForm a) where
   rnf (EchelonForm nrs ncs rs) =
     seq (rnf nrs) $
     seq (rnf ncs) $
-    seq (V.map rnf rs) ()
+    seq (fmap rnf rs) ()
 
 --------------------------------------------------------------------------------
 -- rows and columns
@@ -69,8 +68,8 @@ atRow (EchelonForm nrs ncs rs) ix
 atCol :: AdditiveMonoid a => EchelonForm a -> Int -> Vector a
 atCol (EchelonForm nrs ncs rs) ix
   | ix >= ncsZ = error "EchelonForm.atCol: out of range"
-  | otherwise  = V.map (EFR.! ix) rs
-                 V.++
+  | otherwise  = fmap (EFR.! ix) rs
+                 <>
                  V.replicate (nrsZ - V.length rs) MS.zero
     where
       nrsZ = fromIntegral nrs
@@ -96,8 +95,8 @@ instance Traversable EchelonForm where
 instance AdditiveMonoid a => IsMatrix (EchelonForm a) a where
   toMatrix (EchelonForm nrs ncs rs) = Matrix nrs ncs rs'
     where
-      hrs = V.map EFR.row rs
-      rs' = V.map EFR.toVector rs V.++ zeros
+      hrs = fmap EFR.row rs
+      rs' = fmap EFR.toVector rs <> zeros
       zeros = V.replicate (fromIntegral nrs - V.length rs)
                           (V.replicate (fromIntegral ncs) MS.zero)
 
@@ -149,11 +148,11 @@ splitAtHook (pivotRow,pivotCol) ef@(EchelonForm nrs ncs rs)
       splitAtHook (min nrsZ pivotRow, min ncsZ pivotCol) ef
   | otherwise =
       ( EchelonForm pivotRowN pivotColN rsLeft
-      , Matrix pivotRowN ncs' $ V.map EFR.toVector rsTopRight
+      , Matrix pivotRowN ncs' $ fmap EFR.toVector rsTopRight
       , EchelonForm nrs' ncs' rsBottomRight
       )
     where
-    (rsLeft,rsRight) = V.unzip $ V.map (EFR.splitAt pivotCol) rs
+    (rsLeft,rsRight) = V.unzip $ fmap (EFR.splitAt pivotCol) rs
     (rsTopRight,rsBottomRight) = V.splitAt pivotRow rsRight
   
     nrsZ = fromIntegral nrs
@@ -177,7 +176,7 @@ blockSum
   | nrs < nrs'   = error "EchelonForm.blockSum: incompatible number of rows"
   | otherwise  = EchelonForm nrs (ncs+ncs') $
                    V.zipWith EFR.sumRow rs1 rs'
-                   V.++
+                   <>
                    V.zipWith EFR.sumRow rs2 zerors
       where
       nrs'Z = fromIntegral nrs'
@@ -198,5 +197,5 @@ blockSumHook
   | ncs' /= ncs'' = error "EchelonForm.blockSumAtPivot: incompatible number of columns"
   | otherwise  = EchelonForm (nrs+nrs'') (ncs+ncs') $
                    V.zipWith EFR.sumRow rs rs'
-                   V.++
-                   V.map (EFR.setLength $ fromIntegral $ ncs+ncs'') rs''
+                   <>
+                   fmap (EFR.setLength $ fromIntegral $ ncs+ncs'') rs''

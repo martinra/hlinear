@@ -3,7 +3,6 @@
 module HLinear.Hook.LeftTransformation.SmallCheck
 where
 
-import Prelude ()
 import HLinear.Utility.Prelude
 
 import qualified Data.Vector as V

@@ -1,13 +1,12 @@
 module HLinear.Hook.EchelonTransformation.SmallCheck
 where
 
-import Control.Monad ( guard )
-import qualified Data.Vector as V
-import Test.SmallCheck.Series ( Serial, Series(..), series )
-import Math.Structure ( isZero, nonZero, DecidableZero )
-import Numeric.Natural ()
+import HLinear.Utility.Prelude
+import qualified Prelude as P
 
 import Test.Natural ()
+import Test.SmallCheck.Series ( Serial, Series(..), series )
+import qualified Data.Vector as V
 
 import HLinear.Hook.EchelonTransformation.Basic
 import HLinear.Hook.EchelonTransformation.Column

@@ -10,11 +10,11 @@ where
 import qualified Prelude as P
 import HLinear.Utility.Prelude
 
-import qualified Data.Vector as V
 import Data.Permute ( Permute )
-import qualified Data.Permute as P
 import Test.QuickCheck
 import Test.SmallCheck.Series
+import qualified Data.Permute as P
+import qualified Data.Vector as V
 
 import HLinear.Utility.Permute ()
 import HLinear.Matrix.Definition
@@ -90,16 +90,16 @@ instance Ring a => IsMatrix RPermute a where
       npZ = size p
       np = fromIntegral npZ 
 
-toVector :: Num a => RPermute -> Vector a
-toVector (RPermute p) = V.map (fromIntegral . P.at p) $
+toVector :: Integral a => RPermute -> Vector a
+toVector (RPermute p) = fmap (fromIntegral . P.at p) $
   V.enumFromStepN (pred np) (-1) np
     where
       np = P.size p 
 
-toVectorSize :: Num a => Int -> RPermute -> Vector a
+toVectorSize :: Integral a => Int -> RPermute -> Vector a
 toVectorSize maxnp rp@(RPermute p) =
-  V.map fromIntegral $ V.enumFromStepN (maxnp-1) (-1) (maxnp - np)
-  V.++
+  fmap fromIntegral $ V.enumFromStepN (maxnp-1) (-1) (maxnp - np)
+  <>
   toVector rp
     where
       np = P.size p 
@@ -110,7 +110,7 @@ toVectorSize maxnp rp@(RPermute p) =
 
 instance MultiplicativeMagma RPermute where
   rp@(RPermute p) * rp'@(RPermute p') =
-    RPermute $ P.swapsPermute n $ P.swaps p ++ P.swaps p'
+    RPermute $ P.swapsPermute n $ P.swaps p <> P.swaps p'
       where
       n = max (size rp) (size rp')
 
@@ -161,6 +161,6 @@ instance MultiplicativeLeftAction RPermute (Matrix a)
 
 instance MultiplicativeSemigroupRightAction RPermute (Matrix a)
   where
-  (Matrix nrs ncs rs) .* p = Matrix nrs ncs $ V.map (.* p) rs
+  (Matrix nrs ncs rs) .* p = Matrix nrs ncs $ fmap (.* p) rs
 
 instance MultiplicativeRightAction RPermute (Matrix a)

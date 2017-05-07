@@ -52,8 +52,8 @@ pivotPermutation
   :: EuclideanDomain a
   => Matrix a -> Maybe RPermute
 pivotPermutation (Matrix nrs ncs rs) =
-  let v = V.map fromJust $ V.filter isJust $
-            V.map (euclNorm . V.head) rs
+  let v = fmap fromJust $ V.filter isJust $
+            fmap (euclNorm . V.head) rs
   in  if V.null v then Nothing
       else Just $ RP.fromTransposition (fromIntegral nrs) (0,V.minIndex v)
 
@@ -67,12 +67,12 @@ splitOffHook m@(Matrix nrs ncs rs)
             splitOffTopLeft (p *. m)
 
           (pivotNormalization, pivot') = plhNormalization pivot
-          pivotTail' = V.map (fromUnit pivotNormalization *) pivotTail
+          pivotTail' = fmap (fromUnit pivotNormalization *) pivotTail
 
           (pivotBottomNormalization, pivotBottom') =
-            V.unzip $ V.map (`quotRem` pivot') pivotBottom
+            V.unzip $ fmap (`quotRem` pivot') pivotBottom
           lt = LT.singleton pivotNormalization $
-                 V.map negate pivotBottomNormalization
+                 fmap negate pivotBottomNormalization
           ef = EF.singletonLeadingOne nrs pivotTail'
           
           bottomRight' =
@@ -90,5 +90,5 @@ splitOffHook m@(Matrix nrs ncs rs)
                )
   | otherwise = Just
       ( Hook.one nrs ncs
-      , Matrix nrs (ncs P.- 1) $ V.map V.tail rs
+      , Matrix nrs (ncs P.- 1) $ fmap V.tail rs
       )

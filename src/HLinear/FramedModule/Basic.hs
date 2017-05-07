@@ -101,7 +101,7 @@ dualEchelonFormWithPivotStructure e@(EchelonForm nrs ncs rs) pivots =
         return r'
     rs'Init = V.generate (V.head pivots) $ create' (-1)
     rs'Tail = msum $ (`V.imap` pivotPairs) $ \px (jx,jx') ->
-                V.map (create' px) $ V.enumFromN (jx+1) (jx'-jx-1)
+                fmap (create' px) $ V.enumFromN (jx+1) (jx'-jx-1)
 
 --------------------------------------------------------------------------------
 -- creation and merging

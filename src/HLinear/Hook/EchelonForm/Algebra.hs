@@ -1,7 +1,6 @@
 module HLinear.Hook.EchelonForm.Algebra
 where
 
-import Prelude ()
 import HLinear.Utility.Prelude as P
 
 import qualified Data.Vector as V
@@ -48,14 +47,14 @@ instance AdditiveMagma a => AdditiveMagma (EchelonForm a) where
       nrsZ = fromIntegral nrs
       nrs'Z = fromIntegral nrs'
 
-      srs = V.map (EFR.setLength maxncsZ) rs
-      srs' = V.map (EFR.setLength maxncsZ) rs'
+      srs = fmap (EFR.setLength maxncsZ) rs
+      srs' = fmap (EFR.setLength maxncsZ) rs'
 
       ef = EchelonForm maxnrs maxncs
 
       extendRows mt mb t b rs =
         V.replicate (mt - t) (EFR.zero maxncs)
-        V.++ rs V.++
+        <> rs <>
         V.replicate (b - mb) (EFR.zero maxncs)
 
 instance AdditiveSemigroup a => AdditiveSemigroup (EchelonForm a)

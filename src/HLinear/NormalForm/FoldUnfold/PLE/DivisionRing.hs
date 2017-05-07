@@ -44,9 +44,9 @@ splitOffHook m@(Matrix nrs ncs rs)
             splitOffTopLeft (p *. m)
 
           pivotRecip = recip $ Unit pivot
-          pivotTail' = V.map (fromUnit pivotRecip *) pivotTail
+          pivotTail' = fmap (fromUnit pivotRecip *) pivotTail
 
-          lt = LT.singleton pivotRecip $ V.map negate pivotBottom
+          lt = LT.singleton pivotRecip $ fmap negate pivotBottom
           ef = EF.singletonLeadingOne nrs pivotTail'
           
           bottomRight' =
@@ -57,5 +57,5 @@ splitOffHook m@(Matrix nrs ncs rs)
           )
   | otherwise = Just
       ( Hook.one nrs ncs
-      , Matrix nrs (ncs P.- 1) $ V.map V.tail rs
+      , Matrix nrs (ncs P.- 1) $ fmap V.tail rs
       )

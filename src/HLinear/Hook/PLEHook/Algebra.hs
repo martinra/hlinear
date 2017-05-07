@@ -3,7 +3,6 @@
 module HLinear.Hook.PLEHook.Algebra
 where
 
-import Prelude ()
 import HLinear.Utility.Prelude
 
 import Data.Permute ( Permute )

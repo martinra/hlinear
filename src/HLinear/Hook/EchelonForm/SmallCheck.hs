@@ -1,13 +1,12 @@
 module HLinear.Hook.EchelonForm.SmallCheck
 where
 
-import Control.Monad ( guard )
-import qualified Data.Vector as V
-import Test.SmallCheck.Series ( Serial, Series(..), series, decDepth )
-import Math.Structure ( isZero, nonZero, DecidableZero )
-import Numeric.Natural ()
+import HLinear.Utility.Prelude
 
+import Math.Structure ( isZero, nonZero, DecidableZero )
 import Test.Natural ()
+import Test.SmallCheck.Series ( Serial, Series(..), series, decDepth )
+import qualified Data.Vector as V
 
 import HLinear.Hook.EchelonForm.Basic
 import HLinear.Hook.EchelonForm.Definition

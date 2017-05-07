@@ -1,6 +1,8 @@
 module HLinear.Hook.ERHook.Definition
 where
 
+import HLinear.Utility.Prelude
+
 import HLinear.Hook.EchelonForm ( EchelonForm )
 import HLinear.Hook.EchelonTransformation ( EchelonTransformation )
 import HLinear.Matrix.Definition ( Matrix )

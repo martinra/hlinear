@@ -1,6 +1,7 @@
 module HLinear.Utility.NmbRowColumn
 where
 
+import Prelude
 import Numeric.Natural ( Natural )
 
 

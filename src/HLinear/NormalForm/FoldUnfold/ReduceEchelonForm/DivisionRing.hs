@@ -60,10 +60,10 @@ reduceLastPivot ( ef@(EchelonForm nrs ncs _), PivotStructure pivots )
           pivotRow = efBottomRight `EF.atRow` 0
           -- since we reduce EchelonForms over a division ring,
           -- the pivot entry is one
-          pivotTop = V.map V.head efTopRight 
+          pivotTop = fmap V.head efTopRight 
           pivotTopNormalization =  pivotTop
 
-          et = ET.singleton $ V.map negate pivotTopNormalization
+          et = ET.singleton $ fmap negate pivotTopNormalization
 
           efTopRight' =
             (\f -> V.zipWith f efTopRight pivotTopNormalization) $ \r h ->

@@ -4,20 +4,12 @@
 module HLinear.NormalForm.FoldUnfold.PLE.FractionFree
 where
 
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , lcm, gcd
-                      , quotRem, quot, rem
-                      )
-import qualified Prelude as P
 import HLinear.Utility.Prelude
+import qualified Prelude as P
 
 import Data.Permute ( Permute )
-import System.IO.Unsafe ( unsafePerformIO )
 import qualified Data.Vector as V
 
-import HFlint.FMPQ ( FMPQ, toFMPZs, fromFMPZs )
-import HFlint.FMPZ ( FMPZ )
 import HFlint.FMPZ.FFI ( fmpz_mul, fmpz_submul, fmpz_divexact )
 import HFlint.Internal ( withFlint, withNewFlint_ )
 
@@ -50,7 +42,7 @@ ple m@(Matrix nrs ncs rs) =
         Nothing -> Hook.one nrs ncs
         Just (h,m') ->
           PLEHook one
-            (LT.diagonal $ V.map (Unit . fromDenominator) ds)
+            (LT.diagonal $ fmap (Unit . fromDenominator) ds)
             (EF.zero nrs ncs)
           *
           V.foldl (*) h (V.unfoldr splitOffHook m')
@@ -68,10 +60,10 @@ splitOffHook (MatrixFraction m@(Matrix nrs ncs rs) den)
           pivotRecip = recip $ Unit $ fromNumerator pivot :: Unit FMPQ
 
           lt = LT.singleton (denFMPQ * pivotRecip) $
-                 V.map (\a -> fromUnit denFMPQ * fromNumerator a) $
-                   V.map negate pivotBottom
+                 fmap (\a -> fromUnit denFMPQ * fromNumerator a) $
+                   fmap negate pivotBottom
           ef = EF.singletonLeadingOne nrs $
-                 V.map (\a -> fromUnit pivotRecip * fromNumerator a)
+                 fmap (\a -> fromUnit pivotRecip * fromNumerator a)
                    pivotTail
 
           bottomRight' =
@@ -95,5 +87,5 @@ splitOffHook (MatrixFraction m@(Matrix nrs ncs rs) den)
           )
   | otherwise            = Just $
       ( Hook.one nrs ncs
-      , MatrixFraction (Matrix nrs (ncs P.- 1) $ V.map V.tail rs) den
+      , MatrixFraction (Matrix nrs (ncs P.- 1) $ fmap V.tail rs) den
       )

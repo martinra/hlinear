@@ -1,7 +1,6 @@
 module HLinear.Hook.PLEHook.Definition
 where
 
-import Prelude ()
 import HLinear.Utility.Prelude
 
 import HLinear.Matrix.Definition ( Matrix, IsMatrix(..) )

@@ -1,10 +1,8 @@
 module HLinear.Hook.EchelonForm.PivotStructure
 where
 
-import Prelude ()
 import HLinear.Utility.Prelude
 
-import Control.Monad.State as St
 import Data.Sequence ( Seq )
 import qualified Data.Sequence as S
 import qualified Data.Vector as V
@@ -61,7 +59,7 @@ pivotEntryVector = seqToVector . pivotEntries
   
 
 rank :: DecidableZero a => EchelonForm a -> Natural
-rank = (`execState` 0) . sequenceA_ . mapPivot (\_ _ _ -> St.modify succ)
+rank = (`execState` 0) . sequenceA_ . mapPivot (\_ _ _ -> modify succ)
 
 
 hasNonzeroDiagonal :: DecidableZero a => EchelonForm a -> Bool

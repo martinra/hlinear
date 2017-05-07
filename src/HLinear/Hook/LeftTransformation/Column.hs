@@ -83,7 +83,8 @@ toVector :: Rng a
   => LeftTransformationColumn a -> Vector a
 toVector (LeftTransformationColumn o a v) =
   V.replicate (fromIntegral o) zero
-  V.++ a' `V.cons` V.map (*a') v
+  <>
+  a' `V.cons` fmap (*a') v
   where
     a' = fromUnit a
 
@@ -146,11 +147,11 @@ instance    ( Arbitrary a, Arbitrary (Unit a) )
     [ LeftTransformationColumn s' a v
     | s' <- shrink s, s' >= 0
     ]
-    ++
+    <>
     [ LeftTransformationColumn s a' v
     | a' <- shrink a
     ]
-    ++
+    <>
     [ LeftTransformationColumn s a v'
     | v' <- shrink v
     ]

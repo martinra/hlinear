@@ -48,12 +48,12 @@ reduceLastPivot ( ef@(EchelonForm nrs ncs _), PivotStructure pivots )
 
           pivotRow = efBottomRight `EF.atRow` 0
           pivot = V.head pivotRow
-          pivotTop = V.map V.head efTopRight 
+          pivotTop = fmap V.head efTopRight 
 
           (pivotTop', pivotTopNormalization) =
-            V.unzip $ V.map (`quotRem` pivot) pivotTop
+            V.unzip $ fmap (`quotRem` pivot) pivotTop
 
-          et = ET.singleton $ V.map negate pivotTopNormalization
+          et = ET.singleton $ fmap negate pivotTopNormalization
 
           efTopRight' =
             (\f -> V.zipWith f efTopRight pivotTopNormalization) $ \r h ->

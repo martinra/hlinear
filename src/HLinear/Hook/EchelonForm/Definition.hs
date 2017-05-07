@@ -1,8 +1,7 @@
 module HLinear.Hook.EchelonForm.Definition
 where
 
-import Data.Vector ( Vector )
-import Numeric.Natural ( Natural )
+import HLinear.Utility.Prelude
 
 import HLinear.Hook.EchelonForm.Row
 

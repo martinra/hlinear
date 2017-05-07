@@ -32,7 +32,7 @@ baseRingAction cxt a = sequence
       ( ([t|MultiplicativeSemigroupLeftAction|] `appT` a)
         `appT` ([t|Matrix|] `appT` a)
       )
-      [ mkDecl '(*.) [| \a (Matrix nrs ncs rs) -> Matrix nrs ncs $ V.map (V.map (a*)) rs |]
+      [ mkDecl '(*.) [| \a (Matrix nrs ncs rs) -> Matrix nrs ncs $ fmap (fmap (a*)) rs |]
       ]
   , instanceD
       ( (:) <$> ([t|MultiplicativeMonoid|] `appT` a) <*> cxt )
@@ -53,7 +53,7 @@ baseRingAction cxt a = sequence
       ( ([t|MultiplicativeSemigroupRightAction|] `appT` a)
         `appT` ([t|Matrix|] `appT` a)
       )
-      [ mkDecl '(.*) [| \(Matrix nrs ncs rs) a -> Matrix nrs ncs $ V.map (V.map (*a)) rs |]
+      [ mkDecl '(.*) [| \(Matrix nrs ncs rs) a -> Matrix nrs ncs $ fmap (fmap (*a)) rs |]
       ]
   , instanceD
       ( (:) <$> ([t|MultiplicativeMonoid|] `appT` a) <*> cxt )

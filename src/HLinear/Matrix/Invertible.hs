@@ -3,7 +3,6 @@
 module HLinear.Matrix.Invertible
 where
 
-import Prelude ()
 import HLinear.Utility.Prelude
 
 import qualified Data.Vector as V

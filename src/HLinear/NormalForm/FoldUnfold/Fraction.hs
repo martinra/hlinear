@@ -7,13 +7,9 @@
 module HLinear.NormalForm.FoldUnfold.Fraction
 where
 
-import Prelude ()
 import HLinear.Utility.Prelude
 
 import qualified Data.Vector as V
-
-import HFlint.FMPQ ( FMPQ, toFMPZs, fromFMPZs )
-import HFlint.FMPZ ( FMPZ )
 
 import HLinear.Matrix.Definition ( Matrix(..) )
 import qualified HLinear.Matrix.Basic as M

@@ -1,21 +1,12 @@
 module HLinear.Hook.EchelonForm.Row
 where
 
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      , length
-                      )
+import HLinear.Utility.Prelude hiding ( zero, length )
 import qualified Prelude as P
 
-import Control.DeepSeq
-import Control.Arrow ( first )
+
 import qualified Data.Vector as V
-import Data.Vector ( Vector(..) )
-import Math.Structure hiding ( zero )
 import qualified Math.Structure as MS
-import Numeric.Natural ( Natural )
 
 import HLinear.Matrix.Basic ()
 import HLinear.Matrix.Definition ( Matrix(..) )
@@ -36,7 +27,7 @@ deriving instance Show a => Show (EchelonFormRow a)
 
 instance ( Eq a, DecidableZero a ) => Eq (EchelonFormRow a) where
   (EchelonFormRow o r) == (EchelonFormRow o' r') =
-    V.all isZero (left V.++ left') && right == right'
+    V.all isZero (left <> left') && right == right'
     where
       maxo = max o o'
       (left,right, left',right') =
@@ -50,7 +41,7 @@ instance ( Eq a, DecidableZero a ) => Eq (EchelonFormRow a) where
 instance NFData a => NFData (EchelonFormRow a) where
   rnf (EchelonFormRow o s) =
     seq (rnf o) $
-    seq (V.map rnf s) ()
+    seq (fmap rnf s) ()
 
 --------------------------------------------------------------------------------
 -- attributes
@@ -98,7 +89,7 @@ pivotIxEntry' ix (EchelonFormRow o v)
 --------------------------------------------------------------------------------
 
 instance Functor EchelonFormRow where
-  fmap f (EchelonFormRow o r) = EchelonFormRow o $ V.map f r
+  fmap f (EchelonFormRow o r) = EchelonFormRow o $ fmap f r
 
 instance Foldable EchelonFormRow where
   foldl f a (EchelonFormRow o r) = V.foldl f a r
@@ -112,7 +103,7 @@ zipWith
   => (a -> b -> c) -> EchelonFormRow a -> EchelonFormRow b
   -> EchelonFormRow c
 zipWith f e@(EchelonFormRow o r) e'@(EchelonFormRow o' r') =
-  EchelonFormRow o'' $ V.zipWith f rR rR' V.++ V.zipWith f rL rL'
+  EchelonFormRow o'' $ V.zipWith f rR rR' <> V.zipWith f rL rL'
   where
     nr = V.length r
     nr' = V.length r'
@@ -136,14 +127,14 @@ singleton :: Vector a -> EchelonFormRow a
 singleton = EchelonFormRow 0
 
 toVector :: AdditiveMonoid a => EchelonFormRow a -> Vector a
-toVector (EchelonFormRow o r) = V.replicate (fromIntegral o) MS.zero V.++ r
+toVector (EchelonFormRow o r) = V.replicate (fromIntegral o) MS.zero <> r
 
 --------------------------------------------------------------------------------
 -- block sums
 --------------------------------------------------------------------------------
 
 sumRow :: EchelonFormRow a -> Vector a -> EchelonFormRow a
-sumRow (EchelonFormRow o v) v' = EchelonFormRow o $ v V.++ v'
+sumRow (EchelonFormRow o v) v' = EchelonFormRow o $ v <> v'
 
 --------------------------------------------------------------------------------
 -- subrows
@@ -177,8 +168,8 @@ instance AdditiveMagma a => AdditiveMagma (EchelonFormRow a) where
       mr = case compare lr lr' of
              EQ -> V.zipWith (+) r r'
              GT -> let (left,right) = V.splitAt (lr-lr') r
-                   in left V.++ V.zipWith (+) right r'
+                   in left <> V.zipWith (+) right r'
              LT -> let (left,right) = V.splitAt (lr'-lr) r'
-                   in left V.++ V.zipWith (+) r right
+                   in left <> V.zipWith (+) r right
 
 instance AdditiveSemigroup a => AdditiveSemigroup (EchelonFormRow a)

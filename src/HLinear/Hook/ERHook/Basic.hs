@@ -1,7 +1,6 @@
 module HLinear.Hook.ERHook.Basic
 where
 
-import Prelude ()
 import HLinear.Utility.Prelude
 
 

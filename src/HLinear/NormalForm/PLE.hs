@@ -4,7 +4,6 @@ module HLinear.NormalForm.PLE
   )
 where
 
-import Prelude ()
 import HLinear.Utility.Prelude
 
 import HFlint.FMPQ

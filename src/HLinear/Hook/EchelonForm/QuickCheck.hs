@@ -1,21 +1,14 @@
 module HLinear.Hook.EchelonForm.QuickCheck
 where
 
+import HLinear.Utility.Prelude
+import qualified Prelude as P
+
 import Control.Monad.Trans.Class ( lift )
 import Control.Monad.Trans.State.Strict ( evalStateT )
-import Control.Monad.State ( gets, put )
+import Test.QuickCheck.Arbitrary ( Arbitrary, arbitrary, shrink )
+import Test.QuickCheck.Modifiers ( NonNegative(..), Positive(..), Small(..) )
 import qualified Data.Vector as V
-import Data.Vector ( Vector )
-
-import Math.Structure ( DecidableZero, Ring, isZero, one )
-
-import Test.QuickCheck.Arbitrary ( Arbitrary
-                                 , arbitrary
-                                 , shrink
-                                 )
-import Test.QuickCheck.Modifiers ( NonNegative(..), Positive(..)
-                                 , Small(..)
-                                 )
 
 import HLinear.Hook.EchelonForm.Definition as EF
 import HLinear.Hook.EchelonForm.Basic as EF
@@ -45,13 +38,13 @@ instance    ( Arbitrary a, Ring a, DecidableZero a )
 
     EchelonForm (lrs+nrsDiff) ncs <$> evalStateT rs 0
 
-  shrink e = shrinkRow e ++ shrinkCol e ++ shrinkEntry e 
+  shrink e = shrinkRow e <> shrinkCol e <> shrinkEntry e 
     where
       shrinkRow (EchelonForm nrs ncs rs)
         | nrs <= 1 = []
         | otherwise = [left,right]
           where
-            nrs' = nrs `div` 2
+            nrs' = nrs `P.quot` 2
             left = EchelonForm nrs' ncs leftrs
             (EchelonForm _ _ leftrs,right) =
               EF.splitAt (fromIntegral nrs') e
@@ -62,12 +55,12 @@ instance    ( Arbitrary a, Ring a, DecidableZero a )
                       , EchelonForm nrs ncs'' right
                       ]
           where
-            ncs' = ncs `div` 2
-            ncs'' = fromIntegral $ fromIntegral ncs - fromIntegral ncs'
+            ncs' = ncs `P.quot` 2
+            ncs'' = ncs P.- ncs'
             (left,right) = V.unzip $
-                           V.map (EFR.splitAt $ fromIntegral ncs') rs
+                           fmap (EFR.splitAt $ fromIntegral ncs') rs
 
-      shrinkEntry (EchelonForm nrs ncs rs) = map (EchelonForm nrs ncs) $ do
+      shrinkEntry (EchelonForm nrs ncs rs) = fmap (EchelonForm nrs ncs) $ do
         ix <- [0..V.length rs - 1]
         let EchelonFormRow o r = rs V.! ix
         jx <- [0..V.length r - 1]

@@ -29,7 +29,7 @@ instance Ring a
   where
   p *. lt@(LeftTransformation nrs cs)
     | size p <= fromIntegral nrs - V.length cs =
-        LeftTransformation nrs $ V.map (p*.) cs
+        LeftTransformation nrs $ fmap (p*.) cs
     | otherwise = LeftTransformationMatrix $ p *. toMatrix lt
   p *. (LeftTransformationMatrix m) = LeftTransformationMatrix (p *. m)
 
@@ -58,12 +58,12 @@ instance ( Ring a, MultiplicativeGroup (Unit a) )
     | ncs  == 0 = lt'
     | ncs' == 0 = lt
     | nrsZ - ncs >= nrs'Z =
-        let ltcOnes = V.map (LTC.one nrsZ) $
+        let ltcOnes = fmap (LTC.one nrsZ) $
                         V.enumFromN ncs (nrsZ - ncs - nrs'Z)
-            cs'shifted = V.map (LTC.setLength nrsZ) cs' 
-        in LeftTransformation nrs $ cs V.++ ltcOnes V.++ cs'shifted
+            cs'shifted = fmap (LTC.setLength nrsZ) cs' 
+        in LeftTransformation nrs $ cs <> ltcOnes <> cs'shifted
     | nrs' >= nrs =
-        let ltLeft = LeftTransformation nrs' $ V.map (lt*.) cs' 
+        let ltLeft = LeftTransformation nrs' $ fmap (lt*.) cs' 
             ltRight = LT.drop (nrsZ - (nrs'Z - ncs')) lt
         in ltLeft * ltRight
     | otherwise =
@@ -103,12 +103,12 @@ instance ( Ring a, DecidableUnit a, MultiplicativeGroup (Unit a) )
   recip (LeftTransformation nrs cs)
     | V.length cs == 1
       = let LeftTransformationColumn _ a c = V.head cs
-            c' = LeftTransformationColumn 0 (recip a) (V.map ((* fromUnit a) . negate) c)
+            c' = LeftTransformationColumn 0 (recip a) (fmap ((* fromUnit a) . negate) c)
         in LeftTransformation nrs $ V.singleton c'
-    | otherwise = foldl (*) initLt $ V.reverse $ V.map recip columnLTs
+    | otherwise = foldl (*) initLt $ V.reverse $ fmap recip columnLTs
         where
         initLt = LeftTransformation nrs V.empty
-        columnLTs = V.map go cs
+        columnLTs = fmap go cs
         go (LeftTransformationColumn _ a c) =
           LeftTransformation (fromIntegral $ succ $ V.length c) $
                              V.singleton $ LeftTransformationColumn 0 a c
@@ -143,7 +143,7 @@ instance ( Ring a, MultiplicativeGroup (Unit a), LinearSemiringLeftAction a b )
     {-# INLINE applyCol #-}
     applyCol c@(LeftTransformationColumn s' a' v') vn =
        V.init vn1 `V.snoc` av
-       V.++
+       <>
        V.zipWith (\bl br -> bl*.av + br) v' vn2
          where
          av = fromUnit a' *. V.last vn1
@@ -193,8 +193,8 @@ instance ( Ring a, MultiplicativeGroup (Unit a) )
     Matrix nrs ncs $ M.withRowLength ncs go
       where
         go :: forall ctx. Reifies ctx Natural => Proxy ctx -> Vector (Vector a)
-        go _ = V.map M.fromRow $ fromColumn $
-                 lt *. (Column $ V.map M.Row rs :: Column (M.Row ctx a))
+        go _ = fmap M.fromRow $ fromColumn $
+                 lt *. (Column $ fmap M.Row rs :: Column (M.Row ctx a))
 
 instance ( Ring a, MultiplicativeGroup (Unit a) )
   => MultiplicativeLeftAction

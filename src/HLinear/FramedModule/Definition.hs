@@ -1,7 +1,6 @@
 module HLinear.FramedModule.Definition
 where
 
-import Prelude ()
 import HLinear.Utility.Prelude
 
 import HLinear.Matrix.Definition ( Matrix(..) )

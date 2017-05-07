@@ -1,22 +1,16 @@
 module HLinear.Hook.EchelonTransformation.QuickCheck
 where
 
-import Control.Arrow ( (&&&) )
-import Data.Traversable ( forM )
+import HLinear.Utility.Prelude
+import qualified Prelude as P
+
 import qualified Data.Vector as V
-import Data.Vector ( Vector )
 import qualified Data.Vector.Mutable as VM
-import Math.Structure ( DecidableZero, NonZero )
 
 import Math.Structure.Tasty ()
 import Test.QuickCheck ( suchThat, Gen )
-import Test.QuickCheck.Arbitrary ( Arbitrary
-                                 , arbitrary
-                                 , shrink
-                                 )
-import Test.QuickCheck.Modifiers ( NonNegative(..)
-                                 , Small(..)
-                                 )
+import Test.QuickCheck.Arbitrary ( Arbitrary, arbitrary, shrink )
+import Test.QuickCheck.Modifiers ( NonNegative(..), Small(..) )
 
 import HLinear.Hook.EchelonTransformation.Basic as ET
 import HLinear.Hook.EchelonTransformation.Column as ETC
@@ -50,7 +44,7 @@ instance    (DecidableZero a, Arbitrary a)
         where
           nrsZ = fromIntegral nrs
           ncs = V.length cs
-          (etLeft,etRight) = ET.splitAt (fromIntegral $ nrsZ - (ncs `div` 2)) et
+          (etLeft,etRight) = ET.splitAt (fromIntegral $ nrsZ - (ncs `P.quot` 2)) et
 
           shrinkColumn (EchelonTransformationColumn s c) =
             [ EchelonTransformationColumn s $ V.update c $ V.singleton (ix,e)

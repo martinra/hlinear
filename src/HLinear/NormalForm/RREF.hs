@@ -4,7 +4,6 @@ module HLinear.NormalForm.RREF
   )
 where
 
-import Prelude ()
 import HLinear.Utility.Prelude
 
 import HLinear.Hook.PLEHook ( PLREHook(..) )

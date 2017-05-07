@@ -5,16 +5,12 @@
 module HLinear.Matrix.QuickCheck
 where
 
-import Control.Applicative ( (<$>) )
-import qualified Data.Vector as V
+import qualified Prelude as P
+import HLinear.Utility.Prelude
 
-import Test.QuickCheck.Arbitrary ( Arbitrary
-                                 , arbitrary
-                                 , shrink
-                                 )
-import Test.QuickCheck.Modifiers ( NonNegative(..)
-                                 , Small(..)
-                                 )
+import Test.QuickCheck.Arbitrary ( Arbitrary, arbitrary, shrink )
+import Test.QuickCheck.Modifiers ( NonNegative(..), Small(..) )
+import qualified Data.Vector as V
 
 import HLinear.Matrix.Definition ( Matrix(..) )
 
@@ -30,13 +26,13 @@ instance Arbitrary a => Arbitrary (Matrix a) where
   shrink (Matrix nrs ncs rs)
     | nrs <= 1 || ncs <= 1 = []
     | otherwise =
-      map ($rs)
-      [ Matrix nrs ncsD2 . V.map (V.take $ fromIntegral ncsD2)
-      , Matrix nrs ncsR2 . V.map (V.drop $ fromIntegral ncsD2)
+      fmap ($rs)
+      [ Matrix nrs ncsD2 . fmap (V.take $ fromIntegral ncsD2)
+      , Matrix nrs ncsR2 . fmap (V.drop $ fromIntegral ncsD2)
       , Matrix nrsD2 ncs . V.take (fromIntegral nrsD2)
       , Matrix nrsR2 ncs . V.drop (fromIntegral nrsD2)
       ]
-      ++
+      <>
       [ Matrix nrs ncs $
           V.update rs $ V.singleton
             ( ix, V.update (rs V.! ix) $ V.singleton (jx, e) )
@@ -45,7 +41,7 @@ instance Arbitrary a => Arbitrary (Matrix a) where
       , e  <- shrink $ rs V.! ix V.! jx
       ]
       where
-        nrsD2 = nrs `div` 2
-        nrsR2 = nrs - nrsD2
-        ncsD2 = ncs `div` 2
-        ncsR2 = ncs - ncsD2
+        nrsD2 = nrs `P.quot` 2
+        nrsR2 = nrs P.- nrsD2
+        ncsD2 = ncs `P.quot` 2
+        ncsR2 = ncs P.- ncsD2
