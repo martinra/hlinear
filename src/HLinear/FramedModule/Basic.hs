@@ -1,3 +1,5 @@
+{-# LANGUAGE UndecidableInstances #-}
+
 module HLinear.FramedModule.Basic
 where
 
@@ -11,10 +13,9 @@ import qualified Data.Vector.Mutable as MV
 
 import HLinear.FramedModule.Definition
 import HLinear.Hook.EchelonForm ( EchelonForm(..) )
-import HLinear.Hook.PLEHook ( PLREHook(..) )
 import HLinear.Matrix.Basic hiding ( one )
 import HLinear.Matrix.Definition
-import HLinear.NormalForm.RREF ( HasRREF(..) )
+import HLinear.NormalForm.RREF ( rref, HasRREF, PLREHook(..) )
 import qualified HLinear.Hook.EchelonForm as EF
 import qualified HLinear.Hook.EchelonForm.Row as EFR
 

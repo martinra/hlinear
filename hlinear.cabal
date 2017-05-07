@@ -56,7 +56,6 @@ library
     HLinear.NormalForm.FoldUnfold.RREF.DivisionRing
     HLinear.NormalForm.FoldUnfold.RREF.EuclideanDomain
     HLinear.NormalForm.Instance.PLH
-    HLinear.NormalForm.Instance.RREF
 
     HLinear.FramedModule.Definition
     HLinear.FramedModule.Basic

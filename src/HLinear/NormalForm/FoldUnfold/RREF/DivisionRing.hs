@@ -12,19 +12,30 @@ import qualified Data.Permute as P
 import HLinear.Hook.ERHook ( ERHook(..) )
 import HLinear.Hook.EchelonForm ( EchelonForm(..), PivotStructure(..) )
 import HLinear.Hook.EchelonTransformation ( EchelonTransformation(..) )
-import HLinear.Hook.PLEHook ( RREF(..) )
+import HLinear.Hook.PLEHook ( PLEHook(..), PLREHook(..), RREF(..) )
 import HLinear.Matrix.Block ( headRows, tailRows )
 import HLinear.Matrix.Definition ( Matrix(..) )
+import HLinear.NormalForm.PLE ( ple, HasPLE )
 import qualified HLinear.Hook.EchelonForm as EF
 import qualified HLinear.Hook.EchelonForm.Row as EFR
 import qualified HLinear.Hook.EchelonTransformation as ET
 import qualified HLinear.Matrix.Basic as M
 
 
-rref
+type HasRREF a =
+  ( DivisionRing a, DecidableZero a, HasPLE a )
+
+rref :: HasRREF a => Matrix a -> PLREHook a
+rref m =
+  let h@(PLEHook p l e) = ple m
+      RREF r e' = reduceEchelonForm e
+  in  PLREHook p l r e'
+
+
+reduceEchelonForm
   :: ( DivisionRing a, DecidableZero a )
   => EchelonForm a -> RREF a
-rref ef =
+reduceEchelonForm ef =
   case reduceLastPivot (ef, EF.pivotStructure ef) of
     Nothing -> RREF (ET.one nrs) (EF.zero nrs ncs)
     Just (er, efp') ->

@@ -1,16 +1,11 @@
-{-# LANGUAGE
-    UndecidableInstances
-  #-}
-
 module HLinear.NormalForm.RREF
+  ( rref, HasRREF
+  , PLREHook(..)
+  )
 where
 
 import Prelude ()
 import HLinear.Utility.Prelude
 
 import HLinear.Hook.PLEHook ( PLREHook(..) )
-import HLinear.Matrix.Definition ( Matrix )
-
-
-class HasRREF a where
-  rref :: Matrix a -> PLREHook a
+import HLinear.NormalForm.FoldUnfold.RREF.DivisionRing ( rref, HasRREF )
