@@ -48,13 +48,13 @@ library
     HLinear.NormalForm.RREF
     HLinear.NormalForm.FoldUnfold.Fraction
     HLinear.NormalForm.FoldUnfold.Matrix
+    HLinear.NormalForm.FoldUnfold.Pivot
     HLinear.NormalForm.FoldUnfold.PLE.DivisionRing
     HLinear.NormalForm.FoldUnfold.PLE.FractionFree
     HLinear.NormalForm.FoldUnfold.PLH.EuclideanDomain
     HLinear.NormalForm.FoldUnfold.PLH.Normalization
     HLinear.NormalForm.FoldUnfold.RREF.DivisionRing
     HLinear.NormalForm.FoldUnfold.RREF.EuclideanDomain
-    HLinear.NormalForm.Instance.PLE
     HLinear.NormalForm.Instance.PLH
     HLinear.NormalForm.Instance.RREF
 

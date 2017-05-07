@@ -1,3 +1,5 @@
+{-# LANGUAGE UndecidableInstances #-}
+
 module HLinear.Matrix.Invertible
 where
 

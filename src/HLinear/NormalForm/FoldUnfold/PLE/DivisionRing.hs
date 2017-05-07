@@ -15,6 +15,7 @@ import qualified Data.Vector as V
 import HLinear.Hook.PLEHook ( PLEHook(..) )
 import HLinear.Matrix.Definition ( Matrix(..) )
 import HLinear.NormalForm.FoldUnfold.Matrix ( splitOffTopLeft )
+import HLinear.NormalForm.FoldUnfold.Pivot ( pivotNonZeroPermutation )
 import HLinear.Utility.RPermute ( RPermute(..) )
 import qualified HLinear.Hook.PLEHook.Basic as Hook
 import qualified HLinear.Hook.EchelonForm as EF
@@ -22,32 +23,27 @@ import qualified HLinear.Hook.LeftTransformation as LT
 import qualified HLinear.Utility.RPermute as RP
 
 
-ple
-  :: ( DivisionRing a, DecidableZero a, DecidableUnit a
-     , MultiplicativeGroup (Unit a) )
-  => Matrix a -> PLEHook a
+type HasPLE a = 
+  ( DivisionRing a, DecidableZero a, DecidableUnit a
+  , MultiplicativeGroup (Unit a) )
+
+
+ple :: HasPLE a => Matrix a -> PLEHook a
 ple m@(Matrix nrs ncs _) =
   case splitOffHook m of
     Nothing -> Hook.one nrs ncs
     Just (h,m') -> V.foldl (*) h $ V.unfoldr splitOffHook m'
 
-pivotPermutation
-  :: DecidableZero a
-  => Matrix a -> Maybe RPermute
-pivotPermutation (Matrix nrs ncs rs) = do
-  pIx <- V.findIndex ((not . isZero) . V.head) rs
-  return $ RP.fromTransposition (fromIntegral nrs) (0,pIx)
-
 splitOffHook
-  :: ( DivisionRing a, DecidableZero a, DecidableUnit a, MultiplicativeGroup (Unit a) )
+  :: HasPLE a
   => Matrix a -> Maybe (PLEHook a, Matrix a)
 splitOffHook m@(Matrix nrs ncs rs)
   | nrs == 0 || ncs == 0 = Nothing
-  | Just p <- pivotPermutation m = Just $
+  | Just p <- pivotNonZeroPermutation m = Just $
       let Just ((pivot, pivotBottom), (pivotTail, bottomRight)) =
             splitOffTopLeft (p *. m)
 
-          pivotRecip = recip $ toUnit pivot
+          pivotRecip = recip $ Unit pivot
           pivotTail' = V.map (fromUnit pivotRecip *) pivotTail
 
           lt = LT.singleton pivotRecip $ V.map negate pivotBottom

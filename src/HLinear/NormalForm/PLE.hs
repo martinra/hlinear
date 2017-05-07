@@ -1,12 +1,19 @@
 module HLinear.NormalForm.PLE
+  ( ple, HasPLE
+  , PLEHook(..)
+  )
 where
 
 import Prelude ()
 import HLinear.Utility.Prelude
 
+import HFlint.FMPQ
+
 import HLinear.Hook.PLEHook ( PLEHook(..) )
 import HLinear.Matrix.Definition ( Matrix )
+import HLinear.NormalForm.FoldUnfold.PLE.DivisionRing ( ple, HasPLE )
+import qualified HLinear.NormalForm.FoldUnfold.PLE.FractionFree as FUFF
 
-
-class HasPLE a where
-  ple :: Matrix a -> PLEHook a
+{-# RULES
+  "ple/FMPQ"  ple = FUFF.ple :: Matrix FMPQ -> PLEHook FMPQ
+  #-}

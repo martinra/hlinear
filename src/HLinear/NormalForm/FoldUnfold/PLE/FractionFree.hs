@@ -1,6 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
-{-# LANGUAGE UndecidableInstances #-}
 
 module HLinear.NormalForm.FoldUnfold.PLE.FractionFree
 where
@@ -28,13 +27,13 @@ import HLinear.Hook.LeftTransformation ( LeftTransformation(..) )
 import HLinear.Hook.PLEHook ( PLEHook(..) )
 import HLinear.Matrix.Definition ( Matrix(..) )
 import HLinear.Matrix.Block ( headRows, tailRows )
-import HLinear.NormalForm.FoldUnfold.Matrix ( splitOffTopLeft )
 import HLinear.NormalForm.FoldUnfold.Fraction ( IsFraction(..) )
+import HLinear.NormalForm.FoldUnfold.Matrix ( splitOffTopLeft )
+import HLinear.NormalForm.FoldUnfold.Pivot ( pivotNonZeroPermutation )
 import HLinear.Utility.RPermute ( RPermute(..) )
 import qualified HLinear.Hook.EchelonForm as EF
 import qualified HLinear.Hook.LeftTransformation as LT
 import qualified HLinear.Hook.PLEHook.Basic as Hook
-import qualified HLinear.NormalForm.FoldUnfold.PLE.DivisionRing as DR
 import qualified HLinear.Utility.RPermute as RP
 
 
@@ -61,7 +60,7 @@ splitOffHook
   -> Maybe (PLEHook FMPQ, MatrixFraction FMPQ FMPZ (NonZero FMPZ))
 splitOffHook (MatrixFraction m@(Matrix nrs ncs rs) den)
   | nrs == 0 || ncs == 0 = Nothing
-  | Just p <- DR.pivotPermutation m = Just $
+  | Just p <- pivotNonZeroPermutation m = Just $
       let Just ((pivot, pivotBottom), (pivotTail, bottomRight)) =
             splitOffTopLeft ( p *. m)
 
