@@ -82,7 +82,7 @@ matrixActionOnTopVector (fromIntegral -> nrs) a c@(Column v)
       let vzero = V.replicate (nrs-nv) zero
           m = toMatrix a :: Matrix b
           mv = fromColumn $ m *. Column (v <> vzero)
-          (mvt, mvb) = V.splitAt nrs mv
+          (mvt, mvb) = V.splitAt nv mv
       in  mvt == fromColumn (a *. c) && all isZero mvb
   | otherwise =
       let (vt,vb) = V.splitAt nrs v
