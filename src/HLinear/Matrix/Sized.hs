@@ -119,11 +119,16 @@ instance ( KnownNat nrs, KnownNat ncs, AdditiveMonoid a )
           V.replicate (fromInteger nrs) $
             V.replicate (fromInteger ncs) zero
 
-deriving instance ( KnownNat nrs, KnownNat ncs, AdditiveMonoid a, DecidableZero a )
+instance ( KnownNat nrs, KnownNat ncs, AdditiveMonoid a, DecidableZero a )
       => DecidableZero (MatrixSized nrs ncs a)
+  where
+    isZero = isZero . fromMatrixSized
 
-deriving instance ( KnownNat nrs, KnownNat ncs, AdditiveGroup a )
+instance ( KnownNat nrs, KnownNat ncs, AdditiveGroup a )
       => AdditiveGroup (MatrixSized nrs ncs a)
+  where
+    (MatrixSized m) - (MatrixSized m') = MatrixSized $ m - m'
+    negate = MatrixSized . negate . fromMatrixSized
 
 --------------------------------------------------------------------------------
 -- multiplicative structure
