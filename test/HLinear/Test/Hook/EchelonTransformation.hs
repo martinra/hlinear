@@ -48,18 +48,18 @@ unitTests =
 properties :: TestTree
 properties =
   testGroup "Echelon Transformation Properties" $
+    [ testPropertyQC "toMatrix *. vector == *. vector" $
+        \et v -> matrixActionOnTopVector
+                   (nmbRows et) (et :: EchelonTransformation FMPQ)
+                   (v :: M.Column FMPQ)
+    ]
+    <>
     runTestsQC
     [ isMultiplicativeGroup
         ( Proxy :: Proxy (EchelonTransformation FMPQ) )
     , isMultiplicativeLeftAction
         ( Proxy ::  Proxy (EchelonTransformation FMPQ) )
         ( Proxy ::  Proxy (M.Column FMPQ) )
-    ]
-    <>
-    [ testPropertyQC "toMatrix *. vector == *. vector" $
-        \et v -> matrixActionOnTopVector
-                   (nmbRows et) (et :: EchelonTransformation FMPQ)
-                   (v :: M.Column FMPQ)
     ]
     <>
     [ testPropertyQC "toMatrix * toInverseMatrix" $
