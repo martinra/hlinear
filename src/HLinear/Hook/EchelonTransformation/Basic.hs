@@ -15,11 +15,18 @@ import qualified HLinear.Hook.EchelonTransformation.Column as ETC
 
 
 --------------------------------------------------------------------------------
--- attributes
+-- rows and columns
 --------------------------------------------------------------------------------
 
-nmbCols :: EchelonTransformation a -> Natural
-nmbCols = fromIntegral . V.length . columns
+instance HasNmbRows (EchelonTransformation a) where
+  nmbRows = nmbCols
+
+instance HasNmbCols (EchelonTransformation a) where
+  nmbCols = fromIntegral . V.length . columns
+
+--------------------------------------------------------------------------------
+-- attributes
+--------------------------------------------------------------------------------
 
 minimizeSize :: ( DecidableZero a, DecidableOne a )
              => EchelonTransformation a -> EchelonTransformation a
