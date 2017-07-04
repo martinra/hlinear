@@ -1,3 +1,6 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ViewPatterns #-}
+
 module HLinear.Test.Hook.LeftTransformation
 where
 
@@ -11,8 +14,7 @@ import Test.Tasty.HUnit ( testCase, (@?=) )
 import qualified Data.Vector as V
 
 import HLinear.Hook.LeftTransformation ( LeftTransformation(..), LeftTransformationColumn(..) )
-import HLinear.Matrix ( Matrix(..) )
-import HLinear.Test.Utility.Vector
+import HLinear.Matrix ( Matrix(..), IsMatrix(..), Column(..) )
 import qualified HLinear.Matrix as M
 
 
@@ -83,7 +85,7 @@ matrixActionOnBottomVector
    . ( Eq b, IsMatrix a b, Rng b
      , MultiplicativeSemigroupLeftAction a (Column b) )
   => Natural -> a -> Column b -> Bool
-matrixActionOnBottomVector (nrs <- fromIntegral) a c@(Column v)
+matrixActionOnBottomVector (fromIntegral -> nrs) a c@(Column v)
   | nv <= nrs =
       let v' = V.replicate (nrs-nv) zero <> v
           m = toMatrix a :: Matrix b
@@ -91,6 +93,6 @@ matrixActionOnBottomVector (nrs <- fromIntegral) a c@(Column v)
   | otherwise =
       let (vt,vb) = V.splitAt (nv-nrs) v
           m = toMatrix a :: Matrix b
-      in  (Column vt) <> (m *. Column vb) == a *. c
+      in  vt <> fromColumn (m *. Column vb) == fromColumn (a *. c)
   where
     nv = V.length v

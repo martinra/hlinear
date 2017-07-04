@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
 
 module HLinear.Test.Hook.EchelonTransformation
@@ -13,7 +14,7 @@ import Test.Tasty.HUnit ( testCase, (@?=) )
 import qualified Data.Vector as V
 
 import HLinear.Hook.EchelonTransformation ( EchelonTransformation(..), EchelonTransformationColumn(..) )
-import HLinear.Matrix ( Matrix(..), toMatrix )
+import HLinear.Matrix ( Matrix(..), IsMatrix(..), Column(..) )
 import HLinear.Utility.NmbRowColumn ( nmbRows )
 import qualified HLinear.Matrix as M
 
@@ -73,10 +74,10 @@ properties =
 
 matrixActionOnTopVector
   :: forall a b
-   . ( Eq b, IsMatrix a b, Rng b
+   . ( Eq b, IsMatrix a b, Rng b, DecidableZero b
      , MultiplicativeSemigroupLeftAction a (Column b) )
   => Natural -> a -> Column b -> Bool
-matrixActionOnTopVector (nrs <- fromIntegral) a c@(Column v)
+matrixActionOnTopVector (fromIntegral -> nrs) a c@(Column v)
   | nv <= nrs =
       let vzero = V.replicate (nrs-nv) zero
           m = toMatrix a :: Matrix b
@@ -86,6 +87,6 @@ matrixActionOnTopVector (nrs <- fromIntegral) a c@(Column v)
   | otherwise =
       let (vt,vb) = V.splitAt nrs v
           m = toMatrix a :: Matrix b
-      in  (fromColumn $ m *. Column vt) <> vb == fromColumn (a *. c)
+      in  fromColumn (m *. Column vt) <> vb == fromColumn (a *. c)
   where
     nv = V.length v
