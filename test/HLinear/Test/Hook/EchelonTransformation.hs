@@ -27,8 +27,8 @@ unitTests =
 
   , testCase "toMatrix diagonal" $
       let et = EchelonTransformation 2 $ V.fromList
-                 [ EchelonTransformationColumn 1 V.empty
-                 , EchelonTransformationColumn 0 $ V.fromList [0]
+                 [ EchelonTransformationColumn 0 $ V.fromList [0]
+                 , EchelonTransformationColumn 1 V.empty
                  ] 
                  :: EchelonTransformation Rational
       in  toMatrix et @?= M.fromLists
@@ -36,9 +36,9 @@ unitTests =
 
   , testCase "toMatrix general" $
       let et = EchelonTransformation 3 $ V.fromList
-                 [ EchelonTransformationColumn 2 V.empty
+                 [ EchelonTransformationColumn 0 $ V.fromList [3%8, 9%14]
                  , EchelonTransformationColumn 1 $ V.fromList [1%7]
-                 , EchelonTransformationColumn 0 $ V.fromList [3%8, 9%14]
+                 , EchelonTransformationColumn 2 V.empty
                  ]
                  :: EchelonTransformation Rational
       in  toMatrix et @?= M.fromLists
