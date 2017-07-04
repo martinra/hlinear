@@ -27,13 +27,11 @@ length (EchelonTransformationColumn o v) = V.length v + 1 + o
 length' :: EchelonTransformationColumn a -> (Int,Int,Int)
 length' (EchelonTransformationColumn o v) = (V.length v,1,o)
 
-setLength :: Int -> EchelonTransformationColumn a
-          -> EchelonTransformationColumn a
-setLength n (EchelonTransformationColumn _ v)
-  | o' < 0 = error "EchelonTransformationColumn.setLength: negative offset"
-  | otherwise = EchelonTransformationColumn o' v
-  where
-    o' = n - 1 - V.length v
+adjustOffset
+  :: (Int -> Int) -> EchelonTransformationColumn a
+  -> EchelonTransformationColumn a
+adjustOffset f (EchelonTransformationColumn o v) =
+  EchelonTransformationColumn (f o) v
 
 --------------------------------------------------------------------------------
 -- container

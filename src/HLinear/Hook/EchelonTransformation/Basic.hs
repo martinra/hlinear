@@ -109,14 +109,21 @@ instance Ring a => IsMatrix (EchelonTransformation a) a where
 -- subtransformations
 --------------------------------------------------------------------------------
 
-splitAt :: Int -> EchelonTransformation a
-        -> (EchelonTransformation a, EchelonTransformation a)
+splitAt
+  :: AdditiveMonoid a
+  => Int -> EchelonTransformation a
+  -> (EchelonTransformation a, EchelonTransformation a)
 splitAt ix et@(EchelonTransformation nrs cs)
   | ix <= nrsZ - ncsZ = (one ixN, et)
-  | ix >= nrsZ        = (et, one nrs)
+  | ix >= nrsZ        =
+      let czeros = V.generate (ix-nrsZ) $ ETC.one ix
+          cs' = fmap (ETC.adjustOffset (+(ix-nrsZ))) cs
+      in  ( EchelonTransformation ixN (czeros <> cs')
+          , one 0)
   | otherwise =
-      let (csRight, csLeft) = V.splitAt (ix-nrsZ+ncsZ) cs
-      in ( EchelonTransformation ixN $ fmap (ETC.setLength ix) csLeft
+      let (csRight, csLeft) = V.splitAt (nrsZ-ix) cs
+          csLeft' = fmap (ETC.adjustOffset (+(ix-nrsZ))) csLeft
+      in ( EchelonTransformation ixN csLeft'
          , EchelonTransformation nrs csRight
          )
   where

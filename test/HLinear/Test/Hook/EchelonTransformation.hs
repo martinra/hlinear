@@ -14,6 +14,7 @@ import Test.Tasty.HUnit ( testCase, (@?=) )
 import qualified Data.Vector as V
 
 import HLinear.Hook.EchelonTransformation ( EchelonTransformation(..), EchelonTransformationColumn(..) )
+import qualified HLinear.Hook.EchelonTransformation as ET
 import HLinear.Matrix ( Matrix(..), IsMatrix(..), Column(..) )
 import HLinear.Utility.NmbRowColumn ( nmbRows )
 import qualified HLinear.Matrix as M
@@ -50,10 +51,19 @@ unitTests =
 properties :: TestTree
 properties =
   testGroup "Echelon Transformation Properties" $
-    [ testPropertyQC "toMatrix *. vector == *. vector" $
+    [ testPropertyQC "toMatrix . *. == *. on vectors" $
         \et v -> matrixActionOnTopVector
                    (nmbRows et) (et :: EchelonTransformation FMPQ)
                    (v :: M.Column FMPQ)
+    , testPropertyQC "*. . splitAt ==  *. on vectors" $
+        \et v n ->
+          let (etLeft,etRight) = ET.splitAt n (et :: EchelonTransformation FMPQ)
+          in     nmbRows etLeft == fromIntegral (max 0 n)
+              && et *. (v :: M.Column FMPQ) == etRight *. (etLeft *. v)
+    , testPropertyQC "toMatrix . * == * . toMatrix" $
+        \et et'-> multiplicationAsTopMatrix
+                   (et :: EchelonTransformation FMPQ)
+                   (et' :: EchelonTransformation FMPQ)
     ]
     <>
     runTestsQC
@@ -90,3 +100,17 @@ matrixActionOnTopVector (fromIntegral -> nrs) a c@(Column v)
       in  fromColumn (m *. Column vt) <> vb == fromColumn (a *. c)
   where
     nv = V.length v
+
+multiplicationAsTopMatrix
+  :: forall a
+  .  ( Eq a, IsMatrix (EchelonTransformation a) a, Ring a )
+  => EchelonTransformation a -> EchelonTransformation a -> Bool
+multiplicationAsTopMatrix a a' =
+  let convert a
+        | r == rmax = toMatrix a :: Matrix a
+        | otherwise = toMatrix a <> M.one rdiff
+        where
+          r = nmbRows a
+          rdiff = rmax P.- r
+      rmax = max (nmbRows a) (nmbRows a')
+  in convert a * convert a' == convert (a * a')

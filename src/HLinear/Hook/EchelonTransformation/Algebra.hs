@@ -27,8 +27,8 @@ instance    Ring a
     | ncs' == 0 = et
     | nrsZ - ncs >= nrs'Z = 
         let etcOnes = fmap (ETC.one nrsZ) $
-                        V.enumFromN nrs'Z (nrsZ - ncs - nrs'Z)
-            cs'Shifted = fmap (ETC.setLength nrsZ) cs' 
+                        V.enumFromN ncs (nrsZ - ncs - nrs'Z)
+            cs'Shifted = fmap (ETC.adjustOffset (+(nrsZ-nrs'Z))) cs' 
         in EchelonTransformation nrs $ cs <> etcOnes <> cs'Shifted
     | nrsZ <= nrs'Z - ncs' =
         EchelonTransformation nrs' (fmap (et*.) cs') * et
