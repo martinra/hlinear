@@ -39,7 +39,7 @@ instance Abelian a => Abelian (Matrix a)
 instance AdditiveSemigroup a => AdditiveSemigroup (Matrix a)
 
 instance AdditiveMonoid a => AdditiveMonoid (Matrix a) where
-  zero = undefined
+  zero = error "Matrix.zero would require size"
 
 instance DecidableZero a => DecidableZero (Matrix a) where
   isZero = all isZero
@@ -125,7 +125,7 @@ instance Rng a => MultiplicativeMagma (Matrix a) where
 instance Rng a => MultiplicativeSemigroup (Matrix a)
 
 instance Ring a => MultiplicativeMonoid (Matrix a) where
-  one = undefined
+  one = error "Matrix.zero would require size"
 
 instance ( Ring a, DecidableZero a, DecidableOne a ) => DecidableOne (Matrix a) where
   isOne (Matrix nrs ncs rs)

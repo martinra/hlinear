@@ -40,7 +40,7 @@ instance
            , NonZero den
            )
   fromNumerator = fmap fromNumerator
-  fromDenominator = undefined
+  fromDenominator = error "isFraction (Vector a): fromDenominator would require size"
 
 
 instance

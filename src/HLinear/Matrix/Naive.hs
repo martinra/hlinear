@@ -25,7 +25,7 @@ det m@(Matrix nrs ncs rs)
   | nrs == ncs = foldl' (+) one $
                    (\f -> fmap f $ V.enumFromN 0 (fromIntegral nrs)) $ \ix ->
                      (if even ix then id else negate) $ det $ minor ix ix m
-  | otherwise = undefined
+  | otherwise = error "Matrix.det only defined for square matrices"
 
 recip
   :: ( Ring a, DecidableUnit a, MultiplicativeGroup (Unit a) )
