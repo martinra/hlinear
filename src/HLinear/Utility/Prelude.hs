@@ -64,4 +64,5 @@ import Text.Show                         as Import
 
 import HFlint.FMPQ                        as Import
 import HFlint.FMPZ                        as Import
+import HFlint.NMod                        as Import
 import HLinear.Utility.NmbRowColumn       as Import
