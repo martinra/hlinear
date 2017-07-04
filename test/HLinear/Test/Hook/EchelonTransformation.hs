@@ -1,25 +1,19 @@
 module HLinear.Test.Hook.EchelonTransformation
 where
 
+import HLinear.Utility.Prelude
 import qualified Prelude as P
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
 
-import Data.Proxy
-import Data.Ratio ( (%) )
-import HFlint.FMPQ
-import Math.Structure
+import Data.Ratio ( (%), Rational )
 import Math.Structure.Tasty
 import Test.Tasty
 import Test.Tasty.HUnit ( testCase, (@?=) )
 import qualified Data.Vector as V
 
-import HLinear.Hook.EchelonTransformation as ET
+import HLinear.Hook.EchelonTransformation ( EchelonTransformation(..), EchelonTransformationColumn(..) )
 import HLinear.Matrix ( Matrix(..), toMatrix )
 import HLinear.Test.Utility.Vector
+import HLinear.Utility.NmbRowColumn ( nmbRows )
 import qualified HLinear.Matrix as M
 
 
@@ -60,16 +54,16 @@ properties =
         ( Proxy ::  Proxy (EchelonTransformation FMPQ) )
         ( Proxy ::  Proxy (M.Column FMPQ) )
     ]
-    ++
+    <>
     [ testPropertyQC "toMatrix *. vector == *. vector" $
         \et v -> matrixActionOnTopVector
-                   (ET.nmbRows et) (et :: EchelonTransformation FMPQ)
+                   (nmbRows et) (et :: EchelonTransformation FMPQ)
                    (v :: M.Column FMPQ)
     ]
-    ++
+    <>
     [ testPropertyQC "toMatrix * toInverseMatrix" $
         \et -> let m = toMatrix (et :: EchelonTransformation FMPQ) :: Matrix FMPQ
                    mi = toMatrix $ recip et
-                   nrs = fromIntegral $ ET.nmbRows et
+                   nrs = fromIntegral $ nmbRows et
                in M.isOne $ m * mi
     ]

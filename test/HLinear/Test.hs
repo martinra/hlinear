@@ -1,6 +1,9 @@
 module Main
 where
 
+import HLinear.Utility.Prelude
+import System.IO ( IO )
+
 import Test.Tasty
   ( defaultMainWithIngredients
   , testGroup
@@ -9,6 +12,7 @@ import Test.Tasty.Ingredients.Basic
   ( listingTests, consoleTestReporter )
 import Test.Tasty.Ingredients.Rerun
   ( rerunningTests )
+
 
 
 import qualified HLinear.Test.Hook as Hook

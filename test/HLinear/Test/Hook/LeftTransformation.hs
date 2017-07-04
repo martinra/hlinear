@@ -1,23 +1,16 @@
 module HLinear.Test.Hook.LeftTransformation
 where
 
+import HLinear.Utility.Prelude
 import qualified Prelude as P
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
 
-import Data.Proxy
-import Data.Ratio ( (%) )
-import HFlint.FMPQ
-import Math.Structure
+import Data.Ratio ( (%), Rational )
 import Math.Structure.Tasty
 import Test.Tasty
 import Test.Tasty.HUnit ( testCase, (@?=) )
 import qualified Data.Vector as V
 
-import HLinear.Hook.LeftTransformation as LT
+import HLinear.Hook.LeftTransformation ( LeftTransformation(..), LeftTransformationColumn(..) )
 import HLinear.Matrix ( Matrix(..) )
 import HLinear.Test.Utility.Vector
 import qualified HLinear.Matrix as M
@@ -70,16 +63,16 @@ properties =
         ( Proxy ::  Proxy (LeftTransformation FMPQ) )
         ( Proxy ::  Proxy (M.Column FMPQ) )
     ]
-    ++
+    <>
     [ testPropertyQC "toMatrix *. vector == *. vector" $
         \lt v -> matrixActionOnBottomVector
-                   (LT.nmbRows lt) (lt :: LeftTransformation FMPQ)
+                   (nmbRows lt) (lt :: LeftTransformation FMPQ)
                    (v :: M.Column FMPQ)
     ]
-    ++
+    <>
     [ testPropertyQC "toMatrix * toInverseMatrix" $
         \lt -> let m = M.toMatrix (lt :: LeftTransformation FMPQ) :: Matrix FMPQ
                    mi = M.toMatrix $ recip lt
-                   nrs = fromIntegral $ LT.nmbRows lt
+                   nrs = fromIntegral $ nmbRows lt
                in m * mi == M.one nrs
     ]

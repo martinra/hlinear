@@ -1,15 +1,8 @@
 module HLinear.Test.Hook.EchelonForm
 where
 
-import qualified Prelude as P
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
+import HLinear.Utility.Prelude
 
-import Data.Proxy
-import HFlint.FMPQ
 import Math.Structure.Tasty
 import Test.Tasty
 

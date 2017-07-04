@@ -1,6 +1,9 @@
 module HLinear.Test.Matrix.QSTests
 where
 
+import HLinear.Utility.Prelude
+import qualified Prelude as P
+
 import Test.Tasty
 import Test.Tasty.HUnit ( testCase, (@?=) )
 import qualified Test.SmallCheck.Series as SCS
@@ -20,7 +23,7 @@ unitTests = testGroup "Quick- and SmallCheck unit tests"
     )
 
   , testCase "QuickCheck fromLists'" $
-    ( take 4 $ QC.shrink (fromLists' 2 2 [[1,2],[3,4]] :: Matrix Int) )
+    ( P.take 4 $ QC.shrink (fromLists' 2 2 [[1,2],[3,4]] :: Matrix Int) )
     @?=
     ( [ fromLists' 2 1 [[1],[3]]
       , fromLists' 2 1 [[2],[4]]

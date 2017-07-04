@@ -5,15 +5,10 @@
 module HLinear.Test.Matrix.Basic
 where
 
-import Prelude hiding ( (+), (*) )
+import HLinear.Utility.Prelude
 
 import Control.Applicative ( (<$>), (<*>), (<|>) )
-import Data.Maybe
-import Data.Vector ( Vector )
-import Math.Structure
 import Math.Structure.Tasty
-import HFlint.FMPZ ( FMPZ )
-import Numeric.Natural ()
 import Test.Tasty
 import qualified Data.Vector as V
 
