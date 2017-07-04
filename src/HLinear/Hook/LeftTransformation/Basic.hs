@@ -15,9 +15,6 @@ import HLinear.Hook.LeftTransformation.Definition
 import HLinear.Utility.RPermute
 
 
-nmbCols :: LeftTransformation a -> Natural
-nmbCols = fromIntegral . V.length . columns
-
 minimizeSize :: ( DecidableZero a, DecidableOne a )
              => LeftTransformation a -> LeftTransformation a
 minimizeSize (LeftTransformation nrs cs) =

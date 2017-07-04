@@ -18,7 +18,7 @@ import HLinear.Hook.LeftTransformation.Column
  --
 data LeftTransformation a =
     LeftTransformation
-      { nmbRows :: Natural
-      , columns :: Vector (LeftTransformationColumn a)
-      }
-  | LeftTransformationMatrix (Matrix a)
+      Natural
+      (Vector (LeftTransformationColumn a))
+  | LeftTransformationMatrix
+      (Matrix a)
