@@ -76,3 +76,21 @@ properties =
                    nrs = fromIntegral $ nmbRows lt
                in m * mi == M.one nrs
     ]
+
+
+matrixActionOnBottomVector
+  :: forall a b
+   . ( Eq b, IsMatrix a b, Rng b
+     , MultiplicativeSemigroupLeftAction a (Column b) )
+  => Natural -> a -> Column b -> Bool
+matrixActionOnBottomVector (nrs <- fromIntegral) a c@(Column v)
+  | nv <= nrs =
+      let v' = V.replicate (nrs-nv) zero <> v
+          m = toMatrix a :: Matrix b
+      in  m *. Column v' == a *. c
+  | otherwise =
+      let (vt,vb) = V.splitAt (nv-nrs) v
+          m = toMatrix a :: Matrix b
+      in  (Column vt) <> (m *. Column vb) == a *. c
+  where
+    nv = V.length v
