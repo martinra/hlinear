@@ -19,10 +19,10 @@ import qualified HLinear.Hook.EchelonTransformation.Column as ETC
 --------------------------------------------------------------------------------
 
 instance HasNmbRows (EchelonTransformation a) where
-  nmbRows = nmbCols
+  nmbRows (EchelonTransformation nrs _ ) = nrs
 
 instance HasNmbCols (EchelonTransformation a) where
-  nmbCols = fromIntegral . V.length . columns
+  nmbCols = nmbRows
 
 --------------------------------------------------------------------------------
 -- attributes

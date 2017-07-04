@@ -27,21 +27,22 @@ unitTests =
 
   , testCase "toMatrix diagonal" $
       let et = EchelonTransformation 2 $ V.fromList
-                 [ EchelonTransformationColumn 0 $ V.fromList [0]
-                 , EchelonTransformationColumn 1 V.empty ]
+                 [ EchelonTransformationColumn 1 V.empty
+                 , EchelonTransformationColumn 0 $ V.fromList [0]
+                 ] 
                  :: EchelonTransformation Rational
       in  toMatrix et @?= M.fromLists
                               ([[1,0], [0,1]] :: [[Rational]])
 
   , testCase "toMatrix general" $
       let et = EchelonTransformation 3 $ V.fromList
-                 [ EchelonTransformationColumn 0 $ V.fromList [3%8, 9%14]
+                 [ EchelonTransformationColumn 2 V.empty
                  , EchelonTransformationColumn 1 $ V.fromList [1%7]
-                 , EchelonTransformationColumn 2 V.empty
+                 , EchelonTransformationColumn 0 $ V.fromList [3%8, 9%14]
                  ]
                  :: EchelonTransformation Rational
       in  toMatrix et @?= M.fromLists
-                              ([[1,3%8,9%14], [0,1,1%7], [0,0,1]] :: [[Rational]])
+                              ([[1,1%7,3%8], [0,1,9%14], [0,0,1]] :: [[Rational]])
   ]
 
 properties :: TestTree
