@@ -18,5 +18,5 @@ tests =
   , EFT.properties
 
   , pure LT.unitTests
-  , pure LT.properties
+  , LT.properties
   ]

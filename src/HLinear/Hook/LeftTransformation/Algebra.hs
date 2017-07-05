@@ -13,7 +13,7 @@ import qualified Data.Vector as V
 import HLinear.Matrix.Column ( Column(..) )
 import HLinear.Matrix.Definition ( Matrix(..), IsMatrix(..) )
 import qualified HLinear.Hook.LeftTransformation.Basic as LT
-import HLinear.Hook.LeftTransformation.Basic ( fitSize )
+import HLinear.Hook.LeftTransformation.Basic ( fitSize, drop )
 import HLinear.Hook.LeftTransformation.Column hiding ( one, isOne )
 import HLinear.Hook.LeftTransformation.Definition
 import HLinear.Utility.RPermute
@@ -64,8 +64,8 @@ instance Ring a
   => MultiplicativeMagma (LeftTransformation a)
   where
   lt@(LeftTransformation nrs cs) * lt'@(LeftTransformation nrs' cs')
-    | ncs  == 0 = lt'
-    | ncs' == 0 = lt
+    | ncs  == 0 = fitSize (fromIntegral nrs) lt'
+    | ncs' == 0 = fitSize (fromIntegral nrs') lt
     | nrsZ - ncs >= nrs'Z =
         let ltcOnes = fmap (LTC.one nrsZ) $
                         V.enumFromN ncs (nrsZ - ncs - nrs'Z)
@@ -79,15 +79,21 @@ instance Ring a
         let (ltLeft,ltRight) = LT.splitAt (nrsZ - nrs'Z) lt
         in ltLeft * (ltRight * lt')
     where
-      maxnrs = max nrs nrs'
-      minnrs = min nrs nrs'
       ncs = V.length cs
       ncs' = V.length cs'
 
       nrsZ = fromIntegral nrs
       nrs'Z = fromIntegral nrs'
-      maxnrsZ = fromIntegral maxnrs
-      minnrsZ = fromIntegral minnrs 
+  -- todo: to optimize computation of HNF insert this special case
+  -- lt@(LeftTransformation nrs cs) * lt'@(LeftTransformationMatrix m) =
+  lt * lt' =
+    case compare nrs nrs' of
+      EQ -> LeftTransformationMatrix $ toMatrix lt * toMatrix lt'
+      GT -> LeftTransformationMatrix $ toMatrix lt * toMatrix (fitSize (fromIntegral nrs) lt')
+      LT -> LeftTransformationMatrix $ toMatrix (fitSize (fromIntegral nrs') lt) * toMatrix lt'
+    where
+      nrs = nmbRows lt
+      nrs' = nmbRows lt'
 
 instance Ring a
   => MultiplicativeSemigroup (LeftTransformation a)
@@ -189,16 +195,20 @@ instance Ring a
     LeftTransformationColumn s a' v'
     where
       nv = V.length v
-      nvDiff = fromIntegral nrs - nv
-  
-      c1 = cs V.!? (nvDiff-1)
-      nza1recip = fromUnit $ maybe one (recip . LTC.headUnit) c1
 
-      a' = maybe a ((*a) . LTC.headUnit) c1
-      v' = case c1 of
-             Just c1' -> V.zipWith (\bc bv -> bc + bv*nza1recip)
-                           (LTC.tail c1') (fromColumn $ lt *. Column v)
-             Nothing  -> fromColumn $ lt *. Column v
+      -- the column of lt that corresponds to the head of ltc
+      c = cs V.!? (fromIntegral nrs - (nv+1))
+
+      cHeadRecip = maybe one (fromUnit . recip . LTC.headUnit) c
+
+      a' = maybe a ((*a) . LTC.headUnit) c
+      ltv = fromColumn $ drop (fromIntegral nrs - nv) lt *. Column v
+      v' = case c of
+             Just c' -> V.zipWith (\bc bv -> bc + bv*cHeadRecip)
+                          (LTC.tail c') ltv
+             Nothing -> ltv
+  (LeftTransformationMatrix _) *. _ =
+    error "LeftTransformationMatrix *. LeftTransformationColumn"
 
 instance ( Ring a, DecidableUnit a )
   => MultiplicativeLeftAction

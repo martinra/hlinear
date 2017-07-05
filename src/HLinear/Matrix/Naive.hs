@@ -15,17 +15,21 @@ minor :: Int -> Int -> Matrix a -> Matrix a
 minor ix jx (Matrix nrs ncs rs) = Matrix (nrs P.- 1) (ncs P.- 1) rs'
   where
     splitAt kx = second V.tail . V.splitAt kx 
-    splitRows = V.unzip . fmap (splitAt ix)
+    splitRows = V.unzip . fmap (splitAt jx)
     ((topLeft,topRight), (bottomLeft,bottomRight)) =
       (splitRows *** splitRows) $ splitAt ix rs
     rs' = (V.zipWith (<>) topLeft topRight) <> (V.zipWith (<>) bottomLeft bottomRight)
 
 det :: Ring a => Matrix a -> a
 det m@(Matrix nrs ncs rs)
-  | nrs == ncs = foldl' (+) one $
-                   (\f -> fmap f $ V.enumFromN 0 (fromIntegral nrs)) $ \ix ->
-                     (if even ix then id else negate) $ det $ minor ix ix m
-  | otherwise = error "Matrix.det only defined for square matrices"
+  | nrs /= ncs = error "Matrix.det only defined for square matrices"
+  | nrs == 0   = one
+  | nrs == 1   = rs V.! 0 V.! 0
+  | otherwise  = foldl' (+) zero $
+                   V.generate (fromIntegral nrs) $ \ix ->
+                     ((rs V.! ix V.! 0) *) $
+                     (if even ix then id else negate) $
+                     det $ minor ix 0 m
 
 recip
   :: ( Ring a, DecidableUnit a, MultiplicativeGroup (Unit a) )
@@ -37,7 +41,7 @@ recipSafe
   => Matrix a -> Maybe (Matrix a)
 recipSafe m@(Matrix nrs ncs rs)
   | nrs /= ncs = Nothing
-  | otherwise = do
+  | otherwise  = do
       recipDet <- fromUnit <$> MS.recip <$> toUnitSafe (det m)
       return $ Matrix nrs ncs $
         V.generate (fromIntegral nrs) $ \ix ->

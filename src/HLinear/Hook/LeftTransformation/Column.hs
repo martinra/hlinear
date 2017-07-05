@@ -9,11 +9,14 @@ import HLinear.Utility.Prelude hiding ( one, isOne )
 import Math.Structure.Tasty ()
 import Test.QuickCheck.Arbitrary ( Arbitrary, arbitrary, shrink )
 import Test.QuickCheck.Modifiers ( NonNegative(..) )
+import Test.SmallCheck.Series (Serial, series, decDepth )
 import Test.Vector ()
 import qualified Data.Vector as V
 import qualified Math.Structure as MS
 
-import HLinear.Utility.RPermute as RP
+import HLinear.Matrix.Column ( Column(..) )
+import HLinear.Utility.RPermute ( RPermute )
+import qualified HLinear.Utility.RPermute as RP
 
 
 data LeftTransformationColumn a =
@@ -82,6 +85,10 @@ toVector (LeftTransformationColumn o a v) =
   where
     a' = fromUnit a
 
+toColumn :: Rng a
+  => LeftTransformationColumn a -> Column a
+toColumn = Column . toVector
+
 --------------------------------------------------------------------------------
 -- Eq, Show, and NFData instancs
 --------------------------------------------------------------------------------
@@ -149,3 +156,20 @@ instance    ( Arbitrary a, Arbitrary (Unit a) )
     [ LeftTransformationColumn s a v'
     | v' <- shrink v
     ]
+
+--------------------------------------------------------------------------------
+-- SmallCheck
+--------------------------------------------------------------------------------
+
+instance
+     (Monad m, Serial m a, Serial m (Unit a))
+  => Serial m (LeftTransformationColumn a)
+  where
+    series = do
+      s <- series
+      guard $ s >= 0
+      nv <- series
+      guard $ nv >= 0
+      a <- series
+      cs <- V.replicateM nv series
+      return $ LeftTransformationColumn s a cs

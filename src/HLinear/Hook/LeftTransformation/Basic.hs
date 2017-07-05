@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module HLinear.Hook.LeftTransformation.Basic
 where
 
@@ -31,7 +33,11 @@ minimizeSize lt@(LeftTransformationMatrix m) = lt
 fitSize :: Ring a => Int -> LeftTransformation a -> LeftTransformation a
 fitSize n lt@(LeftTransformation nrs cs)
   | nrsZ >= n = lt
-  | otherwise = LeftTransformation (fromIntegral n) $ fmap (LTC.adjustOffset (+(n-nrsZ))) cs
+  | otherwise =
+      let szDiff = n-nrsZ
+          cs' = fmap (LTC.adjustOffset (+szDiff)) cs
+          cszero = V.generate szDiff (LTC.one n) 
+      in  LeftTransformation (fromIntegral n) $ cszero <> cs'
   where
     nrsZ = fromIntegral nrs
 fitSize n lt@(LeftTransformationMatrix m)
@@ -46,18 +52,26 @@ fitSize n lt@(LeftTransformationMatrix m)
 
 deriving instance Show a => Show (LeftTransformation a)
 
-instance    ( Eq a, DecidableZero a, DecidableOne a )
+instance    ( Eq a, Ring a, DecidableZero a, DecidableOne a )
          => Eq (LeftTransformation a) where
   -- this is equality in the injective limit of left transformations
   -- with respect to adding identity matrices to the top left
-  lt == lt' =
-    let LeftTransformation nrs cs = minimizeSize lt
+  lt@(LeftTransformation _ _) == lt'@(LeftTransformation _ _) =
+    let LeftTransformation nrs  cs  = minimizeSize lt
         LeftTransformation nrs' cs' = minimizeSize lt'
         ncs = V.length cs
         ncs' = V.length cs'
-    in nrs == nrs' && ncs == ncs'
-       &&
-       V.all (uncurry (==)) (V.zip cs cs')
+    in    nrs == nrs'
+       && V.and (V.zipWith (==) cs cs')
+       && case compare ncs ncs' of
+            EQ -> True
+            GT -> V.all LTC.isOne $ V.drop ncs' cs
+            LT -> V.all LTC.isOne $ V.drop ncs cs'
+  lt == lt' =
+    let nrsmax = fromIntegral $ max (nmbRows lt) (nmbRows lt')
+        m = toMatrix (fitSize nrsmax lt) :: Matrix a
+        m' = toMatrix (fitSize nrsmax lt') :: Matrix a
+    in  m == m'
 
 instance NFData a => NFData (LeftTransformation a) where
   rnf (LeftTransformation nrs cs) = seq (rnf nrs) $ seq (rnf cs) ()
@@ -163,7 +177,9 @@ splitAt ix lt@(LeftTransformation nrs cs)
     nrs' = fromIntegral nrs'Z
 
 drop :: Int -> LeftTransformation a -> LeftTransformation a
-drop ix (LeftTransformation nrs cs) =
-  LeftTransformation nrs' $ V.drop ix cs
+drop ix lt@(LeftTransformation nrs cs)
+  | ix < 0 = lt
+  | otherwise = LeftTransformation nrs' $
+                  fmap (LTC.adjustOffset (subtract ix)) $ V.drop ix cs
   where
-    nrs' = fromIntegral $ fromIntegral nrs - max 0 ix
+    nrs' = fromIntegral $ fromIntegral nrs - ix

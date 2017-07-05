@@ -15,6 +15,7 @@ import qualified Data.Vector as V
 
 import HLinear.Hook.LeftTransformation ( LeftTransformation(..), LeftTransformationColumn(..) )
 import HLinear.Matrix ( Matrix(..), IsMatrix(..), Column(..) )
+import qualified HLinear.Hook.LeftTransformation.Column as LTC
 import qualified HLinear.Matrix as M
 
 
@@ -65,6 +66,19 @@ properties = pure $
         \lt v -> matrixActionOnBottomVector
                    (nmbRows lt) (lt :: LeftTransformation (NMod ctx))
                    (v :: M.Column (NMod ctx))
+
+    , testPropertyQC "*. . toMatrix == *. on left transformation columns" $
+        \lt v ->
+          case lt of
+            LeftTransformation _ _ ->
+              let left = (lt :: LeftTransformation (NMod ctx))
+                           *. (v :: LeftTransformationColumn (NMod ctx))
+                  leftZeros = V.replicate (fromIntegral (nmbRows lt) - LTC.length v) zero  
+                  right = fromColumn $ lt *. LTC.toColumn v
+              in  leftZeros <> LTC.toVector left == right
+            -- the action is partially defined
+            LeftTransformationMatrix _ -> True
+
     , testPropertyQC "* . toMatrix == toMatrix . *" $
         \et et'-> multiplicationAsBottomMatrix
                    (et :: LeftTransformation (NMod ctx))
@@ -72,15 +86,20 @@ properties = pure $
     ]
     <>
     runTestsQC
-    [ isMultiplicativeGroup
-        ( Proxy :: Proxy (LeftTransformation FMPQ) )
+    [ isMultiplicativeMonoid
+        ( Proxy :: Proxy (LeftTransformation (NMod ctx)) )
     , isMultiplicativeLeftAction
-        ( Proxy ::  Proxy (LeftTransformation FMPQ) )
-        ( Proxy ::  Proxy (M.Column FMPQ) )
+        ( Proxy ::  Proxy (LeftTransformation (NMod ctx)) )
+        ( Proxy ::  Proxy (M.Column (NMod ctx)) )
     ]
     <>
-    [ testPropertyQC "toMatrix * toInverseMatrix" $
-        \lt -> let m = M.toMatrix (lt :: LeftTransformation FMPQ) :: Matrix FMPQ
+    runTestsSnC 2
+    [ isMultiplicativeGroup
+        ( Proxy :: Proxy (LeftTransformation (NMod ctx)) )
+    ]
+    <>
+    [ testPropertySnC 2 "toMatrix * toInverseMatrix" $
+        \lt -> let m = M.toMatrix (lt :: LeftTransformation (NMod ctx)) :: Matrix (NMod ctx)
                    mi = M.toMatrix $ recip lt
                    nrs = fromIntegral $ nmbRows lt
                in m * mi == M.one nrs
