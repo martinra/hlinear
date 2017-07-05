@@ -134,6 +134,11 @@ instance ( Ring a, DecidableZero a, DecidableOne a ) => DecidableOne (Matrix a) 
                     and $ (`V.imap` r) $ \jx ->
                       if ix == jx then isOne else isZero
 
+
+deriving instance Rng a => MultiplicativeMagma (NonZero (Matrix a))
+deriving instance Rng a => MultiplicativeSemigroup (NonZero (Matrix a))
+deriving instance Ring a => MultiplicativeMonoid (NonZero (Matrix a))
+
 tensorProduct :: Semiring a => Matrix a -> Matrix a -> Matrix a
 tensorProduct m = M.concatMap (\a -> fmap (*a) m)
 

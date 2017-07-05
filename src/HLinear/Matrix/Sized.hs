@@ -28,6 +28,7 @@ import HLinear.Matrix.Basic ( diagonal )
 import HLinear.Matrix.Definition ( Matrix(..), IsMatrix(..) )
 import HLinear.Matrix.Invertible ( MatrixInvertible )
 import qualified HLinear.Matrix.Basic as M
+import qualified HLinear.Matrix.Naive as Naive
 
 
 --------------------------------------------------------------------------------
@@ -150,6 +151,30 @@ instance ( KnownNat nrs, Ring a )
     let nrs = natVal (Proxy :: Proxy nrs)
     in  MatrixSized $ diagonal $ V.replicate (fromInteger nrs) one
 
+
+deriving instance MultiplicativeMagma (Matrix a)
+  => MultiplicativeMagma (NonZero (MatrixSized nrs nrs a))
+
+deriving instance MultiplicativeSemigroup (Matrix a)
+  => MultiplicativeSemigroup (NonZero (MatrixSized nrs nrs a))
+
+deriving instance ( MultiplicativeMagma (Matrix a), Commutative a )
+  => Commutative (NonZero (MatrixSized 1 1 a))
+
+deriving instance ( KnownNat nrs, Ring a )
+      => MultiplicativeMonoid (NonZero (MatrixSized nrs nrs a))
+
+
+instance
+     ( KnownNat nrs, Ring a, DecidableUnit a )
+  => MultiplicativeGroup (Unit (MatrixSized nrs nrs a))
+  where
+  recip (Unit (MatrixSized m)) = Unit $ MatrixSized $ Naive.recip m
+
+--------------------------------------------------------------------------------
+-- ring structure
+--------------------------------------------------------------------------------
+
 instance Rng a => Distributive (MatrixSized nrs nrs a)
 
 instance Rng a => Semiring (MatrixSized nrs nrs a)
@@ -157,10 +182,10 @@ instance Rng a => Semiring (MatrixSized nrs nrs a)
 instance (KnownNat nrs, Ring a)
       => Rng (MatrixSized nrs nrs a)
 
-instance (KnownNat nrs, Ring a)
+instance (KnownNat nrs, Ring a, DecidableUnit a)
       => Rig (MatrixSized nrs nrs a)
 
-instance (KnownNat nrs, Ring a)
+instance (KnownNat nrs, Ring a, DecidableUnit a)
       => Ring (MatrixSized nrs nrs a)
 
 --------------------------------------------------------------------------------
@@ -187,6 +212,11 @@ instance ( KnownNat nrs, Ring a, DecidableZero a, DecidableOne a )
   => DecidableOne (MatrixInvertibleSized nrs a)
   where
   isOne (MatrixInvertibleSized (Unit m)) = isOne m
+
+instance ( KnownNat nrs, Ring a, DecidableUnit a )
+      => MultiplicativeGroup (MatrixInvertibleSized nrs a)
+  where
+  recip (MatrixInvertibleSized (Unit m)) = MatrixInvertibleSized $ Unit $ Naive.recip m
 
 --------------------------------------------------------------------------------
 -- group action
