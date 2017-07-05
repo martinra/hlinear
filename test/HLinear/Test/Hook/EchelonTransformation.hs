@@ -54,7 +54,7 @@ properties
   => Reader (Proxy ctx) TestTree
 properties = pure $
   testGroup "Echelon Transformation Properties" $
-    [ testPropertyQC "toMatrix . *. == *. on vectors" $
+    [ testPropertyQC "*. . toMatrix == *. on vectors" $
         \et v -> matrixActionOnTopVector
                    (nmbRows et) (et :: EchelonTransformation (NMod ctx))
                    (v :: M.Column (NMod ctx))
@@ -63,7 +63,7 @@ properties = pure $
           let (etLeft,etRight) = ET.splitAt n (et :: EchelonTransformation FMPQ)
           in     nmbRows etLeft == fromIntegral (max 0 n)
               && et *. (v :: M.Column FMPQ) == etRight *. (etLeft *. v)
-    , testPropertyQC "toMatrix . * == * . toMatrix" $
+    , testPropertyQC "* . toMatrix == toMatrix . *" $
         \et et'-> multiplicationAsTopMatrix
                    (et :: EchelonTransformation (NMod ctx))
                    (et' :: EchelonTransformation (NMod ctx))

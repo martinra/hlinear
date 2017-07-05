@@ -55,21 +55,28 @@ unitTests =
                            ([[7%5,0,0], [21%40,3%2,0], [9%10,3%14,8%14]] :: [[Rational]])
   ]
 
-properties :: TestTree
-properties =
+properties
+  :: forall ctx
+  .  ReifiesNModContext ctx
+  => Reader (Proxy ctx) TestTree
+properties = pure $
   testGroup "LeftTransformation Properties" $
+    [ testPropertyQC "*. . toMatrix == *. on vectors" $
+        \lt v -> matrixActionOnBottomVector
+                   (nmbRows lt) (lt :: LeftTransformation (NMod ctx))
+                   (v :: M.Column (NMod ctx))
+    , testPropertyQC "* . toMatrix == toMatrix . *" $
+        \et et'-> multiplicationAsBottomMatrix
+                   (et :: LeftTransformation (NMod ctx))
+                   (et' :: LeftTransformation (NMod ctx))
+    ]
+    <>
     runTestsQC
     [ isMultiplicativeGroup
         ( Proxy :: Proxy (LeftTransformation FMPQ) )
     , isMultiplicativeLeftAction
         ( Proxy ::  Proxy (LeftTransformation FMPQ) )
         ( Proxy ::  Proxy (M.Column FMPQ) )
-    ]
-    <>
-    [ testPropertyQC "toMatrix *. vector == *. vector" $
-        \lt v -> matrixActionOnBottomVector
-                   (nmbRows lt) (lt :: LeftTransformation FMPQ)
-                   (v :: M.Column FMPQ)
     ]
     <>
     [ testPropertyQC "toMatrix * toInverseMatrix" $
@@ -82,17 +89,30 @@ properties =
 
 matrixActionOnBottomVector
   :: forall a b
-   . ( Eq b, IsMatrix a b, Rng b
+   . ( Eq b, IsMatrix a b, Ring b
      , MultiplicativeSemigroupLeftAction a (Column b) )
   => Natural -> a -> Column b -> Bool
 matrixActionOnBottomVector (fromIntegral -> nrs) a c@(Column v)
   | nv <= nrs =
-      let v' = V.replicate (nrs-nv) zero <> v
+      let vzero = V.replicate (nrs-nv) zero
           m = toMatrix a :: Matrix b
-      in  m *. Column v' == a *. c
+      in  m *. Column (vzero <> v) == a *. c
   | otherwise =
-      let (vt,vb) = V.splitAt (nv-nrs) v
-          m = toMatrix a :: Matrix b
-      in  vt <> fromColumn (m *. Column vb) == fromColumn (a *. c)
+      let m = M.one (fromIntegral $ nv - fromIntegral nrs) <> toMatrix a :: Matrix b
+      in  m *. c == a *. c
   where
     nv = V.length v
+
+multiplicationAsBottomMatrix
+  :: forall a
+  .  ( Eq a, IsMatrix (LeftTransformation a) a, Ring a, MultiplicativeGroup (Unit a) )
+  => LeftTransformation a -> LeftTransformation a -> Bool
+multiplicationAsBottomMatrix a a' =
+  let convert a
+        | r == rmax = toMatrix a :: Matrix a
+        | otherwise =  M.one rdiff <> toMatrix a
+        where
+          r = nmbRows a
+          rdiff = rmax P.- r
+      rmax = max (nmbRows a) (nmbRows a')
+  in convert a * convert a' == convert (a * a')

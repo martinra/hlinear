@@ -9,6 +9,8 @@ import qualified Math.Structure as MS
 
 
 import HLinear.Matrix.Definition ( Matrix(..), IsMatrix(..) )
+import qualified HLinear.Matrix.Basic as M
+import HLinear.Matrix.Block ()
 import HLinear.Hook.LeftTransformation.Column hiding ( one, isOne )
 import qualified HLinear.Hook.LeftTransformation.Column as LTC
 import HLinear.Hook.LeftTransformation.Definition
@@ -24,6 +26,19 @@ minimizeSize (LeftTransformation nrs cs) =
   where
     cs' = V.dropWhile LTC.isOne cs
     nrs' = fromIntegral $ fromIntegral nrs - (V.length cs - V.length cs')
+minimizeSize lt@(LeftTransformationMatrix m) = lt
+
+fitSize :: Ring a => Int -> LeftTransformation a -> LeftTransformation a
+fitSize n lt@(LeftTransformation nrs cs)
+  | nrsZ >= n = lt
+  | otherwise = LeftTransformation (fromIntegral n) $ fmap (LTC.adjustOffset (+(n-nrsZ))) cs
+  where
+    nrsZ = fromIntegral nrs
+fitSize n lt@(LeftTransformationMatrix m)
+  | nrsZ >= n = lt
+  | otherwise = LeftTransformationMatrix $ M.one (fromIntegral $ n-nrsZ) <> m
+  where
+    nrsZ = fromIntegral $ nmbRows m
 
 --------------------------------------------------------------------------------
 -- Eq, Show, and NFData instances
@@ -52,9 +67,11 @@ instance NFData a => NFData (LeftTransformation a) where
 --------------------------------------------------------------------------------
 
 instance HasNmbRows (LeftTransformation a) where
+  nmbRows (LeftTransformationMatrix m) = nmbRows m
   nmbRows (LeftTransformation nrs _) = nrs
 
 instance HasNmbCols (LeftTransformation a) where
+  nmbCols (LeftTransformationMatrix m) = nmbCols m
   nmbCols (LeftTransformation nrs _) = nrs
 
 --------------------------------------------------------------------------------
@@ -112,10 +129,11 @@ fromVector v = singleton (toUnit $ V.head v) (V.tail v)
 --------------------------------------------------------------------------------
 
 instance Ring a => IsMatrix (LeftTransformation a) a where
+  toMatrix (LeftTransformationMatrix m) = m
   toMatrix (LeftTransformation nrs cs) =
     Matrix nrs nrs $
-      V.generate nrs' $ \ix ->
-      V.generate nrs' $ \jx ->
+      V.generate nrsZ $ \ix ->
+      V.generate nrsZ $ \jx ->
         let a = maybe MS.one LTC.head $ cs V.!? jx
         in
         case compare ix jx of
@@ -123,7 +141,7 @@ instance Ring a => IsMatrix (LeftTransformation a) a where
           EQ -> a
           GT -> maybe zero ((*a) . (!ix)) $ cs V.!? jx
     where
-    nrs' = fromIntegral nrs
+    nrsZ = fromIntegral nrs
 
 --------------------------------------------------------------------------------
 -- subtransformations
@@ -136,7 +154,7 @@ splitAt ix lt@(LeftTransformation nrs cs)
   | otherwise =
       let (csLeft, csRight) = V.splitAt ix cs
       in ( LeftTransformation nrs csLeft
-         , LeftTransformation nrs' $ fmap (LTC.setLength nrs'Z) csRight
+         , LeftTransformation nrs' $ fmap (LTC.adjustOffset (+(nrs'Z-nrsZ))) csRight
          )
   where
     ncs = V.length cs

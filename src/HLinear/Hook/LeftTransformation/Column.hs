@@ -33,18 +33,12 @@ length (LeftTransformationColumn s _ v) = s + 1 + V.length v
 length' :: LeftTransformationColumn a -> (Int,Int,Int)
 length' (LeftTransformationColumn s _ v) = (s,1,V.length v)
 
-setLength :: Int -> LeftTransformationColumn a
-          -> LeftTransformationColumn a
-setLength n (LeftTransformationColumn _ a v)
-  | o' < 0 = error "LeftTransformationColumn.setLength: to large offset"
-  | otherwise = LeftTransformationColumn o' a v
-  where
-    o' = n - 1 - V.length v
-
-shiftOffset :: Int -> LeftTransformationColumn a
-            -> LeftTransformationColumn a
-shiftOffset s (LeftTransformationColumn o a vs) =
-  LeftTransformationColumn (o+s) a vs
+adjustOffset
+  :: (Int -> Int)
+  -> LeftTransformationColumn a
+  -> LeftTransformationColumn a
+adjustOffset f (LeftTransformationColumn o a v) =
+  LeftTransformationColumn (f o) a v
 
 --------------------------------------------------------------------------------
 -- container

@@ -13,10 +13,12 @@ import qualified Data.Vector as V
 import HLinear.Matrix.Column ( Column(..) )
 import HLinear.Matrix.Definition ( Matrix(..), IsMatrix(..) )
 import qualified HLinear.Hook.LeftTransformation.Basic as LT
+import HLinear.Hook.LeftTransformation.Basic ( fitSize )
 import HLinear.Hook.LeftTransformation.Column hiding ( one, isOne )
 import HLinear.Hook.LeftTransformation.Definition
 import HLinear.Utility.RPermute
 import qualified HLinear.Matrix.Algebra as M
+import qualified HLinear.Matrix.Basic as M
 import qualified HLinear.Matrix.Naive as MNaive
 import qualified HLinear.Hook.LeftTransformation.Column as LTC
 
@@ -28,10 +30,13 @@ instance Ring a
   => MultiplicativeSemigroupLeftAction RPermute (LeftTransformation a)
   where
   p *. lt@(LeftTransformation nrs cs)
-    | size p <= fromIntegral nrs - V.length cs =
-        LeftTransformation nrs $ fmap (p*.) cs
-    | otherwise = LeftTransformationMatrix $ p *. toMatrix lt
-  p *. (LeftTransformationMatrix m) = LeftTransformationMatrix (p *. m)
+    | pn <= nrsZ - V.length cs = LeftTransformation nrs $ fmap (p*.) cs
+    | otherwise = LeftTransformationMatrix $ p *. toMatrix (fitSize pn lt)
+    where
+      pn = size p
+      nrsZ = fromIntegral nrs
+  p *. lt@(LeftTransformationMatrix m) =
+    LeftTransformationMatrix $ p *. toMatrix (fitSize (size p) lt)
 
 instance Ring a
   => MultiplicativeLeftAction RPermute (LeftTransformation a)
@@ -40,9 +45,13 @@ instance Ring a
   => MultiplicativeSemigroupRightAction RPermute (LeftTransformation a)
   where
   lt@(LeftTransformation nrs cs) .* p
-    | size p <= fromIntegral nrs - V.length cs = lt
-    | otherwise = LeftTransformationMatrix $ toMatrix lt .* p
-  (LeftTransformationMatrix m) .* p = LeftTransformationMatrix (m .* p)
+    | pn <= nrsZ - V.length cs = lt
+    | otherwise = LeftTransformationMatrix $ p *. toMatrix (fitSize pn lt)
+    where
+      pn = size p
+      nrsZ = fromIntegral nrs
+  lt@(LeftTransformationMatrix m) .* p =
+    LeftTransformationMatrix $ toMatrix (fitSize (size p) lt) .* p
 
 instance Ring a
   => MultiplicativeRightAction RPermute (LeftTransformation a)
@@ -51,7 +60,7 @@ instance Ring a
 -- product structure
 --------------------------------------------------------------------------------
 
-instance ( Ring a, MultiplicativeGroup (Unit a) )
+instance Ring a
   => MultiplicativeMagma (LeftTransformation a)
   where
   lt@(LeftTransformation nrs cs) * lt'@(LeftTransformation nrs' cs')
@@ -60,8 +69,8 @@ instance ( Ring a, MultiplicativeGroup (Unit a) )
     | nrsZ - ncs >= nrs'Z =
         let ltcOnes = fmap (LTC.one nrsZ) $
                         V.enumFromN ncs (nrsZ - ncs - nrs'Z)
-            cs'shifted = fmap (LTC.setLength nrsZ) cs' 
-        in LeftTransformation nrs $ cs <> ltcOnes <> cs'shifted
+            cs'shifted = fmap (LTC.adjustOffset (+(nrsZ-nrs'Z))) cs' 
+        in  LeftTransformation nrs $ cs <> ltcOnes <> cs'shifted
     | nrs' >= nrs =
         let ltLeft = LeftTransformation nrs' $ fmap (lt*.) cs' 
             ltRight = LT.drop (nrsZ - (nrs'Z - ncs')) lt
@@ -80,15 +89,15 @@ instance ( Ring a, MultiplicativeGroup (Unit a) )
       maxnrsZ = fromIntegral maxnrs
       minnrsZ = fromIntegral minnrs 
 
-instance ( Ring a, MultiplicativeGroup (Unit a) )
+instance Ring a
   => MultiplicativeSemigroup (LeftTransformation a)
 
-instance ( Ring a, MultiplicativeGroup (Unit a) )
+instance Ring a
   => MultiplicativeMonoid (LeftTransformation a)
   where
   one = LeftTransformation 0 V.empty
 
-instance ( Ring a, MultiplicativeGroup (Unit a)
+instance ( Ring a
          , DecidableZero a, DecidableOne (Unit a) )
   => DecidableOne (LeftTransformation a)
   where
@@ -97,7 +106,7 @@ instance ( Ring a, MultiplicativeGroup (Unit a)
     ||
     (`all` cs) (\(LeftTransformationColumn _ a v) -> isOne a && all isZero v)
 
-instance ( Ring a, DecidableUnit a, MultiplicativeGroup (Unit a) )
+instance ( Ring a, DecidableUnit a )
   => MultiplicativeGroup (LeftTransformation a)
   where
   recip (LeftTransformation nrs cs)
@@ -128,35 +137,50 @@ det (LeftTransformationMatrix m) = MNaive.det m
 -- action on columns
 --------------------------------------------------------------------------------
 
-instance ( Ring a, MultiplicativeGroup (Unit a), LinearSemiringLeftAction a b )
+instance ( Ring a, AdditiveMonoid b, LinearSemiringLeftAction a b )
   => MultiplicativeSemigroupLeftAction
        (LeftTransformation a) (Column b)
   where
   -- we fill the vector v with zeros from the top
-  lt@(LeftTransformation nrs cs) *. (Column v) = Column $
-    V.foldr' applyCol v $ V.drop nrsDiff cs
+  LeftTransformationMatrix m *. c@(Column v) =
+    case compare nrsZ vn of
+      EQ -> m *. c
+      GT -> m *. Column (V.replicate (nrsZ - vn) zero <> v)
+      LT -> let (v1,v2) = V.splitAt (vn-nrsZ) v
+            in  Column $ v1 <> fromColumn (m *. Column v2)
     where
-    nv = V.length v
-    nrsDiff = fromIntegral nrs - nv
+      nrsZ = fromIntegral $ nmbRows m
+      vn = V.length v
+  lt@(LeftTransformation nrs cs) *. (Column v) =
+    Column $ V.foldr' applyLTC v' cs'
+    where
+      cs' = V.drop (nrsZ - vn) cs
+      v' | nrsZ <= vn = v
+         | otherwise  = V.replicate (nrsZ-vn) zero <> v
+      nrsZ = fromIntegral nrs
+      vn = V.length v
 
-    -- this assumes that vn is longer than v'
-    {-# INLINE applyCol #-}
-    applyCol c@(LeftTransformationColumn s' a' v') vn =
-       V.init vn1 `V.snoc` av
-       <>
-       V.zipWith (\bl br -> bl*.av + br) v' vn2
-         where
-         av = fromUnit a' *. V.last vn1
-         (vn1,vn2) = V.splitAt (V.length vn - V.length v') vn
+applyLTC
+  :: ( Ring a, LinearSemiringLeftAction a b )
+  => LeftTransformationColumn a -> Vector b -> Vector b
+applyLTC c@(LeftTransformationColumn s a v) w
+  | V.length w < V.length v = error "applyLTC: incompatible sizes"
+  | otherwise = w11 `V.snoc` w12' <> w2'
+      where
+        (w1,w2) = V.splitAt (V.length w - V.length v) w
+        w11 = V.init w1
+        w12 = V.last w1
+        w12' = fromUnit a *. w12
+        w2' = V.zipWith (\bl br -> bl*.w12' + br) v w2
 
-instance ( Ring a, MultiplicativeGroup (Unit a), LeftModule a b )
+instance ( Ring a, LeftModule a b )
   => MultiplicativeLeftAction (LeftTransformation a) (Column b)
 
 --------------------------------------------------------------------------------
 -- action on LeftTransformationColumn
 --------------------------------------------------------------------------------
 
-instance ( Ring a, MultiplicativeGroup (Unit a) )
+instance Ring a
   => MultiplicativeSemigroupLeftAction
        (LeftTransformation a)
        (LeftTransformationColumn a)
@@ -176,7 +200,7 @@ instance ( Ring a, MultiplicativeGroup (Unit a) )
                            (LTC.tail c1') (fromColumn $ lt *. Column v)
              Nothing  -> fromColumn $ lt *. Column v
 
-instance ( Ring a, MultiplicativeGroup (Unit a), DecidableUnit a )
+instance ( Ring a, DecidableUnit a )
   => MultiplicativeLeftAction
        (LeftTransformation a)
        (LeftTransformationColumn a)
@@ -185,7 +209,7 @@ instance ( Ring a, MultiplicativeGroup (Unit a), DecidableUnit a )
 -- action on matrices
 --------------------------------------------------------------------------------
 
-instance ( Ring a, MultiplicativeGroup (Unit a) )
+instance Ring a
   => MultiplicativeSemigroupLeftAction
        (LeftTransformation a) (Matrix a)
   where
@@ -196,6 +220,6 @@ instance ( Ring a, MultiplicativeGroup (Unit a) )
         go _ = fmap M.fromRow $ fromColumn $
                  lt *. (Column $ fmap M.Row rs :: Column (M.Row ctx a))
 
-instance ( Ring a, MultiplicativeGroup (Unit a) )
+instance Ring a
   => MultiplicativeLeftAction
        (LeftTransformation a) (Matrix a)
