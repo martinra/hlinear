@@ -18,6 +18,16 @@ import Control.Arrow                     as Import
 import Control.Applicative               as Import
 import Control.DeepSeq                   as Import
 import Control.Monad                     as Import
+import Control.Monad.Reader              as Import
+  ( Reader, ReaderT
+  , ask
+  , runReader, runReaderT
+  )
+import Control.Monad.Writer              as Import
+  ( Writer, WriterT
+  , tell
+  , runWriter, runWriterT
+  )
 import Control.Monad.State.Strict        as Import
   ( State, StateT
   , put, get, gets, modify
