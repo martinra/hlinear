@@ -48,13 +48,16 @@ unitTests =
                               ([[1,1%7,3%8], [0,1,9%14], [0,0,1]] :: [[Rational]])
   ]
 
-properties :: TestTree
-properties =
+properties
+  :: forall ctx
+  .  ReifiesNModContext ctx
+  => Reader (Proxy ctx) TestTree
+properties = pure $
   testGroup "Echelon Transformation Properties" $
     [ testPropertyQC "toMatrix . *. == *. on vectors" $
         \et v -> matrixActionOnTopVector
-                   (nmbRows et) (et :: EchelonTransformation FMPQ)
-                   (v :: M.Column FMPQ)
+                   (nmbRows et) (et :: EchelonTransformation (NMod ctx))
+                   (v :: M.Column (NMod ctx))
     , testPropertyQC "*. . splitAt ==  *. on vectors" $
         \et v n ->
           let (etLeft,etRight) = ET.splitAt n (et :: EchelonTransformation FMPQ)
@@ -62,20 +65,20 @@ properties =
               && et *. (v :: M.Column FMPQ) == etRight *. (etLeft *. v)
     , testPropertyQC "toMatrix . * == * . toMatrix" $
         \et et'-> multiplicationAsTopMatrix
-                   (et :: EchelonTransformation FMPQ)
-                   (et' :: EchelonTransformation FMPQ)
+                   (et :: EchelonTransformation (NMod ctx))
+                   (et' :: EchelonTransformation (NMod ctx))
     ]
     <>
     runTestsQC
     [ isMultiplicativeGroup
-        ( Proxy :: Proxy (EchelonTransformation FMPQ) )
+        ( Proxy :: Proxy (EchelonTransformation (NMod ctx)) )
     , isMultiplicativeLeftAction
-        ( Proxy ::  Proxy (EchelonTransformation FMPQ) )
-        ( Proxy ::  Proxy (M.Column FMPQ) )
+        ( Proxy ::  Proxy (EchelonTransformation (NMod ctx)) )
+        ( Proxy ::  Proxy (M.Column (NMod ctx)) )
     ]
     <>
     [ testPropertyQC "toMatrix * toInverseMatrix" $
-        \et -> let m = toMatrix (et :: EchelonTransformation FMPQ) :: Matrix FMPQ
+        \et -> let m = toMatrix (et :: EchelonTransformation (NMod ctx)) :: Matrix (NMod ctx)
                    mi = toMatrix $ recip et
                    nrs = fromIntegral $ nmbRows et
                in M.isOne $ m * mi
@@ -84,7 +87,7 @@ properties =
 
 matrixActionOnTopVector
   :: forall a b
-   . ( Eq b, IsMatrix a b, Rng b, DecidableZero b
+   . ( Eq b, DecidableZero b, Rng b, IsMatrix a b
      , MultiplicativeSemigroupLeftAction a (Column b) )
   => Natural -> a -> Column b -> Bool
 matrixActionOnTopVector (fromIntegral -> nrs) a c@(Column v)

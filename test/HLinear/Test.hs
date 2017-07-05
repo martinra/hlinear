@@ -22,10 +22,11 @@ import qualified HLinear.Test.NormalForm as NormalForm
 
 main :: IO ()
 main =
+  withNModContextM 1125899906842679 $ \proxy ->
   defaultMainWithIngredients
   [ rerunningTests [ listingTests, consoleTestReporter ] ] $
   testGroup "HLinear Tests"
     [ Matrix.tests
-    , Hook.tests
+    , Hook.tests `runReader` proxy 
     , NormalForm.tests
     ]
