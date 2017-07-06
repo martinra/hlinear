@@ -55,12 +55,11 @@ instance    ( Rng a, AdditiveMonoid b
   where
   (Matrix nrs ncs rs) *. Column v
     | ncs /= nv = error "Matrix *. Column: incompatible dimensions"
-    | ncs == 0 = Column $ V.replicate nrsZ zero
+    | ncs == 0 = Column $ V.replicate nrs zero
     | otherwise = Column $ 
       (`fmap` rs) $ \r -> V.foldl1' (+) $ V.zipWith (*.) r v
     where
-      nv = fromIntegral $ V.length v
-      nrsZ = fromIntegral nrs
+      nv = V.length v
 
 instance Rng a => MultiplicativeSemigroupLeftAction (Matrix a) (Vector a)
   where
@@ -71,10 +70,10 @@ instance Rng a => MultiplicativeSemigroupLeftAction (Matrix a) (Vector a)
 --------------------------------------------------------------------------------
 
 newtype Row ctx a = Row { fromRow :: Vector a }
-type ReifiesNmbRows ctx = Reifies ctx Natural 
+type ReifiesNmbRows ctx = Reifies ctx Int
 
 withRowLength
-  :: Natural
+  :: Int
   -> (forall ctx. ReifiesNmbRows ctx => Proxy ctx -> a)
   -> a
 withRowLength = reify 
@@ -94,7 +93,7 @@ instance ( ReifiesNmbRows ctx, AdditiveMonoid a )
   zero = zeroRow
     where
       zeroRow :: Row ctx a
-      zeroRow = Row $ V.replicate (fromIntegral $ reflect (Proxy::Proxy ctx)) zero
+      zeroRow = Row $ V.replicate (reflect (Proxy::Proxy ctx)) zero
 
 instance ( ReifiesNmbRows ctx, DecidableZero a )
       => DecidableZero (Row ctx a)

@@ -1,8 +1,7 @@
 module HLinear.Hook.LeftTransformation.Definition
 where
 
-import Data.Vector
-import Numeric.Natural
+import HLinear.Utility.Prelude
 
 import HLinear.Matrix.Definition ( Matrix )
 import HLinear.Hook.LeftTransformation.Column
@@ -18,7 +17,7 @@ import HLinear.Hook.LeftTransformation.Column
  --
 data LeftTransformation a =
     LeftTransformation
-      Natural
-      (Vector (LeftTransformationColumn a))
+      Int                                   -- number of rows
+      (Vector (LeftTransformationColumn a)) -- columns from left to right
   | LeftTransformationMatrix
-      (Matrix a)
+      (Matrix a)                            -- invertible matrix

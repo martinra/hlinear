@@ -22,33 +22,28 @@ import HLinear.Matrix.Definition ( Matrix(..) )
 
 instance AdditiveMagma a => AdditiveMagma (EchelonForm a) where
   e@(EchelonForm nrs ncs rs) + e'@(EchelonForm nrs' ncs' rs')
-    | lrs  == 0 = ef (extendRows maxnrsZ minbrs nrs'Z brs' srs')
-    | lrs' == 0 = ef (extendRows maxnrsZ minbrs nrsZ brs srs)
-    | otherwise = ef $ case compare brs nrs'Z of
+    | lrs  == 0 = ef (extendRows maxnrs minbrs nrs' brs' srs')
+    | lrs' == 0 = ef (extendRows maxnrs minbrs nrs brs srs)
+    | otherwise = ef $ case compare brs nrs' of
        -- the first one is the case that occurs in the PLE decomposition
        EQ -> srs `mappend` srs'
-       GT -> let zeros = V.replicate (brs - nrs'Z) (EFR.zero maxncs)
+       GT -> let zeros = V.replicate (brs - nrs') (EFR.zero maxncs)
              in  srs `mappend` zeros `mappend` srs'
        LT -> V.zipWith (+)
-              (extendRows maxnrsZ minbrs nrsZ brs srs)
-              (extendRows maxnrsZ minbrs nrs'Z brs' srs')
+              (extendRows maxnrs minbrs nrs brs srs)
+              (extendRows maxnrs minbrs nrs' brs' srs')
     where
       lrs = V.length rs
       lrs' = V.length rs'
-      brs = nrsZ - lrs
-      brs' = nrs'Z - lrs'
+      brs = nrs - lrs
+      brs' = nrs' - lrs'
 
       maxnrs = max nrs nrs'
       maxncs = max ncs ncs'
       minbrs = min brs brs'
 
-      maxnrsZ = fromIntegral maxnrs
-      maxncsZ = fromIntegral maxncs
-      nrsZ = fromIntegral nrs
-      nrs'Z = fromIntegral nrs'
-
-      srs = fmap (EFR.setLength maxncsZ) rs
-      srs' = fmap (EFR.setLength maxncsZ) rs'
+      srs = fmap (EFR.setLength maxncs) rs
+      srs' = fmap (EFR.setLength maxncs) rs'
 
       ef = EchelonForm maxnrs maxncs
 

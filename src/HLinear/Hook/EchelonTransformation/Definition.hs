@@ -1,8 +1,7 @@
 module HLinear.Hook.EchelonTransformation.Definition
 where
 
-import Data.Vector ( Vector(..) )
-import Numeric.Natural ( Natural )
+import HLinear.Utility.Prelude
 
 import HLinear.Hook.EchelonTransformation.Column
 
@@ -16,5 +15,5 @@ import HLinear.Hook.EchelonTransformation.Column
 --  which is expressed by their offset parameter.
 data EchelonTransformation a =
   EchelonTransformation
-    Natural
-    (Vector (EchelonTransformationColumn a))
+    Int                                      -- number of rows
+    (Vector (EchelonTransformationColumn a)) -- columns from right to left

@@ -8,8 +8,6 @@ import HLinear.Utility.Prelude
 import qualified Data.Vector as V
 import Test.SmallCheck.Series ( Serial, series, (\/) )
 
-import Test.Natural ()
-
 import HLinear.Matrix.Definition ( Matrix(..) )
 import HLinear.Matrix.SmallCheck
 import HLinear.Hook.LeftTransformation.Column
@@ -25,11 +23,11 @@ instance ( Monad m, Ring a, DecidableUnit a, Serial m a, Serial m (Unit a) )
       ltColumn = do
         nrs <- series
         ncs <- series
-        guard $ nrs >= ncs
+        guard $ ncs >= 0 && nrs >= ncs
       
-        cs <- V.generateM (fromIntegral ncs) ( \jx -> do
+        cs <- V.generateM ncs ( \jx -> do
           a <- series
-          bs <- V.replicateM (fromIntegral nrs - jx - 1) series
+          bs <- V.replicateM (nrs-jx-1) series
           return $ LeftTransformationColumn jx a bs
           )
         return $ LeftTransformation nrs cs

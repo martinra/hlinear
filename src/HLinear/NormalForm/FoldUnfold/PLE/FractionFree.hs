@@ -5,7 +5,6 @@ module HLinear.NormalForm.FoldUnfold.PLE.FractionFree
 where
 
 import HLinear.Utility.Prelude
-import qualified Prelude as P
 
 import Data.Permute ( Permute )
 import qualified Data.Vector as V
@@ -83,9 +82,9 @@ splitOffHook (MatrixFraction m@(Matrix nrs ncs rs) den)
               fmpz_submul dptr bptr b'ptr
               fmpz_divexact dptr dptr cptr
       in  ( PLEHook p lt ef
-          , MatrixFraction (Matrix (nrs P.- 1) (ncs P.- 1) bottomRight') den
+          , MatrixFraction (Matrix (nrs-1) (ncs-1) bottomRight') den
           )
   | otherwise            = Just $
       ( Hook.one nrs ncs
-      , MatrixFraction (Matrix nrs (ncs P.- 1) $ fmap V.tail rs) den
+      , MatrixFraction (Matrix nrs (ncs-1) $ fmap V.tail rs) den
       )

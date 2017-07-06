@@ -79,20 +79,20 @@ toPermute :: RPermute -> Permute
 toPermute (RPermute p) =
   P.swapsPermute n [(n-a,n-b) | (a,b) <- P.swaps p]
     where
-    n = P.size p
+      n = P.size p
 
 instance Ring a => IsMatrix RPermute a where
-  toMatrix p = Matrix np np $
-                  V.generate npZ $ \ix ->
-                  V.generate npZ $ \jx ->
-                    if at p npZ jx == ix then one else zero
+  toMatrix p =
+    Matrix np np $
+      V.generate np $ \ix ->
+        V.generate np $ \jx ->
+          if at p np jx == ix then one else zero
     where
-      npZ = size p
-      np = fromIntegral npZ 
+      np = size p
 
 toVector :: Integral a => RPermute -> Vector a
-toVector (RPermute p) = fmap (fromIntegral . P.at p) $
-  V.enumFromStepN (pred np) (-1) np
+toVector (RPermute p) =
+  fmap (fromIntegral . P.at p) $ V.enumFromStepN (np-1) (-1) np
     where
       np = P.size p 
 

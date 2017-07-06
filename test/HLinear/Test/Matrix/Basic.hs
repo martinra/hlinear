@@ -24,13 +24,18 @@ properties = testGroup "Basic properties"
 
   , testPropertyQSC "nmbRows/Cols .: zeroMatrix" $
       \nrs ncs -> ( let m = M.zero nrs ncs :: Matrix Int
-                    in    nmbRows m == nrs
-                       && nmbCols m == ncs )
+                    in  nrs < 0 || ncs < 0 ||
+                        (    nmbRows m == nrs
+                          && nmbCols m == ncs )
+                  )
+
 
   , testPropertyQSC "nmbRows/Cols .: identityMatrix" $
       \nrs -> ( let m = M.one nrs :: Matrix Int
-                in    nmbRows m == nrs
-                   && nmbCols m == nrs )
+                in  nrs < 0 ||
+                    (    nmbRows m == max 0 nrs
+                      && nmbCols m == max 0 nrs )
+              )
 
   , testPropertyQSnC 2 "diagonalMatrix . * == * . diagonalMatrix" $
       \abs -> ( let (as,bs) = V.unzip (abs :: Vector (Int,Int))

@@ -4,7 +4,6 @@ where
 import HLinear.Utility.Prelude
 import qualified Prelude as P
 
-import Test.Natural ()
 import Test.SmallCheck.Series ( Serial, Series(..), series )
 import qualified Data.Vector as V
 
@@ -19,10 +18,10 @@ instance    (Monad m, Serial m a, DecidableZero a)
   series = do
     nrs <- series
     ncs <- series
-    guard $ nrs >= ncs
+    guard $ ncs >= 0 && nrs >= ncs
   
     return . EchelonTransformation nrs =<<
-      V.generateM (fromIntegral ncs) ( \jx ->
+      V.generateM ncs ( \jx ->
         return . EchelonTransformationColumn jx =<<
-          V.replicateM (fromIntegral nrs - jx - 1) series
+          V.replicateM (nrs-jx-1) series
       )

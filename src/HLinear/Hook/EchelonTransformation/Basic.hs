@@ -20,14 +20,12 @@ import qualified HLinear.Hook.EchelonTransformation.Column as ETC
 
 fitSize :: Ring a => Int -> EchelonTransformation a -> EchelonTransformation a
 fitSize n lt@(EchelonTransformation nrs cs)
-  | nrsZ >= n = lt
+  | nrs >= n = lt
   | otherwise =
-      let szDiff = n-nrsZ
+      let szDiff = n-nrs
           cs' = fmap (ETC.adjustOffset (+szDiff)) cs
           cszero = V.generate szDiff (ETC.one n) 
-      in  EchelonTransformation (fromIntegral n) $ cszero <> cs'
-  where
-    nrsZ = fromIntegral nrs
+      in  EchelonTransformation n $ cszero <> cs'
 
 --------------------------------------------------------------------------------
 -- rows and columns
@@ -51,7 +49,7 @@ minimizeSize (EchelonTransformation nrs cs) =
   else EchelonTransformation nrs' cs'
   where
     cs' = V.dropWhile ETC.isOne cs
-    nrs' = fromIntegral $ fromIntegral nrs - (V.length cs - V.length cs')
+    nrs' = nrs - (V.length cs - V.length cs')
 
 --------------------------------------------------------------------------------
 -- Eq, Show, and NFData instances
@@ -96,13 +94,14 @@ instance Traversable EchelonTransformation where
 --------------------------------------------------------------------------------
 
 singleton :: Vector a -> EchelonTransformation a
-singleton v = EchelonTransformation nrs $ V.singleton $
-                EchelonTransformationColumn 0 v
-  where
-    nrs = fromIntegral $ 1 + V.length v
+singleton v =
+  EchelonTransformation (1 + V.length v) $ V.singleton $
+    EchelonTransformationColumn 0 v
 
-one :: Natural -> EchelonTransformation a
-one nrs = EchelonTransformation nrs V.empty
+one :: Int -> EchelonTransformation a
+one nrs
+  | nrs >= 0 = EchelonTransformation nrs V.empty
+  | nrs < 0  = error "EchelonTransformation.one: negative size"
 
 --------------------------------------------------------------------------------
 -- conversion
@@ -111,14 +110,12 @@ one nrs = EchelonTransformation nrs V.empty
 instance Ring a => IsMatrix (EchelonTransformation a) a where
   toMatrix (EchelonTransformation nrs cs) =
     Matrix nrs nrs $
-      V.generate nrsZ $ \ix ->
-      V.generate nrsZ $ \jx ->
+      V.generate nrs $ \ix ->
+      V.generate nrs $ \jx ->
         case compare ix jx of
-          LT -> maybe zero (!ix) $ cs V.!? (nrsZ-1-jx)
+          LT -> maybe zero (!ix) $ cs V.!? (nrs-1-jx)
           EQ -> MS.one
           GT -> zero
-    where
-    nrsZ = fromIntegral nrs
 
 --------------------------------------------------------------------------------
 -- subtransformations
@@ -129,28 +126,22 @@ splitAt
   => Int -> EchelonTransformation a
   -> (EchelonTransformation a, EchelonTransformation a)
 splitAt ix et@(EchelonTransformation nrs cs)
-  | ix <= nrsZ - ncsZ = (one ixN, et)
-  | ix >= nrsZ        =
-      let czeros = V.generate (ix-nrsZ) $ ETC.one ix
-          cs' = fmap (ETC.adjustOffset (+(ix-nrsZ))) cs
-      in  ( EchelonTransformation ixN (czeros <> cs')
+  | ix <= nrs - V.length cs = (one (max 0 ix), et)
+  | ix >= nrs        =
+      let czeros = V.generate (ix-nrs) $ ETC.one ix
+          cs' = fmap (ETC.adjustOffset (+(ix-nrs))) cs
+      in  ( EchelonTransformation ix (czeros <> cs')
           , one 0)
   | otherwise =
-      let (csRight, csLeft) = V.splitAt (nrsZ-ix) cs
-          csLeft' = fmap (ETC.adjustOffset (+(ix-nrsZ))) csLeft
-      in ( EchelonTransformation ixN csLeft'
+      let (csRight, csLeft) = V.splitAt (nrs-ix) cs
+          csLeft' = fmap (ETC.adjustOffset (+(ix-nrs))) csLeft
+      in ( EchelonTransformation ix csLeft'
          , EchelonTransformation nrs csRight
          )
-  where
-    ixN = fromIntegral $ max 0 ix
-    nrsZ = fromIntegral nrs
-    ncsZ = V.length cs
 
 drop :: Int -> EchelonTransformation a -> EchelonTransformation a
 drop ix (EchelonTransformation nrs cs) =
-  EchelonTransformation nrs' $ V.drop ix cs
-  where
-    nrs' = fromIntegral $ fromIntegral nrs - max 0 ix
+  EchelonTransformation (nrs - max 0 ix) $ V.drop ix cs
 
 tail :: EchelonTransformation a -> EchelonTransformation a
 tail (EchelonTransformation nrs cs) =

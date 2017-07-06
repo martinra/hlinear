@@ -1,7 +1,6 @@
 module HLinear.FramedModule.Basic
 where
 
-import qualified Prelude as P
 import HLinear.Utility.Prelude hiding ( null )
 
 import Control.Monad.Loops ( whileM' )
@@ -20,7 +19,7 @@ import qualified HLinear.Hook.EchelonForm.Row as EFR
 
 instance HasNmbRows (FramedModule a) where
   nmbRows (FramedModuleBasis e _) = nmbRows e
-  nmbRows (FramedModuleDual e _) = nmbCols e P.- nmbRows e
+  nmbRows (FramedModuleDual e _) = nmbCols e - nmbRows e
 
 instance ( HasRREF a, Ring a, DecidableZero a ) => IsMatrix (FramedModule a) a where
   toMatrix = toMatrix . asFramedModuleBasis
@@ -87,12 +86,12 @@ dualEchelonFormWithPivotStructure
 dualEchelonFormWithPivotStructure e@(EchelonForm nrs ncs rs) pivots =
   (e', EF.pivotVector e')
   where
-    PLREHook _ _ _ e' = rref $ Matrix (ncs P.- nrs) ncs (rs'Init <> rs'Tail)
+    PLREHook _ _ _ e' = rref $ Matrix (ncs - nrs) ncs (rs'Init <> rs'Tail)
     pivotPairs :: Vector (Int,Int)
-    pivotPairs = V.zip pivots $ V.tail pivots `V.snoc` fromIntegral ncs
+    pivotPairs = V.zip pivots $ V.tail pivots `V.snoc` ncs
     create' px jx =
       V.create $ do
-        r' <- MV.new (fromIntegral ncs)
+        r' <- MV.new ncs
         forM_ (V.enumFromN 0 (px+1)) $ \px' ->
           MV.write r' (pivots V.! px') $ EF.at e px' jx 
         MV.write r' jx (negate one)

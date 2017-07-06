@@ -15,7 +15,6 @@ import HLinear.Hook.EchelonForm.Row
 
 data EchelonForm a =
   EchelonForm
-    { _nmbRows :: Natural
-    , _nmbCols :: Natural
-    , rows :: Vector (EchelonFormRow a)
-    }
+    Int                         -- number of rows
+    Int                         -- number of columns
+    (Vector (EchelonFormRow a)) -- rows from top to bottom

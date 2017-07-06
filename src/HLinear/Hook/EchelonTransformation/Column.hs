@@ -65,7 +65,7 @@ toVector
   :: Ring a
   => EchelonTransformationColumn a -> Vector a
 toVector (EchelonTransformationColumn o v) =
-  v `V.snoc` MS.one <> V.replicate (fromIntegral o) zero
+  v `V.snoc` MS.one <> V.replicate o zero
 
 --------------------------------------------------------------------------------
 -- Eq, Show, and NFData instancs

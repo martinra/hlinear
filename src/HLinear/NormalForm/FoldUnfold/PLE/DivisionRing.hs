@@ -1,15 +1,8 @@
 module HLinear.NormalForm.FoldUnfold.PLE.DivisionRing
 where
 
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
-import qualified Prelude as P
+import HLinear.Utility.Prelude
 
-import Math.Structure
-import Numeric.Natural ( Natural )
 import qualified Data.Vector as V
 
 import HLinear.Hook.PLEHook ( PLEHook(..) )
@@ -51,9 +44,9 @@ splitOffHook m@(Matrix nrs ncs rs)
             (\f -> V.zipWith f pivotBottom bottomRight) $ \h t ->
               V.zipWith (\pv te -> te - h * pv) pivotTail' t
       in  ( PLEHook p lt ef
-          , Matrix (nrs P.- 1) (ncs P.- 1) bottomRight'
+          , Matrix (nrs-1) (ncs-1) bottomRight'
           )
   | otherwise = Just
       ( Hook.one nrs ncs
-      , Matrix nrs (ncs P.- 1) $ fmap V.tail rs
+      , Matrix nrs (ncs-1) $ fmap V.tail rs
       )

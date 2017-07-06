@@ -18,21 +18,17 @@ import HLinear.Hook.EchelonForm.Row as EFR
 instance    ( Arbitrary a, Ring a, DecidableZero a )
          => Arbitrary (EchelonForm a) where
   arbitrary = do
-    NonNegative (Small lrsZ) <- arbitrary
-    NonNegative (Small nrsDiffZ) <- arbitrary
-    NonNegative (Small ncsZ) <- arbitrary
-    let lrs = fromIntegral (lrsZ :: Integer)
-    let nrsDiff = fromIntegral (nrsDiffZ :: Integer)
-    let ncs = fromIntegral (ncsZ :: Integer)
-    let rs = V.replicateM (fromIntegral lrs) $ do
-               Positive (Small oZ) <- lift arbitrary
-               o' <- min ncs <$> gets (+ fromInteger oZ)
+    NonNegative (Small lrs) <- arbitrary
+    NonNegative (Small nrsDiff) <- arbitrary
+    NonNegative (Small ncs) <- arbitrary
+    let rs = V.replicateM lrs $ do
+               Positive (Small o) <- lift arbitrary
+               o' <- min ncs <$> gets (+o)
                put o'
                if ncs == o'
                  then return $ EchelonFormRow o' V.empty
                  else do
-                   r <- V.replicateM (fromIntegral ncs - fromIntegral o' - 1)
-                                     (lift arbitrary)
+                   r <- V.replicateM (ncs-o'-1) (lift arbitrary)
                    r1 <- lift arbitrary
                    return $ EchelonFormRow o' $ (if isZero r1 then one else r1) `V.cons` r
 
@@ -47,7 +43,7 @@ instance    ( Arbitrary a, Ring a, DecidableZero a )
             nrs' = nrs `P.div` 2
             left = EchelonForm nrs' ncs leftrs
             (EchelonForm _ _ leftrs,right) =
-              EF.splitAt (fromIntegral nrs') e
+              EF.splitAt nrs' e
 
       shrinkCol (EchelonForm nrs ncs rs)
         | ncs <= 1 = []
@@ -56,9 +52,9 @@ instance    ( Arbitrary a, Ring a, DecidableZero a )
                       ]
           where
             ncs' = ncs `P.div` 2
-            ncs'' = ncs P.- ncs'
+            ncs'' = ncs - ncs'
             (left,right) = V.unzip $
-                           fmap (EFR.splitAt $ fromIntegral ncs') rs
+                           fmap (EFR.splitAt ncs') rs
 
       shrinkEntry (EchelonForm nrs ncs rs) = fmap (EchelonForm nrs ncs) $ do
         ix <- [0..V.length rs - 1]

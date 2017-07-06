@@ -5,23 +5,15 @@
 module HLinear.Matrix.Sized
 where
 
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
+import HLinear.Utility.Prelude
 
-import Data.Proxy ( Proxy(..) )
-import Data.Vector ( Vector )
-import qualified Data.Vector as V
 import GHC.TypeLits ( Nat(..), KnownNat, natVal )
-import Math.Structure
-import Numeric.Natural ( Natural )
 import Test.QuickCheck.Arbitrary
   ( Arbitrary, arbitrary, shrink )
 import Test.Vector ()
 import Test.SmallCheck.Series
   ( Serial, series, decDepth )
+import qualified Data.Vector as V
 
 import HLinear.Matrix.Algebra ()
 import HLinear.Matrix.Basic ( diagonal )
@@ -67,18 +59,16 @@ instance ( KnownNat nrs, KnownNat ncs, Arbitrary a )
       => Arbitrary (MatrixSized nrs ncs a)
   where
   arbitrary = do
-    let nrs = natVal (Proxy :: Proxy nrs)
-    let ncs = natVal (Proxy :: Proxy ncs)
-    rs <- V.replicateM (fromInteger nrs) $
-            V.replicateM (fromInteger ncs) arbitrary
-    return $ MatrixSized $
-        Matrix (fromInteger nrs) (fromInteger ncs) rs
+    let nrs = fromIntegral $ natVal (Proxy :: Proxy nrs)
+    let ncs = fromIntegral $ natVal (Proxy :: Proxy ncs)
+    rs <- V.replicateM nrs $ V.replicateM ncs arbitrary
+    return $ MatrixSized $ Matrix nrs ncs rs
 
   shrink (MatrixSized (Matrix nrs ncs rs)) =
     [ MatrixSized $ Matrix nrs ncs rs'
     | rs' <- shrink rs
-    , V.length rs' == fromIntegral nrs
-    , V.all ((== fromIntegral ncs) . V.length) rs'
+    , V.length rs' == nrs
+    , V.all ((==ncs) . V.length) rs'
     ]
 
 --------------------------------------------------------------------------------
@@ -89,12 +79,12 @@ instance ( KnownNat nrs, KnownNat ncs, Monad m, Serial m a )
       => Serial m (MatrixSized nrs ncs a)
   where
   series = do
-    let nrs = natVal (Proxy :: Proxy nrs)
-    let ncs = natVal (Proxy :: Proxy ncs)
-    rs <- V.sequence $ V.iterateN (fromInteger nrs) decDepth $
-            V.sequence $ V.iterateN (fromInteger ncs) decDepth $
+    let nrs = fromIntegral $ natVal (Proxy :: Proxy nrs)
+    let ncs = fromIntegral $ natVal (Proxy :: Proxy ncs)
+    rs <- V.sequence $ V.iterateN nrs decDepth $
+            V.sequence $ V.iterateN ncs decDepth $
               decDepth $ decDepth series
-    return $ MatrixSized $ Matrix (fromInteger nrs) (fromInteger ncs) rs
+    return $ MatrixSized $ Matrix nrs ncs rs
 
 --------------------------------------------------------------------------------
 -- additive structure
@@ -114,11 +104,10 @@ instance ( KnownNat nrs, KnownNat ncs, AdditiveMonoid a )
       => AdditiveMonoid (MatrixSized nrs ncs a)
   where
   zero =
-    let nrs = natVal ( Proxy :: Proxy nrs )
-        ncs = natVal ( Proxy :: Proxy ncs )
-    in  MatrixSized $ Matrix (fromInteger nrs) (fromInteger ncs) $
-          V.replicate (fromInteger nrs) $
-            V.replicate (fromInteger ncs) zero
+    let nrs = fromIntegral $ natVal ( Proxy :: Proxy nrs )
+        ncs = fromIntegral $ natVal ( Proxy :: Proxy ncs )
+    in  MatrixSized $ Matrix nrs ncs $
+          V.replicate nrs $ V.replicate ncs zero
 
 instance ( KnownNat nrs, KnownNat ncs, AdditiveMonoid a, DecidableZero a )
       => DecidableZero (MatrixSized nrs ncs a)
@@ -148,8 +137,8 @@ instance ( KnownNat nrs, Ring a )
       => MultiplicativeMonoid (MatrixSized nrs nrs a)
   where
   one =
-    let nrs = natVal (Proxy :: Proxy nrs)
-    in  MatrixSized $ diagonal $ V.replicate (fromInteger nrs) one
+    let nrs = fromIntegral $ natVal (Proxy :: Proxy nrs)
+    in  MatrixSized $ diagonal $ V.replicate nrs one
 
 
 deriving instance MultiplicativeMagma (Matrix a)
@@ -205,8 +194,8 @@ instance ( KnownNat nrs, Ring a )
       => MultiplicativeMonoid (MatrixInvertibleSized nrs a)
   where
   one =
-    let nrs = natVal (Proxy :: Proxy nrs)
-    in  MatrixInvertibleSized $ Unit $ diagonal $ V.replicate (fromInteger nrs) one
+    let nrs = fromIntegral $ natVal (Proxy :: Proxy nrs)
+    in  MatrixInvertibleSized $ Unit $ diagonal $ V.replicate nrs one
 
 instance ( KnownNat nrs, Ring a, DecidableZero a, DecidableOne a )
   => DecidableOne (MatrixInvertibleSized nrs a)

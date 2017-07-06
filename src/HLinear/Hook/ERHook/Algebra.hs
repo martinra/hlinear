@@ -16,6 +16,6 @@ instance Ring a => MultiplicativeMagma (ERHook a) where
       (M.blockSumRows m' mTop)
       (EF.blockSumHook ef' mBottom ef)
     where
-      (mTop,mBottom) = M.splitAtCols (fromIntegral $ nmbRows m') (et'*.m)
+      (mTop,mBottom) = M.splitAtCols (nmbRows m') (et'*.m)
 
 instance Ring a => MultiplicativeSemigroup (ERHook a)

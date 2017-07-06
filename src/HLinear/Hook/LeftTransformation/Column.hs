@@ -79,7 +79,7 @@ headRecip = fromUnit . recip . headUnit
 toVector :: Rng a
   => LeftTransformationColumn a -> Vector a
 toVector (LeftTransformationColumn o a v) =
-  V.replicate (fromIntegral o) zero
+  V.replicate o zero
   <>
   a' `V.cons` fmap (*a') v
   where

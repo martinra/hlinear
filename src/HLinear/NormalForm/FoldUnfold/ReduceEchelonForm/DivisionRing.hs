@@ -39,9 +39,9 @@ reduceEchelonForm ef =
   case reduceLastPivot (ef, EF.pivotStructure ef) of
     Nothing -> RREF (ET.one nrs) (EF.zero nrs ncs)
     Just (er, efp') ->
-      let ERHook et' _ ef' = V.foldl (*) er $
-                               V.unfoldr reduceLastPivot efp'
-      in  RREF (ET.fitSize (fromIntegral nrs) et') ef'
+      let ERHook et' _ ef' =
+            V.foldl (*) er $ V.unfoldr reduceLastPivot efp'
+      in  RREF (ET.fitSize nrs et') ef'
   where
     nrs = nmbRows ef
     ncs = nmbCols ef

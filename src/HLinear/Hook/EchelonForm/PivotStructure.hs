@@ -58,7 +58,7 @@ pivotEntryVector
 pivotEntryVector = seqToVector . pivotEntries
   
 
-rank :: DecidableZero a => EchelonForm a -> Natural
+rank :: DecidableZero a => EchelonForm a -> Int
 rank = (`execState` 0) . sequenceA_ . mapPivot (\_ _ _ -> modify succ)
 
 

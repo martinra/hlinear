@@ -30,24 +30,22 @@ minimizeSize (LeftTransformation nrs cs) =
   else LeftTransformation nrs' cs'
   where
     cs' = V.dropWhile LTC.isOne cs
-    nrs' = fromIntegral $ fromIntegral nrs - (V.length cs - V.length cs')
+    nrs' = nrs - (V.length cs - V.length cs')
 minimizeSize lt@(LeftTransformationMatrix m) = lt
 
 fitSize :: Ring a => Int -> LeftTransformation a -> LeftTransformation a
 fitSize n lt@(LeftTransformation nrs cs)
-  | nrsZ >= n = lt
+  | nrs >= n = lt
   | otherwise =
-      let szDiff = n-nrsZ
+      let szDiff = n-nrs
           cs' = fmap (LTC.adjustOffset (+szDiff)) cs
           cszero = V.generate szDiff (LTC.one n) 
-      in  LeftTransformation (fromIntegral n) $ cszero <> cs'
-  where
-    nrsZ = fromIntegral nrs
+      in  LeftTransformation n $ cszero <> cs'
 fitSize n lt@(LeftTransformationMatrix m)
-  | nrsZ >= n = lt
-  | otherwise = LeftTransformationMatrix $ M.one (fromIntegral $ n-nrsZ) <> m
+  | nrs >= n = lt
+  | otherwise = LeftTransformationMatrix $ M.one (n-nrs) <> m
   where
-    nrsZ = fromIntegral $ nmbRows m
+    nrs = nmbRows m
 
 --------------------------------------------------------------------------------
 -- Eq, Show, and NFData instances
@@ -71,7 +69,7 @@ instance    ( Eq a, Ring a, DecidableZero a, DecidableOne a )
             GT -> V.all LTC.isOne $ V.drop ncs' cs
             LT -> V.all LTC.isOne $ V.drop ncs cs'
   lt == lt' =
-    let nrsmax = fromIntegral $ max (nmbRows lt) (nmbRows lt')
+    let nrsmax = max (nmbRows lt) (nmbRows lt')
         m = toMatrix (fitSize nrsmax lt) :: Matrix a
         m' = toMatrix (fitSize nrsmax lt') :: Matrix a
     in  m == m'
@@ -109,20 +107,21 @@ instance Traversable LeftTransformation where
 -- creation
 --------------------------------------------------------------------------------
 
-one :: Natural -> LeftTransformation a
-one nrs = LeftTransformation nrs V.empty
+one :: Int -> LeftTransformation a
+one nrs
+  | nrs >= 0 = LeftTransformation nrs V.empty
+  | nrs < 0 = error "LeftTransformation.one: negative nrs"
 
 diagonal :: Vector (Unit a) -> LeftTransformation a
 diagonal ds = LeftTransformation nrs $ flip V.imap ds $ \ix d ->
                     LeftTransformationColumn ix d V.empty
   where
-    nrsZ = V.length ds 
-    nrs = fromIntegral nrsZ
+    nrs = V.length ds 
 
 singleton ::
   Unit a -> Vector a -> LeftTransformation a
 singleton a v =
-  LeftTransformation (fromIntegral $ 1 + V.length v) $
+  LeftTransformation (1 + V.length v) $
     V.singleton $ LeftTransformationColumn 0 a v
 
 singletonAdditive ::
@@ -132,9 +131,10 @@ singletonAdditive = singleton MS.one
 
 singletonMultiplicative ::
      (AdditiveMonoid a, DecidableZero a)
-  => Unit a -> Natural -> LeftTransformation a
-singletonMultiplicative a nrs_pred =
-  singleton a $ V.replicate (fromIntegral nrs_pred) zero
+  => Unit a -> Int -> LeftTransformation a
+singletonMultiplicative a nrs_pred
+  | nrs_pred >= 0 = singleton a $ V.replicate nrs_pred zero
+  | nrs_pred < 0  = error "LeftTransformation.singletonMultiplicative: negative nrs_pred"
 
 fromVector ::
      DecidableUnit a
@@ -149,16 +149,14 @@ instance Ring a => IsMatrix (LeftTransformation a) a where
   toMatrix (LeftTransformationMatrix m) = m
   toMatrix (LeftTransformation nrs cs) =
     Matrix nrs nrs $
-      V.generate nrsZ $ \ix ->
-      V.generate nrsZ $ \jx ->
+      V.generate nrs $ \ix ->
+      V.generate nrs $ \jx ->
         let a = maybe MS.one LTC.head $ cs V.!? jx
         in
         case compare ix jx of
           LT -> zero
           EQ -> a
           GT -> maybe zero ((*a) . (!ix)) $ cs V.!? jx
-    where
-    nrsZ = fromIntegral nrs
 
 --------------------------------------------------------------------------------
 -- subtransformations
@@ -171,13 +169,11 @@ splitAt ix lt@(LeftTransformation nrs cs)
   | otherwise =
       let (csLeft, csRight) = V.splitAt ix cs
       in ( LeftTransformation nrs csLeft
-         , LeftTransformation nrs' $ fmap (LTC.adjustOffset (+(nrs'Z-nrsZ))) csRight
+         , LeftTransformation nrs' $ fmap (LTC.adjustOffset (+(nrs'-nrs))) csRight
          )
   where
     ncs = V.length cs
-    nrs'Z = max 0 $ min nrsZ $ nrsZ - ix
-    nrsZ = fromIntegral nrs
-    nrs' = fromIntegral nrs'Z
+    nrs' = max 0 $ min nrs (nrs-ix)
 
 drop :: Int -> LeftTransformation a -> LeftTransformation a
 drop ix lt@(LeftTransformation nrs cs)
@@ -185,4 +181,4 @@ drop ix lt@(LeftTransformation nrs cs)
   | otherwise = LeftTransformation nrs' $
                   fmap (LTC.adjustOffset (subtract ix)) $ V.drop ix cs
   where
-    nrs' = fromIntegral $ fromIntegral nrs - ix
+    nrs' = nrs - ix

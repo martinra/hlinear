@@ -30,11 +30,10 @@ instance Ring a
   => MultiplicativeSemigroupLeftAction RPermute (LeftTransformation a)
   where
   p *. lt@(LeftTransformation nrs cs)
-    | pn <= nrsZ - V.length cs = LeftTransformation nrs $ fmap (p*.) cs
+    | pn <= nrs - V.length cs = LeftTransformation nrs $ fmap (p*.) cs
     | otherwise = LeftTransformationMatrix $ p *. toMatrix (fitSize pn lt)
     where
       pn = size p
-      nrsZ = fromIntegral nrs
   p *. lt@(LeftTransformationMatrix m) =
     LeftTransformationMatrix $ p *. toMatrix (fitSize (size p) lt)
 
@@ -45,11 +44,10 @@ instance Ring a
   => MultiplicativeSemigroupRightAction RPermute (LeftTransformation a)
   where
   lt@(LeftTransformation nrs cs) .* p
-    | pn <= nrsZ - V.length cs = lt
+    | pn <= nrs - V.length cs = lt
     | otherwise = LeftTransformationMatrix $ p *. toMatrix (fitSize pn lt)
     where
       pn = size p
-      nrsZ = fromIntegral nrs
   lt@(LeftTransformationMatrix m) .* p =
     LeftTransformationMatrix $ toMatrix (fitSize (size p) lt) .* p
 
@@ -64,33 +62,30 @@ instance Ring a
   => MultiplicativeMagma (LeftTransformation a)
   where
   lt@(LeftTransformation nrs cs) * lt'@(LeftTransformation nrs' cs')
-    | ncs  == 0 = fitSize (fromIntegral nrs) lt'
-    | ncs' == 0 = fitSize (fromIntegral nrs') lt
-    | nrsZ - ncs >= nrs'Z =
-        let ltcOnes = fmap (LTC.one nrsZ) $
-                        V.enumFromN ncs (nrsZ - ncs - nrs'Z)
-            cs'shifted = fmap (LTC.adjustOffset (+(nrsZ-nrs'Z))) cs' 
+    | ncs  == 0 = fitSize nrs lt'
+    | ncs' == 0 = fitSize nrs' lt
+    | nrs - ncs >= nrs' =
+        let ltcOnes = fmap (LTC.one nrs) $
+                        V.enumFromN ncs (nrs - ncs - nrs')
+            cs'shifted = fmap (LTC.adjustOffset (+(nrs-nrs'))) cs' 
         in  LeftTransformation nrs $ cs <> ltcOnes <> cs'shifted
     | nrs' >= nrs =
         let ltLeft = LeftTransformation nrs' $ fmap (lt*.) cs' 
-            ltRight = LT.drop (nrsZ - (nrs'Z - ncs')) lt
+            ltRight = LT.drop (nrs - (nrs' - ncs')) lt
         in ltLeft * ltRight
     | otherwise =
-        let (ltLeft,ltRight) = LT.splitAt (nrsZ - nrs'Z) lt
+        let (ltLeft,ltRight) = LT.splitAt (nrs - nrs') lt
         in ltLeft * (ltRight * lt')
     where
       ncs = V.length cs
       ncs' = V.length cs'
-
-      nrsZ = fromIntegral nrs
-      nrs'Z = fromIntegral nrs'
   -- todo: to optimize computation of HNF insert this special case
   -- lt@(LeftTransformation nrs cs) * lt'@(LeftTransformationMatrix m) =
   lt * lt' =
     case compare nrs nrs' of
       EQ -> LeftTransformationMatrix $ toMatrix lt * toMatrix lt'
-      GT -> LeftTransformationMatrix $ toMatrix lt * toMatrix (fitSize (fromIntegral nrs) lt')
-      LT -> LeftTransformationMatrix $ toMatrix (fitSize (fromIntegral nrs') lt) * toMatrix lt'
+      GT -> LeftTransformationMatrix $ toMatrix lt * toMatrix (fitSize nrs lt')
+      LT -> LeftTransformationMatrix $ toMatrix (fitSize nrs' lt) * toMatrix lt'
     where
       nrs = nmbRows lt
       nrs' = nmbRows lt'
@@ -124,7 +119,7 @@ instance ( Ring a, DecidableUnit a )
         initLt = LeftTransformation nrs V.empty
         columnLTs = fmap go cs
         go (LeftTransformationColumn _ a c) =
-          LeftTransformation (fromIntegral $ succ $ V.length c) $
+          LeftTransformation (1 + V.length c) $
                              V.singleton $ LeftTransformationColumn 0 a c
   recip (LeftTransformationMatrix m) = LeftTransformationMatrix $ MNaive.recip m
 
@@ -148,21 +143,20 @@ instance ( Ring a, AdditiveMonoid b, LinearSemiringLeftAction a b )
   where
   -- we fill the vector v with zeros from the top
   LeftTransformationMatrix m *. c@(Column v) =
-    case compare nrsZ vn of
+    case compare nrs vn of
       EQ -> m *. c
-      GT -> m *. Column (V.replicate (nrsZ - vn) zero <> v)
-      LT -> let (v1,v2) = V.splitAt (vn-nrsZ) v
+      GT -> m *. Column (V.replicate (nrs-vn) zero <> v)
+      LT -> let (v1,v2) = V.splitAt (vn-nrs) v
             in  Column $ v1 <> fromColumn (m *. Column v2)
     where
-      nrsZ = fromIntegral $ nmbRows m
+      nrs = nmbRows m
       vn = V.length v
   lt@(LeftTransformation nrs cs) *. (Column v) =
     Column $ V.foldr' applyLTC v' cs'
     where
-      cs' = V.drop (nrsZ - vn) cs
-      v' | nrsZ <= vn = v
-         | otherwise  = V.replicate (nrsZ-vn) zero <> v
-      nrsZ = fromIntegral nrs
+      cs' = V.drop (nrs-vn) cs
+      v' | nrs <= vn = v
+         | otherwise  = V.replicate (nrs-vn) zero <> v
       vn = V.length v
 
 applyLTC
@@ -196,12 +190,12 @@ instance Ring a
       nv = V.length v
 
       -- the column of lt that corresponds to the head of ltc
-      c = cs V.!? (fromIntegral nrs - (nv+1))
+      c = cs V.!? (nrs - (nv+1))
 
       cHeadRecip = maybe one (fromUnit . recip . LTC.headUnit) c
 
       a' = maybe a ((*a) . LTC.headUnit) c
-      ltv = fromColumn $ drop (fromIntegral nrs - nv) lt *. Column v
+      ltv = fromColumn $ drop (nrs-nv) lt *. Column v
       v' = case c of
              Just c' -> V.zipWith (\bc bv -> bc + bv*cHeadRecip)
                           (LTC.tail c') ltv
@@ -225,7 +219,7 @@ instance Ring a
   lt *. (Matrix nrs ncs rs) =
     Matrix nrs ncs $ M.withRowLength ncs go
       where
-        go :: forall ctx. Reifies ctx Natural => Proxy ctx -> Vector (Vector a)
+        go :: forall ctx. Reifies ctx Int => Proxy ctx -> Vector (Vector a)
         go _ = fmap M.fromRow $ fromColumn $
                  lt *. (Column $ fmap M.Row rs :: Column (M.Row ctx a))
 

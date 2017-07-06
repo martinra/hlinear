@@ -21,8 +21,8 @@ Matrix nrs ncs rs `blockSum` Matrix nrs' ncs' rs' =
   Matrix (nrs+nrs') (ncs+ncs') $
     ( fmap (<> zeros') rs ) <> ( fmap (zeros <>) rs' )
   where
-    zeros = V.replicate (fromIntegral ncs) zero 
-    zeros' = V.replicate (fromIntegral ncs') zero 
+    zeros = V.replicate ncs zero 
+    zeros' = V.replicate ncs' zero 
 
 blockSumRows :: Matrix a -> Matrix a -> Matrix a
 blockSumRows (Matrix nrs ncs rs) (Matrix nrs' ncs' rs')
@@ -71,49 +71,32 @@ tailCols (Matrix nrs ncs rs) = Matrix nrs (pred ncs) $ fmap V.tail rs
 
 splitAtRows :: Int -> Matrix a -> (Matrix a, Matrix a)
 splitAtRows ix m@(Matrix nrs ncs rs)
-  | ix < 0     = (zeroM, m)
-  | ix >= ncsZ = (m, zeroM)
-  | otherwise  = (Matrix nrs ncsLeft rsLeft, Matrix nrs ncsRight rsRight)
+  | ix < 0    = (zeroM, m)
+  | ix >= ncs = (m, zeroM)
+  | otherwise = (Matrix nrs ix rsLeft, Matrix nrs (ncs-ix) rsRight)
   where
-   nrsZ = fromIntegral nrs
-   ncsZ = fromIntegral ncs
-
-   zeroM = Matrix nrs 0 $ V.replicate nrsZ V.empty
-
-   ncsLeft = fromIntegral ix
-   ncsRight = fromIntegral $ ncsZ - ix
+   zeroM = Matrix nrs 0 $ V.replicate nrs V.empty
    (rsLeft,rsRight) = V.unzip $ fmap (V.splitAt ix) rs
 
 splitAtCols :: Int -> Matrix a -> (Matrix a, Matrix a)
 splitAtCols ix m@(Matrix nrs ncs rs)
-  | ix < 0     = (zeroM, m)
-  | ix >= nrsZ = (m, zeroM)
-  | otherwise  = (Matrix nrsTop ncs rsTop, Matrix nrsBottom ncs rsBottom)
+  | ix < 0    = (zeroM, m)
+  | ix >= nrs = (m, zeroM)
+  | otherwise = (Matrix ix ncs rsTop, Matrix (nrs-ix) ncs rsBottom)
  where
-   nrsZ = fromIntegral nrs
-
    zeroM = Matrix 0 ncs V.empty
-
-   nrsTop = fromIntegral ix
-   nrsBottom = fromIntegral $ nrsZ - ix
    (rsTop,rsBottom) = V.splitAt ix rs
 
 sliceRows :: Int -> Int -> Matrix a -> Matrix a
 sliceRows ix sz m@(Matrix nrs ncs rs)
-  | ix < 0 = sliceRows 0 (sz+ix) m
-  | ix >= nrsZ || sz < 0 = Matrix 0 ncs V.empty
-  | ix+sz > nrsZ = sliceRows ix (nrsZ-ix) m
-  | otherwise = Matrix szN ncs $ V.slice ix sz rs
-  where
-   nrsZ = fromIntegral nrs
-   szN = fromIntegral sz
+  | ix < 0              = sliceRows 0 (sz+ix) m
+  | ix >= nrs || sz < 0 = Matrix 0 ncs V.empty
+  | ix+sz > nrs         = sliceRows ix (nrs-ix) m
+  | otherwise           = Matrix sz ncs $ V.slice ix sz rs
 
 sliceCols :: Int -> Int -> Matrix a -> Matrix a
 sliceCols jx sz m@(Matrix nrs ncs rs)
-  | jx < 0 = sliceCols 0 (sz+jx) m
-  | jx >= ncsZ || sz < 0 = Matrix nrs 0 $ V.replicate ncsZ V.empty
-  | jx+sz > ncsZ = sliceCols jx (ncsZ-jx) m
-  | otherwise = Matrix nrs szN $ fmap (V.slice jx sz) rs
-  where
-   ncsZ = fromIntegral ncs
-   szN = fromIntegral sz
+  | jx < 0              = sliceCols 0 (sz+jx) m
+  | jx >= ncs || sz < 0 = Matrix nrs 0 $ V.replicate ncs V.empty
+  | jx+sz > ncs         = sliceCols jx (ncs-jx) m
+  | otherwise           = Matrix nrs sz $ fmap (V.slice jx sz) rs

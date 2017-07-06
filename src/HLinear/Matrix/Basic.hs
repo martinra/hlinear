@@ -14,6 +14,9 @@ import HLinear.Matrix.Definition
 import HLinear.Utility.NmbRowColumn
 import HLinear.Utility.Permute
 
+--------------------------------------------------------------------------------
+-- Eq, Show, NFData, Binary
+--------------------------------------------------------------------------------
 
 instance Eq a => Eq (Matrix a) where
   (Matrix nrs ncs rs) == (Matrix nrs' ncs' rs') =
@@ -50,7 +53,7 @@ instance Binary a => Binary (Matrix a) where
   get = do
     nrs <- get
     ncs <- get
-    rs <- V.replicateM (fromIntegral nrs) $ V.replicateM (fromIntegral ncs) get
+    rs <- V.replicateM nrs $ V.replicateM ncs get
     return $ Matrix nrs ncs rs
   
 --------------------------------------------------------------------------------
@@ -75,7 +78,7 @@ instance HasNmbCols (Matrix a) where
 
 instance MultiplicativeSemigroupLeftAction P.Permute (Matrix a) where
   p *. (Matrix nrs ncs rs) =
-    case compare np nrsZ of
+    case compare np nrs of
       EQ -> Matrix nrs ncs $
               V.backpermute rs $ V.generate np $ \ix -> p `P.at` ix
       GT -> error "Permute *. Matrix: permutation size too big"
@@ -83,7 +86,6 @@ instance MultiplicativeSemigroupLeftAction P.Permute (Matrix a) where
       LT -> error "Permute *. Matrix: not implemented"
     where
       np = P.size p
-      nrsZ = fromIntegral nrs
 
 instance MultiplicativeLeftAction P.Permute (Matrix a) where
 
@@ -91,7 +93,7 @@ instance MultiplicativeSemigroupRightAction P.Permute (Matrix a) where
   -- note: since we let permutations act from the left by default,
   -- the right action use the inverse of p
   (Matrix nrs ncs rs) .* p =
-    case compare np ncsZ of
+    case compare np ncs of
       EQ -> Matrix nrs ncs $ 
               fmap (`V.backpermute` pinvVector) rs
       GT -> error "Matrix .* Permute: permutation size too big"
@@ -99,7 +101,6 @@ instance MultiplicativeSemigroupRightAction P.Permute (Matrix a) where
       LT -> error "Matrix .* Permute: not implemented"
     where
       np = P.size p
-      ncsZ = fromIntegral ncs
       pinv = recip p
       pinvVector = V.generate np $ \ix -> pinv `P.at` ix
 
@@ -107,8 +108,8 @@ instance MultiplicativeRightAction P.Permute (Matrix a)
 
 transpose :: Matrix a -> Matrix a
 transpose (Matrix nrs ncs rs) = Matrix ncs nrs $
-  V.generate (fromIntegral ncs) $ \ix ->
-    V.generate (fromIntegral nrs) $ \jx ->
+  V.generate ncs $ \ix ->
+    V.generate nrs $ \jx ->
       rs V.! jx V.! ix
 
 --------------------------------------------------------------------------------
@@ -121,34 +122,40 @@ diagonal ::
 diagonal ds =
   Matrix nrs nrs $
     (`V.imap` ds) $ \ix d ->
-    V.generate nrsZ $ \jx ->
+    V.generate nrs $ \jx ->
       if ix==jx then d else MS.zero
   where
-    nrsZ = V.length ds
-    nrs = fromIntegral nrsZ
+    nrs = V.length ds
 
 zero ::
      AdditiveMonoid a
-  => Natural -> Natural -> Matrix a
-zero nrs ncs =
-  Matrix nrs ncs $
-    V.replicate (fromIntegral nrs) $
-    V.replicate (fromIntegral ncs) MS.zero
+  => Int -> Int -> Matrix a
+zero nrs ncs
+  | nrs >= 0 && ncs >= 0 =
+      Matrix nrs ncs $ V.replicate nrs $ V.replicate ncs MS.zero
+  | nrs < 0 = error "Matrix.zero: negative nrs"
+  | ncs < 0 = error "Matrix.zero: negative ncs"
 
 one ::
      ( AdditiveMonoid a, MultiplicativeMonoid a )
-  => Natural -> Matrix a
-one = diagonal . (`V.replicate` MS.one) . fromIntegral
+  => Int -> Matrix a
+one nrs
+  | nrs >= 0 = diagonal $ V.replicate nrs MS.one
+  | nrs < 0 = error "Matrix.one: negative nrs"
 
 elementary
   :: Ring a
-  => Natural -> Natural -> Int -> Int -> Matrix a
-elementary nrs ncs ix jx = Matrix nrs ncs $
-  V.generate (fromIntegral nrs) $ \ix' ->
-    if ix == ix'
-    then V.generate (fromIntegral ncs) $ \jx' ->
-           if jx == jx' then MS.one else MS.zero
-    else V.replicate (fromIntegral ncs) MS.zero
+  => Int -> Int -> Int -> Int -> Matrix a
+elementary nrs ncs ix jx
+  | nrs >= 0 && ncs >= 0 =
+      Matrix nrs ncs $
+        V.generate nrs $ \ix' ->
+          if ix == ix'
+          then V.generate ncs $ \jx' ->
+                 if jx == jx' then MS.one else MS.zero
+          else V.replicate ncs MS.zero
+  | nrs < 0 = error "Matrix.elementary: negative nrs"
+  | ncs < 0 = error "Matrix.elementary: negative ncs"
 
 --------------------------------------------------------------------------------
 -- predicates
@@ -186,15 +193,16 @@ fromVectorsSafe :: Vector (Vector a) -> Either String (Matrix a)
 fromVectorsSafe rs = 
   fromVectorsSafe' nrs ncs rs
     where
-    nrs = fromIntegral $ V.length rs
-    ncs = if nrs == 0 then 0 else fromIntegral $ V.length (V.head rs)
+    nrs = V.length rs
+    ncs = if nrs == 0 then 0 else V.length (V.head rs)
 
-fromVectorsSafe' :: Natural -> Natural -> Vector (Vector a)
-             -> Either String (Matrix a)
+fromVectorsSafe'
+  :: Int -> Int -> Vector (Vector a)
+  -> Either String (Matrix a)
 fromVectorsSafe' nrs ncs rs
-  | nrs /= fromIntegral (V.length rs) = Left
+  | nrs /= V.length rs = Left
       "HLinear.Matrix fromVectors': incorrect number of rows"
-  | any ((/=ncs) . fromIntegral . V.length) rs = Left
+  | any ((/=ncs) . V.length) rs = Left
       "HLinear.Matrix fromVectors': rows must have the same length"
   | otherwise = Right $ Matrix nrs ncs rs
 
@@ -202,7 +210,7 @@ fromVectorsSafe' nrs ncs rs
 fromListsSafe :: [[a]] -> Either String (Matrix a)
 fromListsSafe = fromVectorsSafe . fmap V.fromList . V.fromList
 
-fromListsSafe' :: Natural -> Natural -> [[a]]
+fromListsSafe' :: Int -> Int -> [[a]]
            -> Either String (Matrix a)
 fromListsSafe' nrs ncs = fromVectorsSafe' nrs ncs . fmap V.fromList . V.fromList
 
@@ -210,20 +218,20 @@ fromListsSafe' nrs ncs = fromVectorsSafe' nrs ncs . fmap V.fromList . V.fromList
 fromColumnsSafe :: Vector (Column a) -> Either String (Matrix a)
 fromColumnsSafe cs = fromColumnsSafe' nrs ncs cs
   where
-    ncs = fromIntegral $ V.length cs
-    nrs = if ncs == 0 then 0 else fromIntegral $ V.length (fromColumn $ V.head cs)
+    ncs = V.length cs
+    nrs = if ncs == 0 then 0 else V.length (fromColumn $ V.head cs)
 
 fromColumnsSafe'
-  :: Natural -> Natural -> Vector (Column a)
+  :: Int -> Int -> Vector (Column a)
   -> Either String (Matrix a)
 fromColumnsSafe' nrs ncs cs
-  | ncs /= fromIntegral (V.length cs) = Left
+  | ncs /= V.length cs = Left
       "HLinear.Matrix fromColumns': incorrect number of columns"
-  | any ((/=nrs) . fromIntegral . V.length . fromColumn) cs = Left
+  | any ((/=nrs) . V.length . fromColumn) cs = Left
       "HLinear.Matrix fromColumns': columns must have the same length"
   | otherwise =
-      let rs = V.generate (fromIntegral nrs) $ \ix ->
-                 V.generate (fromIntegral ncs) $ \jx ->
+      let rs = V.generate nrs $ \ix ->
+                 V.generate ncs $ \jx ->
                    (fromColumn $ cs V.! jx) V.! ix
       in  Right $ Matrix nrs ncs rs
 
@@ -239,8 +247,8 @@ toLists = V.toList . fmap V.toList . toVectors
 
 toColumns :: Matrix a -> Vector (Column a)
 toColumns (Matrix nrs ncs rs) =
-  V.generate (fromIntegral ncs) $ \jx ->
-    Column $ V.generate (fromIntegral nrs) $ \ix ->
+  V.generate ncs $ \jx ->
+    Column $ V.generate nrs $ \ix ->
       rs V.! ix V.! jx
 
 --------------------------------------------------------------------------------
@@ -269,5 +277,5 @@ type instance Element (Matrix a) = Vector a
 instance MonoFunctor (Matrix a) where
   omap f (Matrix nrs ncs rs) = Matrix nrs ncs' rs'
     where
-      ncs' = maybe ncs (fromIntegral . V.length) $ headMay rs'
+      ncs' = maybe ncs V.length $ headMay rs'
       rs' = fmap f rs

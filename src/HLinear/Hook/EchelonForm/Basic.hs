@@ -42,38 +42,30 @@ instance HasNmbCols (EchelonForm a) where
 -- attributes
 --------------------------------------------------------------------------------
 
-offset :: EchelonForm a -> Natural
+offset :: EchelonForm a -> Int
 offset (EchelonForm nrs _ rs)
   | V.null rs = nrs
   | otherwise = EFR.offset $ V.head rs
                       
 at :: AdditiveMonoid a => EchelonForm a -> Int -> Int -> a
 at (EchelonForm nrs ncs rs) ix jx
-  | ix >= nrsZ  = error  "EchelonForm.at: row index out of range"
-  | otherwise   =
+  | ix >= nrs = error  "EchelonForm.at: row index out of range"
+  | otherwise =
       let getFromRow (EchelonFormRow o r) =
-            fromMaybe MS.zero $ r V.!? (jx - fromIntegral o)
+            fromMaybe MS.zero $ r V.!? (jx-o)
       in  maybe MS.zero getFromRow $ rs V.!? ix
-  where
-    nrsZ = fromIntegral nrs
 
 atRow :: AdditiveMonoid a => EchelonForm a -> Int -> Vector a
 atRow (EchelonForm nrs ncs rs) ix
-  | ix >= nrsZ  = error  "EchelonForm.atRow: out of range"
-  | otherwise   = maybe (V.replicate ncsZ MS.zero) EFR.toVector $ rs V.!? ix
-  where
-    nrsZ = fromIntegral nrs
-    ncsZ = fromIntegral ncs
+  | ix >= nrs = error  "EchelonForm.atRow: out of range"
+  | otherwise = maybe (V.replicate ncs MS.zero) EFR.toVector $ rs V.!? ix
 
 atCol :: AdditiveMonoid a => EchelonForm a -> Int -> Vector a
 atCol (EchelonForm nrs ncs rs) ix
-  | ix >= ncsZ = error "EchelonForm.atCol: out of range"
-  | otherwise  = fmap (EFR.! ix) rs
+  | ix >= ncs = error "EchelonForm.atCol: out of range"
+  | otherwise = fmap (EFR.! ix) rs
                  <>
-                 V.replicate (nrsZ - V.length rs) MS.zero
-    where
-      nrsZ = fromIntegral nrs
-      ncsZ = fromIntegral ncs
+                 V.replicate (nrs - V.length rs) MS.zero
 
 --------------------------------------------------------------------------------
 -- container
@@ -97,28 +89,31 @@ instance AdditiveMonoid a => IsMatrix (EchelonForm a) a where
     where
       hrs = fmap EFR.row rs
       rs' = fmap EFR.toVector rs <> zeros
-      zeros = V.replicate (fromIntegral nrs - V.length rs)
-                          (V.replicate (fromIntegral ncs) MS.zero)
+      zeros = V.replicate (nrs - V.length rs) (V.replicate ncs MS.zero)
 
 --------------------------------------------------------------------------------
 -- creation
 --------------------------------------------------------------------------------
 
-zero :: Natural -> Natural -> EchelonForm a
-zero nrs ncs = EchelonForm nrs ncs V.empty
+zero :: Int -> Int -> EchelonForm a
+zero nrs ncs
+  | nrs >= 0 && ncs >= 0 = EchelonForm nrs ncs V.empty
+  | nrs < 0 = error "EchelonForm.zero: negative nrs"
+  | ncs < 0 = error "EchelonForm.zero: negative ncs"
 
-singleton
-  :: Natural -> Vector a
-  -> EchelonForm a
-singleton nrs v = EchelonForm nrs nv $ V.singleton $ EFR.singleton v
-  where
-    nv = fromIntegral $ V.length v
+singleton :: Int -> Vector a -> EchelonForm a
+singleton nrs v
+  | nrs >= 0 = EchelonForm nrs (V.length v) $ V.singleton $ EFR.singleton v
+  | nrs < 0 = error "EchelonForm.singleton: negative nrs"
+
 
 singletonLeadingOne
   :: MultiplicativeMonoid a
-  => Natural -> Vector a
+  => Int -> Vector a
   -> EchelonForm a
-singletonLeadingOne nrs v = singleton nrs $ one `V.cons` v
+singletonLeadingOne nrs v
+  | nrs >= 0 = singleton nrs $ one `V.cons` v
+  | nrs < 0  = error "EchelonForm.singletonLeadingOne: negative nrs"
 
 --------------------------------------------------------------------------------
 -- submatrices
@@ -126,14 +121,12 @@ singletonLeadingOne nrs v = singleton nrs $ one `V.cons` v
 
 splitAt :: Int -> EchelonForm a -> (EchelonForm a, EchelonForm a)
 splitAt ix (EchelonForm nrs ncs rs) =
-  ( EchelonForm ixBN ncs rsTop
+  ( EchelonForm ixB ncs rsTop
   , EchelonForm nrs' ncs rsBottom
   )
   where
-    nrsZ = fromIntegral nrs
-    ixB = min nrsZ $ max 0 ix
-    ixBN = fromIntegral ixB
-    nrs' = fromIntegral $ nrsZ - ixB
+    ixB = min nrs $ max 0 ix
+    nrs' = nrs - ixB
 
     (rsTop,rsBottom) = V.splitAt ix rs
 
@@ -144,23 +137,19 @@ splitAtHook
 splitAtHook (pivotRow,pivotCol) ef@(EchelonForm nrs ncs rs)
   | pivotRow < 0 || pivotCol < 0 =
       splitAtHook (max 0 pivotRow, max 0 pivotCol) ef
-  | pivotRow >= nrsZ || pivotCol >= ncsZ =
-      splitAtHook (min nrsZ pivotRow, min ncsZ pivotCol) ef
+  | pivotRow >= nrs || pivotCol >= ncs =
+      splitAtHook (min nrs pivotRow, min ncs pivotCol) ef
   | otherwise =
-      ( EchelonForm pivotRowN pivotColN rsLeft
-      , Matrix pivotRowN ncs' $ fmap EFR.toVector rsTopRight
+      ( EchelonForm pivotRow pivotCol rsLeft
+      , Matrix pivotRow ncs' $ fmap EFR.toVector rsTopRight
       , EchelonForm nrs' ncs' rsBottomRight
       )
     where
     (rsLeft,rsRight) = V.unzip $ fmap (EFR.splitAt pivotCol) rs
     (rsTopRight,rsBottomRight) = V.splitAt pivotRow rsRight
   
-    nrsZ = fromIntegral nrs
-    ncsZ = fromIntegral ncs
-    nrs' = fromIntegral $ nrsZ - pivotRow
-    ncs' = fromIntegral $ ncsZ - pivotCol
-    pivotRowN = fromIntegral pivotRow
-    pivotColN = fromIntegral pivotCol
+    nrs' = nrs - pivotRow
+    ncs' = ncs - pivotCol
 
 --------------------------------------------------------------------------------
 -- block sums
@@ -179,12 +168,9 @@ blockSum
                    <>
                    V.zipWith EFR.sumRow rs2 zerors
       where
-      nrs'Z = fromIntegral nrs'
-      ncs'Z = fromIntegral ncs'
-
-      (rs1,rs2) = V.splitAt nrs'Z rs
-      zerors = V.replicate (V.length rs2) $
-                V.replicate ncs'Z MS.zero
+        (rs1,rs2) = V.splitAt nrs' rs
+        zerors = V.replicate (V.length rs2) $
+                  V.replicate ncs' MS.zero
 
 blockSumHook
   :: EchelonForm a -> Matrix a -> EchelonForm a
@@ -198,4 +184,4 @@ blockSumHook
   | otherwise  = EchelonForm (nrs+nrs'') (ncs+ncs') $
                    V.zipWith EFR.sumRow rs rs'
                    <>
-                   fmap (EFR.setLength $ fromIntegral $ ncs+ncs'') rs''
+                   fmap (EFR.setLength $ ncs+ncs'') rs''

@@ -60,7 +60,7 @@ properties = pure $
     , testPropertyQC "*. . splitAt ==  *. on vectors" $
         \et v n ->
           let (etLeft,etRight) = ET.splitAt n (et :: EchelonTransformation FMPQ)
-          in     nmbRows etLeft == fromIntegral (max 0 n)
+          in     nmbRows etLeft == max 0 n
               && et *. (v :: M.Column FMPQ) == etRight *. (etLeft *. v)
     , testPropertyQC "* . toMatrix == toMatrix . *" $
         \et et'-> multiplicationAsTopMatrix
@@ -79,7 +79,7 @@ properties = pure $
     [ testPropertyQC "toMatrix * toInverseMatrix" $
         \et -> let m = toMatrix (et :: EchelonTransformation (NMod ctx)) :: Matrix (NMod ctx)
                    mi = toMatrix $ recip et
-                   nrs = fromIntegral $ nmbRows et
+                   nrs = nmbRows et
                in M.isOne $ m * mi
     ]
 
@@ -88,8 +88,8 @@ matrixActionOnTopVector
   :: forall a b
    . ( Eq b, DecidableZero b, Rng b, IsMatrix a b
      , MultiplicativeSemigroupLeftAction a (Column b) )
-  => Natural -> a -> Column b -> Bool
-matrixActionOnTopVector (fromIntegral -> nrs) a c@(Column v)
+  => Int -> a -> Column b -> Bool
+matrixActionOnTopVector nrs a c@(Column v)
   | nv <= nrs =
       let vzero = V.replicate (nrs-nv) zero
           m = toMatrix a :: Matrix b

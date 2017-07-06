@@ -2,18 +2,16 @@ module HLinear.Utility.NmbRowColumn
 where
 
 import Prelude
-import Numeric.Natural ( Natural )
-
 
 class HasNmbRows a where
-  nmbRows :: a -> Natural
+  nmbRows :: a -> Int
   nmbRows = nmbRows'
 
   nmbRows' :: Integral b => a -> b
   nmbRows' = fromIntegral . nmbRows
 
 class HasNmbCols a where
-  nmbCols :: a -> Natural
+  nmbCols :: a -> Int
   nmbCols = nmbCols'
 
   nmbCols' :: Integral b => a -> b

@@ -72,7 +72,7 @@ properties = pure $
             LeftTransformation _ _ ->
               let left = (lt :: LeftTransformation (NMod ctx))
                            *. (v :: LeftTransformationColumn (NMod ctx))
-                  leftZeros = V.replicate (fromIntegral (nmbRows lt) - LTC.length v) zero  
+                  leftZeros = V.replicate (nmbRows lt - LTC.length v) zero  
                   right = fromColumn $ lt *. LTC.toColumn v
               in  leftZeros <> LTC.toVector left == right
             -- the action is partially defined
@@ -100,7 +100,7 @@ properties = pure $
     [ testPropertySnC 2 "toMatrix * toInverseMatrix" $
         \lt -> let m = M.toMatrix (lt :: LeftTransformation (NMod ctx)) :: Matrix (NMod ctx)
                    mi = M.toMatrix $ recip lt
-                   nrs = fromIntegral $ nmbRows lt
+                   nrs = nmbRows lt
                in m * mi == M.one nrs
     ]
 
@@ -109,14 +109,14 @@ matrixActionOnBottomVector
   :: forall a b
    . ( Eq b, IsMatrix a b, Ring b
      , MultiplicativeSemigroupLeftAction a (Column b) )
-  => Natural -> a -> Column b -> Bool
-matrixActionOnBottomVector (fromIntegral -> nrs) a c@(Column v)
+  => Int -> a -> Column b -> Bool
+matrixActionOnBottomVector nrs a c@(Column v)
   | nv <= nrs =
       let vzero = V.replicate (nrs-nv) zero
           m = toMatrix a :: Matrix b
       in  m *. Column (vzero <> v) == a *. c
   | otherwise =
-      let m = M.one (fromIntegral $ nv - fromIntegral nrs) <> toMatrix a :: Matrix b
+      let m = M.one (nv-nrs) <> toMatrix a :: Matrix b
       in  m *. c == a *. c
   where
     nv = V.length v

@@ -67,7 +67,6 @@ import GHC.Exts                          as Import
 import GHC.TypeLits                      as Import
   ( KnownNat, Nat, natVal )
 import Math.Structure                    as Import
-import Numeric.Natural                   as Import
 import System.IO.Unsafe                  as Import
   ( unsafePerformIO )
 import Text.Show                         as Import

@@ -21,27 +21,27 @@ instance Arbitrary a => Arbitrary (Matrix a) where
     NonNegative (Small ncs) <- arbitrary
     rs <- V.replicateM nrs $
           V.replicateM ncs arbitrary
-    return $ Matrix (fromIntegral nrs) (fromIntegral ncs) rs
+    return $ Matrix nrs ncs rs
 
   shrink (Matrix nrs ncs rs)
     | nrs <= 1 || ncs <= 1 = []
     | otherwise =
       fmap ($rs)
-      [ Matrix nrs ncsD2 . fmap (V.take $ fromIntegral ncsD2)
-      , Matrix nrs ncsR2 . fmap (V.drop $ fromIntegral ncsD2)
-      , Matrix nrsD2 ncs . V.take (fromIntegral nrsD2)
-      , Matrix nrsR2 ncs . V.drop (fromIntegral nrsD2)
+      [ Matrix nrs ncsD2 . fmap (V.take ncsD2)
+      , Matrix nrs ncsR2 . fmap (V.drop ncsD2)
+      , Matrix nrsD2 ncs . V.take nrsD2
+      , Matrix nrsR2 ncs . V.drop nrsD2
       ]
       <>
       [ Matrix nrs ncs $
           V.update rs $ V.singleton
             ( ix, V.update (rs V.! ix) $ V.singleton (jx, e) )
-      | ix <- [0..fromIntegral nrs-1]
-      , jx <- [0..fromIntegral ncs-1]
+      | ix <- [0..nrs-1]
+      , jx <- [0..ncs-1]
       , e  <- shrink $ rs V.! ix V.! jx
       ]
       where
         nrsD2 = nrs `P.div` 2
-        nrsR2 = nrs P.- nrsD2
+        nrsR2 = nrs - nrsD2
         ncsD2 = ncs `P.div` 2
-        ncsR2 = ncs P.- ncsD2
+        ncsR2 = ncs - ncsD2

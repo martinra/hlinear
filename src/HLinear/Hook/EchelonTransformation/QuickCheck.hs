@@ -31,7 +31,7 @@ instance    (DecidableZero a, Arbitrary a)
             c <- V.replicateM (nrs-jx-1) arbitrary
             return $ EchelonTransformationColumn jx c
               
-    return $ EchelonTransformation (fromIntegral nrs) cs
+    return $ EchelonTransformation nrs cs
 
   shrink et@(EchelonTransformation nrs cs)
     | nrs <= 1 || V.length cs <= 1 = []
@@ -42,9 +42,8 @@ instance    (DecidableZero a, Arbitrary a)
         , c <- shrinkColumn $ cs V.! jx
         ]
         where
-          nrsZ = fromIntegral nrs
           ncs = V.length cs
-          (etLeft,etRight) = ET.splitAt (fromIntegral $ nrsZ - (ncs `P.div` 2)) et
+          (etLeft,etRight) = ET.splitAt (nrs - (ncs `P.div` 2)) et
 
           shrinkColumn (EchelonTransformationColumn s c) =
             [ EchelonTransformationColumn s $ V.update c $ V.singleton (ix,e)

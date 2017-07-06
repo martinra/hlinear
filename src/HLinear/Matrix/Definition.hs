@@ -1,8 +1,7 @@
 module HLinear.Matrix.Definition
 where
 
-import Data.Vector ( Vector )
-import Numeric.Natural ( Natural )
+import HLinear.Utility.Prelude
 
 
 -- | Matrix a models the space of all matrices
@@ -11,10 +10,10 @@ import Numeric.Natural ( Natural )
 -- even zero cannot be defined for all the spaces
 -- simultaneously.
 data Matrix a =
-  Matrix { _nmbRows :: !Natural
-         , _nmbCols  :: !Natural
-         , _rows :: Vector (Vector a)
-         }
+  Matrix
+    !Int                 -- number of rows
+    !Int                 -- number of columns
+    !(Vector (Vector a)) -- rows from top to bottom
 
 class IsMatrix a b where
   toMatrix :: a -> Matrix b

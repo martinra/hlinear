@@ -47,7 +47,7 @@ instance ( Ring a, Arbitrary a, Arbitrary (Unit a) )
           c <- V.replicateM (nrs-jx-1) arbitrary
           return $ LeftTransformationColumn jx a c
                   
-        return $ LeftTransformation (fromIntegral nrs) cs
+        return $ LeftTransformation nrs cs
 
   shrink lt@(LeftTransformation nrs cs)
     | nrs <= 1 || V.length cs <= 1 = []
@@ -59,7 +59,7 @@ instance ( Ring a, Arbitrary a, Arbitrary (Unit a) )
         ]
         where
           ncs = V.length cs
-          (ltLeft,ltRight) = LT.splitAt (fromIntegral $ ncs `P.div` 2) lt
+          (ltLeft,ltRight) = LT.splitAt (ncs `P.div` 2) lt
 
           shrinkColumn (LeftTransformationColumn s a c) =
             [ LeftTransformationColumn s a' c | a' <- shrink a ]

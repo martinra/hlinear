@@ -1,7 +1,6 @@
 module HLinear.Matrix.Naive
 where
 
-import qualified Prelude as P
 import HLinear.Utility.Prelude hiding ( recip )
 
 import qualified Data.Vector as V
@@ -12,7 +11,7 @@ import HLinear.Matrix.Definition
 
 
 minor :: Int -> Int -> Matrix a -> Matrix a
-minor ix jx (Matrix nrs ncs rs) = Matrix (nrs P.- 1) (ncs P.- 1) rs'
+minor ix jx (Matrix nrs ncs rs) = Matrix (nrs-1) (ncs-1) rs'
   where
     splitAt kx = second V.tail . V.splitAt kx 
     splitRows = V.unzip . fmap (splitAt jx)
@@ -26,7 +25,7 @@ det m@(Matrix nrs ncs rs)
   | nrs == 0   = one
   | nrs == 1   = rs V.! 0 V.! 0
   | otherwise  = foldl' (+) zero $
-                   V.generate (fromIntegral nrs) $ \ix ->
+                   V.generate nrs $ \ix ->
                      ((rs V.! ix V.! 0) *) $
                      (if even ix then id else negate) $
                      det $ minor ix 0 m
@@ -44,6 +43,6 @@ recipSafe m@(Matrix nrs ncs rs)
   | otherwise  = do
       recipDet <- fromUnit <$> MS.recip <$> toUnitSafe (det m)
       return $ Matrix nrs ncs $
-        V.generate (fromIntegral nrs) $ \ix ->
-          V.generate (fromIntegral ncs) $ \jx ->
+        V.generate nrs $ \ix ->
+          V.generate ncs $ \jx ->
             (if even (ix+jx) then id else negate) $ recipDet * det (minor jx ix m)

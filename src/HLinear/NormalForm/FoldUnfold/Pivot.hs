@@ -15,4 +15,4 @@ pivotNonZeroPermutation
   => Matrix a -> Maybe RPermute
 pivotNonZeroPermutation (Matrix nrs ncs rs) = do
   pIx <- V.findIndex (not . isZero . V.head) rs
-  return $ RP.fromTransposition (fromIntegral nrs) (0,pIx)
+  return $ RP.fromTransposition nrs (0,pIx)

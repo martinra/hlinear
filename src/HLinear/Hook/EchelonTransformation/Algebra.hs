@@ -25,25 +25,22 @@ instance    Ring a
   et@(EchelonTransformation nrs cs) * et'@(EchelonTransformation nrs' cs')
     | ncs  == 0 = et'
     | ncs' == 0 = et
-    | nrsZ - ncs >= nrs'Z = 
-        let etcOnes = fmap (ETC.one nrsZ) $
-                        V.enumFromN ncs (nrsZ - ncs - nrs'Z)
-            cs'Shifted = fmap (ETC.adjustOffset (+(nrsZ-nrs'Z))) cs' 
+    | nrs - ncs >= nrs' = 
+        let etcOnes = fmap (ETC.one nrs) $
+                        V.enumFromN ncs (nrs - ncs - nrs')
+            cs'Shifted = fmap (ETC.adjustOffset (+(nrs-nrs'))) cs' 
         in EchelonTransformation nrs $ cs <> etcOnes <> cs'Shifted
-    | nrsZ <= nrs'Z - ncs' =
+    | nrs <= nrs' - ncs' =
         EchelonTransformation nrs' (fmap (et*.) cs') * et
-    | nrs <= nrs' && nrsZ-ncs >= nrs'Z-ncs' =
+    | nrs <= nrs' && nrs-ncs >= nrs'-ncs' =
         EchelonTransformation nrs' (fmap (et*.) cs')
     | otherwise =
-        let (etLeftMiddle,etRight) = ET.splitAt nrs'Z et
-            (etLeft,etMiddle) = ET.splitAt (nrs'Z-ncs') etLeftMiddle
+        let (etLeftMiddle,etRight) = ET.splitAt nrs' et
+            (etLeft,etMiddle) = ET.splitAt (nrs'-ncs') etLeftMiddle
         in etRight * (etMiddle * (etLeft * et'))
     where
       ncs = V.length cs
       ncs' = V.length cs'
-
-      nrsZ = fromIntegral nrs
-      nrs'Z = fromIntegral nrs'
 
 instance    Ring a
          => MultiplicativeSemigroup (EchelonTransformation a)
@@ -68,7 +65,7 @@ instance    ( Ring a, DecidableZero a )
         initLt = EchelonTransformation nrs V.empty
         columnLTs = fmap go cs
         go (EchelonTransformationColumn _ c) =
-          EchelonTransformation (fromIntegral $ succ $ V.length c) $
+          EchelonTransformation (1 + V.length c) $
                                 V.singleton $ EchelonTransformationColumn 0 c
 
 --------------------------------------------------------------------------------
@@ -81,11 +78,8 @@ instance ( Ring a, LinearSemiringLeftAction a b )
   where
   -- we fill the vector v with zeros from the bottom
   lt@(EchelonTransformation nrs cs) *. (Column v) = Column $
-    V.foldr' applyCol v $ V.drop nrsDiff cs
+    V.foldr' applyCol v $ V.drop (nrs - V.length v) cs
     where
-      nv = V.length v
-      nrsDiff = fromIntegral nrs - nv
-  
       -- this assumes that vn is longer than v'
       {-# INLINE applyCol #-}
       applyCol c@(EchelonTransformationColumn o' v') vn =
@@ -126,12 +120,8 @@ instance  Ring a
   et@(EchelonTransformation nrs cs) *. etc@(EchelonTransformationColumn s v) =
     EchelonTransformationColumn s v'
     where
-      nv = fromIntegral $ V.length v
-      ncs = V.length cs
-      nrsZ = fromIntegral nrs
-
       etv = fromColumn $ et *. Column v
-      v' = case cs V.!? (nrsZ-1-nv) of
+      v' = case cs V.!? (nrs - 1 - V.length v) of
              Nothing -> etv
              Just c  -> V.zipWith (+) etv (ETC.init c)
 

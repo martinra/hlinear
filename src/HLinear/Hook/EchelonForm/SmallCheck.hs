@@ -4,7 +4,6 @@ where
 import HLinear.Utility.Prelude
 
 import Math.Structure ( isZero, nonZero, DecidableZero )
-import Test.Natural ()
 import Test.SmallCheck.Series ( Serial, Series(..), series, decDepth )
 import qualified Data.Vector as V
 
@@ -18,16 +17,17 @@ instance    (Monad m, Serial m a, DecidableZero a)
   where
   series = do
     lrs <- series
+    guard $ lrs >= 0
     nrs <- series
-    guard $ lrs <= nrs
+    guard $ nrs >= lrs
     ncs <- series
   
     EchelonForm nrs ncs <$>
-      ( V.replicateM (fromIntegral lrs) $ decDepth $ do
+      ( V.replicateM lrs $ decDepth $ do
           o <- series
-          guard $ o <= ncs
+          guard $ 0 >= 0 && ncs >= o
           EchelonFormRow o <$>
-            ( V.replicateM (fromIntegral ncs - fromIntegral o) $
+            ( V.replicateM (ncs-o) $
               decDepth $ decDepth series
             )
       )
