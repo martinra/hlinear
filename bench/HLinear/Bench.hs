@@ -6,60 +6,47 @@
 module Main
 where
 
-import qualified Prelude as P
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
+import HLinear.Utility.Prelude
 
-import Control.DeepSeq ( NFData )
-import Control.Exception ( tryJust )
-import Control.Monad ( guard )
+import Data.Attoparsec ( parseOnly )
+import Data.ByteString ( readFile )
 import Criterion.Main
 import Criterion.Types ( Config(..), Verbosity(..) )
-import qualified Data.Binary as B
-import Data.Maybe
-import Data.Proxy
-import qualified Data.Vector as V
-import Data.Tuple.Select ( sel3 )
-import Math.Structure
-import Numeric.Natural
-import System.FilePath
-import System.IO.Error ( isDoesNotExistError )
+import Options.Applicative
+import System.FilePath ( FilePath )
+import System.IO ( IO, hPutStrLn, stderr )
+import qualified System.FilePath as FP
 
-import HFlint.FMPQ
-import qualified HFlint.FMPQMat as FMPQMat
-import HFlint.NMod
+import HLinear.Bench.MatrixParser ( matrixFMPQParser )
+import HLinear.Matrix ( Matrix )
+import qualified HLinear.NormalForm.FoldUnfold.PLE.DivisionRing as PLEDR
+import qualified HLinear.NormalForm.FoldUnfold.PLE.FractionFree as PLEFF
+import qualified HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.DivisionRing as RREF
 
-import HLinear.Bench.Example
-  ( increasingFractionsMatrix
-  , uniformRandomMatrixQQbd
-  , uniformRandomMatrixQQbdLE
-  )
-import HLinear.Bench.Conversion ( toFMPQMat )
-import HLinear.Matrix as M
-import HLinear.PLE.Hook as Hk
-import HLinear.PLE.Hook.EchelonForm as EF
-import HLinear.PLE.ReducedEchelonForm as REF
-import HLinear.PLE
+
+inputFileNameOption :: Parser String
+inputFileNameOption =
+  argument str (metavar "INPUT_FILENAME")
+
 
 main :: IO ()
-main = defaultMainWith
-  defaultConfig { csvFile = Just "benchmarks.csv" } $
-  [ env (matenv mx) $ \mat ->
-      bench ("rref" ++ show mx) $ nf rref mat
-  | mx <- [1..maxmx]
-  ] ++
-  [ env (toFMPQMat <$> matenv mx) $ \mat ->
-      bench ("FLINTrref" ++ show mx) $ nf rref mat
-  | mx <- [1..maxmx]
-  ]
-  where
-    matenv mx = uniformRandomMatrixQQbd   mx nrs ncs snum nden sden 
-    maxmx = 50
-    nrs = 100
-    ncs = 1000
-    snum = 20
-    nden = 4
-    sden = 2
+main =
+  let opts = info (inputFileNameOption <**> helper)
+               ( fullDesc
+              <> progDesc "Benchmark HLinear for matrix in INPUT_FILENAME"
+              <> header "bench-hlinear" )
+  in do
+    inputFileName <- execParser opts
+    matrixString <- readFile inputFileName
+    case parseOnly matrixFMPQParser matrixString of
+      Left err -> hPutStrLn stderr $ "Parse error of '" <> inputFileName <> "': " <> err
+      Right mat -> mainBenchmark inputFileName mat
+
+mainBenchmark :: FilePath -> Matrix FMPQ -> IO ()
+mainBenchmark fileName mat =
+  defaultMainWith
+  defaultConfig { jsonFile = Just $ fileName FP.<.> "json" }
+    [ bench "ple classical"     $ nf PLEDR.ple mat
+    , bench "ple fraction free" $ nf PLEFF.ple mat
+    , bench "rref" $ nf RREF.rref mat
+    ]

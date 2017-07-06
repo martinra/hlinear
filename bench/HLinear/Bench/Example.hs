@@ -36,78 +36,30 @@ import HLinear.Bench.Random
 import HLinear.PLE as PLE
 import HLinear.Matrix as M
 
---------------------------------------------------------------------------------
--- special matrices
---------------------------------------------------------------------------------
-
-increasingFractionsMatrix
-  :: ( Binary a, Fractional a, Ring a )
-  => Natural -> Natural -> IO (Matrix a)
-increasingFractionsMatrix nrs ncs = do
-  B.encodeFile fileName m
-  eitherMat <- tryJust ( guard . isDoesNotExistError ) $ B.decodeFile fileName
-  case eitherMat of
-    Left _   -> return m
-    Right m' -> return m'
-
-  where
-    fileName = "." </> "bench_data" </> "mat_inc23_nrs" ++ show nrs ++ "_ncs" ++ show ncs <.> "mat"
-
-    nrsZ = fromIntegral nrs
-    ncsZ = fromIntegral ncs
-    m = M.fromVectorsUnsafe' nrs ncs $
-      V.generate nrsZ $ \ix ->
-      V.generate ncsZ $ \jx ->
-        let ixQ = fromIntegral ix
-            jxQ = fromIntegral jx
-            ncsQ = fromIntegral ncs
-        in (ixQ^2 + 2) P./ ((ncsQ-jxQ)^3 + 1)
 
 --------------------------------------------------------------------------------
 -- matrices with uniformly distributed entries
 --------------------------------------------------------------------------------
 
 uniformRandomMatrixQQbd
-  :: Int -> Natural -> Natural -> Natural -> Natural -> Natural -> IO (Matrix Rational)
-uniformRandomMatrixQQbd mx nrs ncs snum nden sden =
-  loadOrCreate
-    ( rMatrixQQbd nrs ncs
-        (uniformFromSize snum)
-        nden (uniformPositiveFromSize sden)
-    ) $
-    "." </> "bench_data" </>
-       "mat_qqdb_mx" ++ show mx
-    ++ "_nrs" ++ show nrs ++ "_ncs" ++ show ncs
-    ++ "_snum" ++ show snum
-    ++ "_nden" ++ show nden ++ "_sden" ++ show sden <.> "mat"
+  :: Natural -> Natural -> Natural -> Natural -> Natural -> IO (Matrix Rational)
+uniformRandomMatrixQQbd nrs ncs snum nden sden =
+  ( rMatrixQQbd nrs ncs
+      (uniformFromSize snum)
+      nden (uniformPositiveFromSize sden)
+  ) `runRVar` (getRandom :: IO Word64)
 
 uniformRandomMatrixQQbdLE
-  :: Int -> Natural -> Natural -> Natural -> Natural -> Natural -> IO (Matrix Rational)
-uniformRandomMatrixQQbdLE mx nrs ncs snum nden sden =
-  loadOrCreate
-    ( rMatrixQQbdLE nrs ncs
-        (uniformFromSize snum)
-        nden (uniformPositiveFromSize sden)
-    ) $
-    "." </> "bench_data" </>
-       "mat_qqdble_mx" ++ show mx
-    ++ "_nrs" ++ show nrs ++ "_ncs" ++ show ncs
-    ++ "_snum" ++ show snum
-    ++ "_nden" ++ show nden ++ "_sden" ++ show sden <.> "mat"
+  :: Natural -> Natural -> Natural -> Natural -> Natural -> IO (Matrix Rational)
+uniformRandomMatrixQQbdLE nrs ncs snum nden sden =
+  ( rMatrixQQbdLE nrs ncs
+      (uniformFromSize snum)
+      nden (uniformPositiveFromSize sden)
+  ) `runRVar` (getRandom :: IO Word64)
 
 --------------------------------------------------------------------------------
 -- utility
 --------------------------------------------------------------------------------
-
-loadOrCreate :: Binary a => RVar a -> FilePath -> IO a
-loadOrCreate a fileName = do
-  eitherMat <- tryJust ( guard . isDoesNotExistError ) $ B.decodeFile fileName
-  case eitherMat of
-    Left _   -> do
-      a' <- runRVar a (getRandom :: IO Word64)
-      B.encodeFile fileName a'
-      return a'
-    Right a' -> return a'
 
 uniformFromSize :: Natural -> Uniform Integer
 uniformFromSize s = Uniform (-u) u
@@ -116,3 +68,22 @@ uniformFromSize s = Uniform (-u) u
 
 uniformPositiveFromSize :: Natural -> Uniform Natural
 uniformPositiveFromSize s = Uniform 1 $ shiftL 1 (8 * fromIntegral s)
+    
+storeMatrices
+  :: FilePath -> Int -> IO (Matrix Rational) -> IO ()
+storeMatrices path nmb mat =
+  V.generateM nmb $ \mx ->
+    let filepath = "." </> path </>
+             "matfmpq_bdden_mx" <> show mx
+          <> "_nrs" <> show nrs <> "_ncs" <> show ncs
+          <> "_snum" <> show snum
+          <> "_nden" <> show nden <> "_sden" <> show sden <.> "mat"
+    in  mat >>= writeFile filepath . showMatrixFMPQ
+
+--      matenv mx = uniformRandomMatrixQQbd   mx nrs ncs snum nden sden 
+--      maxmx = 50
+--      nrs = 100
+--      ncs = 1000
+--      snum = 20
+--      nden = 4
+--      sden = 2
