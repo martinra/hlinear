@@ -1,8 +1,6 @@
-{-# LANGUAGE
-    ScopedTypeVariables
-  , TemplateHaskell
-  , UndecidableInstances
-  #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module HLinear.Matrix.Algebra
 where

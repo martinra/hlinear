@@ -1,5 +1,3 @@
-{-# LANGUAGE UndecidableInstances #-}
-
 module HLinear.Hook.PLEHook.Algebra
 where
 
@@ -15,11 +13,8 @@ import HLinear.Utility.RPermute ()
 import qualified HLinear.Hook.EchelonForm.Algebra as EF
 
 
-instance ( Ring a, MultiplicativeGroup (Unit a) )
-  => MultiplicativeMagma (PLEHook a)
-  where
+instance Ring a => MultiplicativeMagma (PLEHook a) where
   (PLEHook p lt ef) * (PLEHook p' lt' ef') =
     PLEHook (p'*p) (lt' * (p' *. lt)) (ef + ef')
 
-instance ( Ring a, MultiplicativeGroup (Unit a) )
-  => MultiplicativeSemigroup (PLEHook a)
+instance Ring a => MultiplicativeSemigroup (PLEHook a)

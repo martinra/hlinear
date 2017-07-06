@@ -103,8 +103,7 @@ instance Ring a
   where
   one = LeftTransformation 0 V.empty
 
-instance ( Ring a
-         , DecidableZero a, DecidableOne (Unit a) )
+instance ( Ring a, DecidableZero a, DecidableOne (Unit a) )
   => DecidableOne (LeftTransformation a)
   where
   isOne (LeftTransformation nrs cs) =

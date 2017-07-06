@@ -1,5 +1,3 @@
-{-# LANGUAGE UndecidableInstances #-}
-
 module HLinear.Matrix.Invertible
 where
 
@@ -33,7 +31,7 @@ instance
     | otherwise  = False
 
 instance
-     ( Ring a, DecidableZero a, DecidableUnit a, MultiplicativeGroup (Unit a), HasRREF a )
+     ( Ring a, DecidableZero a, DecidableUnit a, HasRREF a )
   => MultiplicativeGroup (Unit (Matrix a))
   where
   recip (Unit m) =

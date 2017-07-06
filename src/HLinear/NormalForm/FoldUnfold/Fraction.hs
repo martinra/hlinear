@@ -3,7 +3,6 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-
 module HLinear.NormalForm.FoldUnfold.Fraction
 where
 
