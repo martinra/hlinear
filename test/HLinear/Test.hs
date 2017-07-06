@@ -26,7 +26,7 @@ main =
   defaultMainWithIngredients
   [ rerunningTests [ listingTests, consoleTestReporter ] ] $
   testGroup "HLinear Tests"
-    [ Matrix.tests
+    [ Matrix.tests `runReader` proxy
     , Hook.tests `runReader` proxy 
-    , NormalForm.tests
+    , NormalForm.tests `runReader` proxy 
     ]

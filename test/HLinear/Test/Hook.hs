@@ -2,6 +2,7 @@ module HLinear.Test.Hook
 where
 
 import HLinear.Utility.Prelude
+
 import Test.Tasty
 
 import qualified HLinear.Test.Hook.EchelonForm as EF

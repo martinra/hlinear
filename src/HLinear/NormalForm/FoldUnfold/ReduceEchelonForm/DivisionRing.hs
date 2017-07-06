@@ -41,7 +41,7 @@ reduceEchelonForm ef =
     Just (er, efp') ->
       let ERHook et' _ ef' = V.foldl (*) er $
                                V.unfoldr reduceLastPivot efp'
-      in  RREF et' ef'
+      in  RREF (ET.fitSize (fromIntegral nrs) et') ef'
   where
     nrs = nmbRows ef
     ncs = nmbCols ef
@@ -61,7 +61,7 @@ reduceLastPivot ( ef@(EchelonForm nrs ncs _), PivotStructure pivots )
           -- since we reduce EchelonForms over a division ring,
           -- the pivot entry is one
           pivotTop = fmap V.head efTopRight 
-          pivotTopNormalization =  pivotTop
+          pivotTopNormalization = pivotTop
 
           et = ET.singleton $ fmap negate pivotTopNormalization
 

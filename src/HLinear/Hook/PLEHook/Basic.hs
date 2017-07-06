@@ -8,13 +8,13 @@ import HLinear.Utility.Prelude hiding ( one )
 import qualified Math.Structure as MS
 
 import HLinear.Hook.PLEHook.Definition ( PLEHook(..) )
-import HLinear.Utility.RPermute ( RPermute )
+import HLinear.Utility.RPermute ( RPermute, rpermute )
 import qualified HLinear.Hook.EchelonForm.Basic as EF
 import qualified HLinear.Hook.LeftTransformation.Basic as LT
 
 
 one :: Natural -> Natural -> PLEHook a
-one nrs ncs = PLEHook MS.one (LT.one nrs) (EF.zero nrs ncs)
+one nrs ncs = PLEHook (rpermute $ fromIntegral nrs) (LT.one nrs) (EF.zero nrs ncs)
 
 --------------------------------------------------------------------------------
 -- container

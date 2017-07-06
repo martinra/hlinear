@@ -23,9 +23,7 @@ import qualified HLinear.Hook.LeftTransformation as LT
 import qualified HLinear.Utility.RPermute as RP
 
 
-type HasPLE a = 
-  ( DivisionRing a, DecidableZero a, DecidableUnit a
-  , MultiplicativeGroup (Unit a) )
+type HasPLE a = ( DivisionRing a, DecidableZero a, DecidableUnit a )
 
 
 ple :: HasPLE a => Matrix a -> PLEHook a

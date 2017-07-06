@@ -1,7 +1,3 @@
-{-# LANGUAGE
-    DataKinds
-  #-}
-
 module HLinear.Test.Matrix.Basic
 where
 

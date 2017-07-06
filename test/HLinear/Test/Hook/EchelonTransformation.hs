@@ -1,5 +1,4 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE ViewPatterns #-}
 
 module HLinear.Test.Hook.EchelonTransformation
 where
@@ -14,9 +13,9 @@ import Test.Tasty.HUnit ( testCase, (@?=) )
 import qualified Data.Vector as V
 
 import HLinear.Hook.EchelonTransformation ( EchelonTransformation(..), EchelonTransformationColumn(..) )
-import qualified HLinear.Hook.EchelonTransformation as ET
 import HLinear.Matrix ( Matrix(..), IsMatrix(..), Column(..) )
 import HLinear.Utility.NmbRowColumn ( nmbRows )
+import qualified HLinear.Hook.EchelonTransformation as ET
 import qualified HLinear.Matrix as M
 
 

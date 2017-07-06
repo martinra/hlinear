@@ -1,15 +1,17 @@
 module HLinear.Test.NormalForm
 where
 
+import HLinear.Utility.Prelude
+
 import Test.Tasty
 
-import qualified HLinear.Test.NormalForm.PLE.DivisionRing as PLEDR
-import qualified HLinear.Test.NormalForm.RREF.DivisionRing as RREFDR
+import qualified HLinear.Test.NormalForm.FoldUnfold.PLE as PLE
+import qualified HLinear.Test.NormalForm.FoldUnfold.RREF as RREF
 
 
-tests :: TestTree
+tests :: ReifiesNModContext ctx => Reader (Proxy ctx) TestTree
 tests =
-  testGroup "Normal Form Tests"
-  [ PLEDR.properties
-  , RREFDR.properties
+  testGroup "Normal Form Tests" <$> sequence
+  [ PLE.properties
+  , RREF.properties
   ]

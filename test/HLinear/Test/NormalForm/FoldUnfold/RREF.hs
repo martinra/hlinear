@@ -1,14 +1,9 @@
-{-# LANGUAGE
-    FlexibleContexts
-  , Rank2Types
-  , ScopedTypeVariables
-  #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module HLinear.Test.NormalForm.FoldUnfold.RREF
 where
 
 import HLinear.Utility.Prelude
-import qualified Prelude as P
 
 import Math.Structure.Tasty
 import Test.Tasty
@@ -30,5 +25,5 @@ properties = pure $
   [ testPropertyQSnC 2
     "recombine over division rings" $
     \m -> let PLREHook p l r e = rref (m :: Matrix (NMod ctx))
-          in  m == toMatrix p * toMatrix l * toMatrix r * toMatrix e
+          in  toMatrix r * toMatrix l * toMatrix p * m == toMatrix e
   ]

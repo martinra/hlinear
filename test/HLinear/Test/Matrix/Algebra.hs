@@ -1,6 +1,4 @@
-{-# LANGUAGE
-    DataKinds
-  #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module HLinear.Test.Matrix.Algebra
 where
@@ -12,8 +10,11 @@ import Math.Structure.Tasty
 import Test.Tasty
 
 
-properties :: TestTree
-properties =
+properties
+  :: forall ctx
+  .  ReifiesNModContext ctx
+  => Reader (Proxy ctx) TestTree
+properties = pure $
   testGroup "Algebraic properties"
     [ testGroup "Matrices of size 3 x 5" $ runTestsQC
       [ isAdditiveSemigroup ( Proxy :: Proxy (MatrixSized 3 5 FMPZ) ) ]
@@ -22,12 +23,12 @@ properties =
     , testGroup "Matrices of size 2 x 2" $ runTestsQC
       [ isRing ( Proxy :: Proxy (MatrixSized 2 2 FMPQ) ) ]
     , testGroup "Matrices of size 3 x 3" $ runTestsQC
-      [ isRing ( Proxy :: Proxy (MatrixSized 3 3 FMPQ) ) ]
+      [ isRing ( Proxy :: Proxy (MatrixSized 3 3 (NMod ctx)) ) ]
     , testGroup "Matrices of size 9 x 9" $ runTestsQC
-      [ isRing ( Proxy :: Proxy (MatrixSized 9 9 FMPQ) ) ]
+      [ isRing ( Proxy :: Proxy (MatrixSized 9 9 (NMod ctx)) ) ]
     , testGroup "Matrices of size 3 x 3 acting on 3 x 5" $ runTestsQC
       [ isMultiplicativeLeftAction
-          ( Proxy :: Proxy ( MatrixSized 3 3 FMPQ ) )
-          ( Proxy :: Proxy ( MatrixSized 3 5 FMPQ ) )
+          ( Proxy :: Proxy (MatrixSized 3 3 (NMod ctx)) )
+          ( Proxy :: Proxy (MatrixSized 3 5 (NMod ctx)) )
       ]
     ]

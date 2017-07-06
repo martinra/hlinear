@@ -20,12 +20,12 @@ properties
   => Reader (Proxy ctx) TestTree
 properties = pure $
   testGroup "FoldUnfold-PLE properties"
-  [ testPropertyQSnC 2
+  [ testPropertyQSnC 3
     "recombine over division rings" $
     \m -> let PLEHook p l e = DR.ple (m :: Matrix (NMod ctx))
-          in  m == toMatrix p * toMatrix l * toMatrix e
+          in  toMatrix l * toMatrix p * m == toMatrix e
   , testPropertySnC 2
     "recombine fraction free" $
     \m -> let PLEHook p l e = FF.ple (m :: Matrix FMPQ)
-          in  m == toMatrix p * toMatrix l * toMatrix e
+          in  toMatrix l * toMatrix p * m == toMatrix e
   ]

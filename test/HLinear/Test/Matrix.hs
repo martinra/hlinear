@@ -1,24 +1,20 @@
-{-# LANGUAGE
-    FlexibleContexts
-  #-}
-
 module HLinear.Test.Matrix
 where
 
+import HLinear.Utility.Prelude
+
 import qualified Data.Vector as V
-import Test.Tasty ( testGroup,
-                    TestTree
-                  )
+import Test.Tasty
 
 import qualified HLinear.Test.Matrix.Algebra as Algebra 
 import qualified HLinear.Test.Matrix.Basic as Basic 
 import qualified HLinear.Test.Matrix.QSTests as QSTests
 
 
-tests :: TestTree
+tests :: ReifiesNModContext ctx => Reader (Proxy ctx) TestTree
 tests =
-  testGroup "Matrix tests"
-  [ QSTests.unitTests
+  testGroup "Matrix tests" <$> sequence
+  [ pure QSTests.unitTests
   , Algebra.properties
-  , Basic.properties
+  , pure Basic.properties
   ]

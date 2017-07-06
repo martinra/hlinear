@@ -15,6 +15,21 @@ import qualified HLinear.Hook.EchelonTransformation.Column as ETC
 
 
 --------------------------------------------------------------------------------
+-- resizing
+--------------------------------------------------------------------------------
+
+fitSize :: Ring a => Int -> EchelonTransformation a -> EchelonTransformation a
+fitSize n lt@(EchelonTransformation nrs cs)
+  | nrsZ >= n = lt
+  | otherwise =
+      let szDiff = n-nrsZ
+          cs' = fmap (ETC.adjustOffset (+szDiff)) cs
+          cszero = V.generate szDiff (ETC.one n) 
+      in  EchelonTransformation (fromIntegral n) $ cszero <> cs'
+  where
+    nrsZ = fromIntegral nrs
+
+--------------------------------------------------------------------------------
 -- rows and columns
 --------------------------------------------------------------------------------
 

@@ -18,6 +18,9 @@ import qualified HLinear.Hook.LeftTransformation.Column as LTC
 import HLinear.Hook.LeftTransformation.Definition
 import HLinear.Utility.RPermute
 
+--------------------------------------------------------------------------------
+-- resizing
+--------------------------------------------------------------------------------
 
 minimizeSize :: ( DecidableZero a, DecidableOne a )
              => LeftTransformation a -> LeftTransformation a
