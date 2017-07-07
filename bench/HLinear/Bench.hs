@@ -42,7 +42,7 @@ main =
 
 mainBenchmark :: FilePath -> Matrix FMPQ -> IO ()
 mainBenchmark fileName mat =
-  let cfg = defaultConfig { jsonFile = Just $ fileName FP.<.> "json" }
+  let cfg = defaultConfig { jsonFile = Just $ fileName FP.<.> "criterion" FP.<.> "json" }
   in  runMode (Criterion.Run cfg Criterion.Prefix [])
         [ bench "ple classical"     $ nf PLEDR.ple mat
         , bench "ple fraction free" $ nf PLEFF.ple mat
