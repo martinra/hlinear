@@ -8,7 +8,7 @@ where
 
 import HLinear.Utility.Prelude
 
-import Data.Attoparsec ( parseOnly )
+import Data.Attoparsec.ByteString.Char8 ( parseOnly )
 import Data.ByteString ( readFile )
 import Criterion.Main
 import Criterion.Types ( Config(..), Verbosity(..) )

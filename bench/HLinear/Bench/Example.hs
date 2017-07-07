@@ -4,36 +4,24 @@
 module HLinear.Bench.Example
 where
 
-import qualified Prelude as P
-import Prelude hiding ( (+), (-), negate, subtract
-                      , (*), (/), recip, (^), (^^)
-                      , gcd
-                      , quotRem, quot, rem
-                      )
+import HLinear.Utility.Prelude
 
 import Control.Exception ( tryJust )
 import Control.Monad ( guard )
 import Control.Monad.Random ( getRandom )
-import qualified Data.Binary as B
-import Data.Binary ( Binary )
 import Data.Bits ( shiftL )
-import Data.Maybe
-import Data.Proxy
 import Data.Random ( runRVar, RVar, Uniform(..), StdUniform(..) )
-import qualified Data.Vector as V
+import Data.Ratio ( Rational )
 import Data.Word ( Word64 )
-import Math.Structure
-import Numeric.Natural
-import System.FilePath
-import System.IO.Error ( isDoesNotExistError )
-
-import HFlint.FMPQ
-import HFlint.NMod ( ReifiesNModContext, NMod(..), Modulus(..), modulus )
+import Numeric.Natural ( Natural )
+import System.IO ( IO, writeFile )
+import System.FilePath ( FilePath, (<.>), (</>) )
 
 import HLinear.Bench.Random
   ( rMatrix, rMatrixQQbd, rMatrixQQbdLE
   )
-import HLinear.PLE as PLE
+import HLinear.Bench.MatrixParser ( showMatrixRational )
+import HLinear.NormalForm.PLE as PLE
 import HLinear.Matrix as M
 
 
@@ -42,7 +30,7 @@ import HLinear.Matrix as M
 --------------------------------------------------------------------------------
 
 uniformRandomMatrixQQbd
-  :: Natural -> Natural -> Natural -> Natural -> Natural -> IO (Matrix Rational)
+  :: Int -> Int -> Natural -> Natural -> Natural -> IO (Matrix Rational)
 uniformRandomMatrixQQbd nrs ncs snum nden sden =
   ( rMatrixQQbd nrs ncs
       (uniformFromSize snum)
@@ -50,7 +38,7 @@ uniformRandomMatrixQQbd nrs ncs snum nden sden =
   ) `runRVar` (getRandom :: IO Word64)
 
 uniformRandomMatrixQQbdLE
-  :: Natural -> Natural -> Natural -> Natural -> Natural -> IO (Matrix Rational)
+  :: Int -> Int -> Natural -> Natural -> Natural -> IO (Matrix Rational)
 uniformRandomMatrixQQbdLE nrs ncs snum nden sden =
   ( rMatrixQQbdLE nrs ncs
       (uniformFromSize snum)
@@ -71,14 +59,9 @@ uniformPositiveFromSize s = Uniform 1 $ shiftL 1 (8 * fromIntegral s)
     
 storeMatrices
   :: FilePath -> Int -> IO (Matrix Rational) -> IO ()
-storeMatrices path nmb mat =
-  V.generateM nmb $ \mx ->
-    let filepath = "." </> path </>
-             "matfmpq_bdden_mx" <> show mx
-          <> "_nrs" <> show nrs <> "_ncs" <> show ncs
-          <> "_snum" <> show snum
-          <> "_nden" <> show nden <> "_sden" <> show sden <.> "mat"
-    in  mat >>= writeFile filepath . showMatrixFMPQ
+storeMatrices filepath nmb mat =
+  forM_ [0..nmb-1] $ \mx ->
+    mat >>= writeFile (filepath <> show mx) . showMatrixRational
 
 --      matenv mx = uniformRandomMatrixQQbd   mx nrs ncs snum nden sden 
 --      maxmx = 50

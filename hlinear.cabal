@@ -90,8 +90,8 @@ library
     HLinear.Hook.ERHook.Basic
     HLinear.Hook.ERHook.Definition
 
-    HLinear.Utility.Prelude
     HLinear.Utility.Permute
+    HLinear.Utility.Prelude
 
   default-extensions:
       ConstraintKinds
@@ -196,6 +196,27 @@ benchmark bench-hlinear
   main-is:
     HLinear/Bench.hs
 
+  other-modules:
+    HLinear.Bench.Example
+    HLinear.Bench.MatrixParser
+    HLinear.Bench.Random
+
+  default-extensions:
+      ConstraintKinds
+    , DataKinds
+    , FlexibleContexts
+    , FlexibleInstances
+    , FunctionalDependencies
+    , GADTs
+    , GeneralizedNewtypeDeriving
+    , KindSignatures
+    , MultiParamTypeClasses
+    , NoImplicitPrelude
+    , Rank2Types
+    , StandaloneDeriving
+    , TypeFamilies
+    , ViewPatterns
+
   build-depends:
       base
     , algebraic-structures
@@ -235,22 +256,6 @@ benchmark bench-hlinear
     , tuple
     , vector
     , vector-test
-
-  default-extensions:
-      ConstraintKinds
-    , DataKinds
-    , FlexibleContexts
-    , FlexibleInstances
-    , FunctionalDependencies
-    , GADTs
-    , GeneralizedNewtypeDeriving
-    , KindSignatures
-    , MultiParamTypeClasses
-    , NoImplicitPrelude
-    , Rank2Types
-    , StandaloneDeriving
-    , TypeFamilies
-    , ViewPatterns
 
   ghc-options:
     -O3

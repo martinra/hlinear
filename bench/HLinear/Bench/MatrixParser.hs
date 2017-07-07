@@ -6,7 +6,7 @@ where
 import HLinear.Utility.Prelude hiding ( many )
 
 import Data.Attoparsec.ByteString.Char8
-import Data.Ratio ( (%) )
+import Data.Ratio ( Rational, (%), numerator, denominator )
 import Prelude ( fromRational )
 import qualified Data.Vector as V
 
@@ -40,11 +40,10 @@ matrixFMPQParser = do
 
   return $ Matrix nrs ncs rs
 
-showMatrixFMPQ :: Matrix FMPQ -> String
-showMatrixFMPQ (Matrix nrs ncs rs) =
+showMatrixRational :: Matrix Rational -> String
+showMatrixRational (Matrix nrs ncs rs) =
   V.foldl' (<>) ("MatrixFMPQ " <> show nrs <> " " <> show ncs <> "\n") $
   (\f -> fmap f rs) $ \r -> (<> "\n") $
     V.foldl' (<>) "" $
     (\f' -> fmap f' r) $ \e ->
-      let (n,d) = toFMPZs e
-      in  show n <> " " <> show d <> " "
+      show (numerator e) <> " " <> show (denominator e) <> " "
