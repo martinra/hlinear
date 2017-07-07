@@ -17,8 +17,8 @@ data PLEHook a =
     (EchelonForm a)
   deriving Show
 
-data PLREHook a =
-  PLREHook
+data PLUEHook a =
+  PLUEHook
     RPermute
     (LeftTransformation a)
     (EchelonTransformation a)
@@ -39,8 +39,8 @@ instance NFData a => NFData (PLEHook a) where
   rnf (PLEHook p l e) =
     seq (rnf p) $ seq (rnf l) $ seq (rnf e) ()
 
-instance NFData a => NFData (PLREHook a) where
-  rnf (PLREHook p l r e) =
+instance NFData a => NFData (PLUEHook a) where
+  rnf (PLUEHook p l r e) =
     seq (rnf p) $ seq (rnf l) $ seq (rnf r) $ seq (rnf e) ()
 
 instance NFData a => NFData (RREF a) where
@@ -54,8 +54,8 @@ instance NFData a => NFData (RREF a) where
 instance AdditiveMonoid a => IsMatrix (PLEHook a) a where
   toMatrix (PLEHook _ _ e) = toMatrix e
 
-instance AdditiveMonoid a => IsMatrix (PLREHook a) a where
-  toMatrix (PLREHook _ _ _ e) = toMatrix e
+instance AdditiveMonoid a => IsMatrix (PLUEHook a) a where
+  toMatrix (PLUEHook _ _ _ e) = toMatrix e
 
 instance AdditiveMonoid a => IsMatrix (RREF a) a where
   toMatrix (RREF _ e) = toMatrix e

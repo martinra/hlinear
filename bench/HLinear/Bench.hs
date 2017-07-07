@@ -19,7 +19,7 @@ import qualified Criterion.Main.Options as Criterion
 import qualified System.FilePath as FP
 
 import HLinear.Bench.MatrixParser ( parserMatrixFMPQ )
-import HLinear.Hook.PLEHook ( PLREHook(..) )
+import HLinear.Hook.PLEHook ( PLUEHook(..) )
 import HLinear.Matrix ( Matrix )
 import HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.DivisionRing ( rrefWithPLE )
 import qualified HLinear.NormalForm.FoldUnfold.PLE.DivisionRing as PLEDR
@@ -44,7 +44,7 @@ main =
 mainBenchmark :: FilePath -> Matrix FMPQ -> IO ()
 mainBenchmark fileName mat =
   let cfg = defaultConfig { jsonFile = Just $ fileName FP.<.> "criterion" FP.<.> "json" }
-      getEchelonForm (PLREHook _ _ _ e) = e
+      getEchelonForm (PLUEHook _ _ _ e) = e
   in  runMode (Criterion.Run cfg Criterion.Prefix [])
         [ bench "rref classical"     $ nf (getEchelonForm . rrefWithPLE PLEDR.ple) mat
         , bench "rref fraction free" $ nf (getEchelonForm . rrefWithPLE PLEFF.ple) mat

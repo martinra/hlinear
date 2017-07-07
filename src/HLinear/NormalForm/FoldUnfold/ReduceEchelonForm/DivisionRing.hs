@@ -12,7 +12,7 @@ import qualified Data.Permute as P
 import HLinear.Hook.ERHook ( ERHook(..) )
 import HLinear.Hook.EchelonForm ( EchelonForm(..), PivotStructure(..) )
 import HLinear.Hook.EchelonTransformation ( EchelonTransformation(..) )
-import HLinear.Hook.PLEHook ( PLEHook(..), PLREHook(..), RREF(..) )
+import HLinear.Hook.PLEHook ( PLEHook(..), PLUEHook(..), RREF(..) )
 import HLinear.Matrix.Block ( headRows, tailRows )
 import HLinear.Matrix.Definition ( Matrix(..) )
 import HLinear.NormalForm.PLE ( HasPLE )
@@ -25,17 +25,17 @@ import qualified HLinear.NormalForm.PLE as PLE
 
 type HasRREF a = ( DivisionRing a, DecidableZero a, HasPLE a )
 
-rref :: HasRREF a => Matrix a -> PLREHook a
+rref :: HasRREF a => Matrix a -> PLUEHook a
 rref = rrefWithPLE PLE.ple
 
 rrefWithPLE
   :: ( DivisionRing a, DecidableZero a )
   => ( Matrix a -> PLEHook a )
-  -> Matrix a -> PLREHook a
+  -> Matrix a -> PLUEHook a
 rrefWithPLE ple m =
   let h@(PLEHook p l e) = ple m
       RREF r e' = reduceEchelonForm e
-  in  PLREHook p l r e'
+  in  PLUEHook p l r e'
 
 
 reduceEchelonForm

@@ -12,7 +12,7 @@ import HLinear.FramedModule.Definition
 import HLinear.Hook.EchelonForm ( EchelonForm(..) )
 import HLinear.Matrix.Basic hiding ( one )
 import HLinear.Matrix.Definition
-import HLinear.NormalForm.RREF ( rref, HasRREF, PLREHook(..) )
+import HLinear.NormalForm.RREF ( rref, HasRREF, PLUEHook(..) )
 import qualified HLinear.Hook.EchelonForm as EF
 import qualified HLinear.Hook.EchelonForm.Row as EFR
 
@@ -37,10 +37,10 @@ type instance Element (FramedModule a) = Vector a
 
 instance (HasRREF a, AdditiveMonoid a) => MonoFunctor (FramedModule a) where
   omap f (FramedModuleBasis e v) =
-    let PLREHook _ _ _ e' = rref $ omap f $ toMatrix e
+    let PLUEHook _ _ _ e' = rref $ omap f $ toMatrix e
     in  FramedModuleBasis e' v
   omap f (FramedModuleDual e v) =
-    let PLREHook _ _ _ e' = rref $ omap f $ toMatrix e
+    let PLUEHook _ _ _ e' = rref $ omap f $ toMatrix e
     in  FramedModuleDual e' v
 
 --------------------------------------------------------------------------------
@@ -86,7 +86,7 @@ dualEchelonFormWithPivotStructure
 dualEchelonFormWithPivotStructure e@(EchelonForm nrs ncs rs) pivots =
   (e', EF.pivotVector e')
   where
-    PLREHook _ _ _ e' = rref $ Matrix (ncs - nrs) ncs (rs'Init <> rs'Tail)
+    PLUEHook _ _ _ e' = rref $ Matrix (ncs - nrs) ncs (rs'Init <> rs'Tail)
     pivotPairs :: Vector (Int,Int)
     pivotPairs = V.zip pivots $ V.tail pivots `V.snoc` ncs
     create' px jx =
@@ -108,7 +108,7 @@ kernelLeftAction
   :: ( HasRREF a, DecidableZero a )
   => Matrix a -> FramedModule a
 kernelLeftAction m =
-  let PLREHook _ _ _ e = rref m
+  let PLUEHook _ _ _ e = rref m
   in  FramedModuleDual e (EF.pivotVector e)
 
 kernelRightAction
@@ -147,7 +147,7 @@ mergeEchelonForms (EchelonForm nrs ncs rs,pivots) (EchelonForm nrs' ncs' rs',piv
   | ncs == ncs' = e''
   | otherwise = error "FramedModule.mergeEchelonForms: unequal number of columns"
   where
-    PLREHook _ _ _ e'' = rref $ Matrix (nrs+nrs') ncs $
+    PLUEHook _ _ _ e'' = rref $ Matrix (nrs+nrs') ncs $
                            if V.last pivots >= V.last pivots'
                            then mergeRows rs rs' pivots pivots'
                            else mergeRows rs' rs pivots' pivots
