@@ -3,7 +3,7 @@
 module HLinear.Bench.MatrixParser
 where
 
-import HLinear.Utility.Prelude hiding ( many )
+import HLinear.Utility.Prelude
 
 import Data.Attoparsec.ByteString.Char8
 import Data.Ratio ( Rational, (%), numerator, denominator )
@@ -13,30 +13,27 @@ import qualified Data.Vector as V
 import HLinear.Matrix ( Matrix(..) )
 
 
-fmpqParser :: Parser FMPQ
-fmpqParser = do
-  void $ string "MatrixFMPQ"
-  void $ many1 space
-  n <- decimal
+parserFMPQ :: Parser FMPQ
+parserFMPQ = do
+  n <- signed decimal
   void $ many1 space
   d <- decimal 
   return $ fromRational (n % d)
   
-matrixFMPQParser :: Parser (Matrix FMPQ)
-matrixFMPQParser = do
+parserMatrixFMPQ :: Parser (Matrix FMPQ)
+parserMatrixFMPQ = do
+  void $ string "MatrixFMPQ" <* many1 space
+
   nrs <- decimal
   guard $ nrs >= 0
   void $ many1 space
 
   ncs <- decimal
   guard $ ncs >= 0
-  void $ some space
-  endOfLine
+  void $ many1 space
 
-  rs <- V.replicateM ncs $ do
-    r <- V.replicateM nrs (fmpqParser <* many' space)
-    endOfLine
-    return r
+  rs <- V.replicateM nrs $
+    V.replicateM ncs (parserFMPQ <* many1 space)
 
   return $ Matrix nrs ncs rs
 
