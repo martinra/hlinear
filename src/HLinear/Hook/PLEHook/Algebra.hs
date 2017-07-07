@@ -14,6 +14,7 @@ import qualified HLinear.Hook.EchelonForm.Algebra as EF
 
 
 instance Ring a => MultiplicativeMagma (PLEHook a) where
+  {-# INLINABLE (*) #-}
   (PLEHook p lt ef) * (PLEHook p' lt' ef') =
     PLEHook (p'*p) (lt' * (p' *. lt)) (ef + ef')
 

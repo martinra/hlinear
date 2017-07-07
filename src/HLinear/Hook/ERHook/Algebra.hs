@@ -10,6 +10,7 @@ import qualified HLinear.Matrix.Block as M
 
 
 instance Ring a => MultiplicativeMagma (ERHook a) where
+  {-# INLINABLE (*) #-}
   (ERHook et m ef) * (ERHook et' m' ef') =
     ERHook
       (et'*et)

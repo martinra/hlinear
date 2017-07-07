@@ -27,6 +27,7 @@ import HLinear.Matrix.TH
 --------------------------------------------------------------------------------
 
 instance AdditiveMagma a => AdditiveMagma (Matrix a) where
+  {-# INLINABLE (+) #-}
   (Matrix nrs ncs rs) + (Matrix nrs' ncs' rs')
     | nrs /= nrs' || ncs /= ncs' = error "Matrix:+ incompatible dimensions"
     | otherwise =
@@ -53,6 +54,7 @@ instance    ( Rng a, AdditiveMonoid b
             , LinearSemiringLeftAction a b )
          => MultiplicativeSemigroupLeftAction (Matrix a) (Column b)
   where
+  {-# INLINABLE (*.) #-}
   (Matrix nrs ncs rs) *. Column v
     | ncs /= nv = error "Matrix *. Column: incompatible dimensions"
     | ncs == 0 = Column $ V.replicate nrs zero
@@ -63,6 +65,7 @@ instance    ( Rng a, AdditiveMonoid b
 
 instance Rng a => MultiplicativeSemigroupLeftAction (Matrix a) (Vector a)
   where
+  {-# INLINABLE (*.) #-}
   m *. v = fromColumn $ (m *.) $ Column v
 
 --------------------------------------------------------------------------------
@@ -110,6 +113,7 @@ instance Semiring a => LinearSemiringLeftAction a (Row ctx a)
 --------------------------------------------------------------------------------
 
 instance Rng a => MultiplicativeMagma (Matrix a) where
+  {-# INLINABLE (*) #-}
   m@(Matrix nrs ncs rs) * (Matrix nrs' ncs' rs')
     | ncs /= nrs' = error "Matrix * Matrix: incompatible dimensions"
     | otherwise = Matrix nrs ncs' $ withRowLength ncs' go

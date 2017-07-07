@@ -21,6 +21,7 @@ import HLinear.Matrix.Definition ( Matrix(..) )
 --------------------------------------------------------------------------------
 
 instance AdditiveMagma a => AdditiveMagma (EchelonForm a) where
+  {-# INLINABLE (+) #-}
   e@(EchelonForm nrs ncs rs) + e'@(EchelonForm nrs' ncs' rs')
     | lrs  == 0 = ef (extendRows maxnrs minbrs nrs' brs' srs')
     | lrs' == 0 = ef (extendRows maxnrs minbrs nrs brs srs)

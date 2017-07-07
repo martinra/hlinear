@@ -22,6 +22,7 @@ import qualified HLinear.Hook.EchelonTransformation.Column as ETC
 
 instance    Ring a
          => MultiplicativeMagma (EchelonTransformation a) where
+  {-# INLINABLE (*) #-}
   et@(EchelonTransformation nrs cs) * et'@(EchelonTransformation nrs' cs')
     | ncs  == 0 = et'
     | ncs' == 0 = et
@@ -55,6 +56,7 @@ instance    ( Ring a, DecidableZero a, DecidableOne a )
 
 instance    ( Ring a, DecidableZero a )
          => MultiplicativeGroup (EchelonTransformation a) where
+  {-# INLINABLE recip #-}
   recip (EchelonTransformation nrs cs)
     | V.length cs == 1
       = let EchelonTransformationColumn _ c = V.head cs
@@ -77,6 +79,7 @@ instance ( Ring a, LinearSemiringLeftAction a b )
        (EchelonTransformation a) (Column b)
   where
   -- we fill the vector v with zeros from the bottom
+  {-# INLINABLE (*.) #-}
   lt@(EchelonTransformation nrs cs) *. (Column v) = Column $
     V.foldr' applyCol v $ V.drop (nrs - V.length v) cs
     where
@@ -101,6 +104,7 @@ instance Ring a
   => MultiplicativeSemigroupLeftAction
        (EchelonTransformation a) (Matrix a)
   where
+  {-# INLINABLE (*.) #-}
   et *. (Matrix nrs' ncs' rs') =
     Matrix nrs' ncs' $ fromColumn $ et *. Column rs'
 
@@ -117,6 +121,7 @@ instance  Ring a
       (EchelonTransformation a)
       (EchelonTransformationColumn a)
   where
+  {-# INLINABLE (*.) #-}
   et@(EchelonTransformation nrs cs) *. etc@(EchelonTransformationColumn s v) =
     EchelonTransformationColumn s v'
     where

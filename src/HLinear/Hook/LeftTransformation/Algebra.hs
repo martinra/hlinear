@@ -29,6 +29,7 @@ import qualified HLinear.Hook.LeftTransformation.Column as LTC
 instance Ring a
   => MultiplicativeSemigroupLeftAction RPermute (LeftTransformation a)
   where
+  {-# INLINABLE (*.) #-}
   p *. lt@(LeftTransformation nrs cs)
     | pn <= nrs - V.length cs = LeftTransformation nrs $ fmap (p*.) cs
     | otherwise = LeftTransformationMatrix $ p *. toMatrix (fitSize pn lt)
@@ -43,6 +44,7 @@ instance Ring a
 instance Ring a
   => MultiplicativeSemigroupRightAction RPermute (LeftTransformation a)
   where
+  {-# INLINABLE (.*) #-}
   lt@(LeftTransformation nrs cs) .* p
     | pn <= nrs - V.length cs = lt
     | otherwise = LeftTransformationMatrix $ p *. toMatrix (fitSize pn lt)
@@ -61,6 +63,7 @@ instance Ring a
 instance Ring a
   => MultiplicativeMagma (LeftTransformation a)
   where
+  {-# INLINABLE (*) #-}
   lt@(LeftTransformation nrs cs) * lt'@(LeftTransformation nrs' cs')
     | ncs  == 0 = fitSize nrs lt'
     | ncs' == 0 = fitSize nrs' lt
@@ -109,6 +112,7 @@ instance ( Ring a, DecidableZero a, DecidableOne (Unit a) )
 instance ( Ring a, DecidableUnit a )
   => MultiplicativeGroup (LeftTransformation a)
   where
+  {-# INLINABLE recip #-}
   recip (LeftTransformation nrs cs)
     | V.length cs == 1
       = let LeftTransformationColumn _ a c = V.head cs
@@ -142,6 +146,7 @@ instance ( Ring a, AdditiveMonoid b, LinearSemiringLeftAction a b )
        (LeftTransformation a) (Column b)
   where
   -- we fill the vector v with zeros from the top
+  {-# INLINABLE (*.) #-}
   LeftTransformationMatrix m *. c@(Column v) =
     case compare nrs vn of
       EQ -> m *. c
@@ -159,18 +164,19 @@ instance ( Ring a, AdditiveMonoid b, LinearSemiringLeftAction a b )
          | otherwise  = V.replicate (nrs-vn) zero <> v
       vn = V.length v
 
-applyLTC
-  :: ( Ring a, LinearSemiringLeftAction a b )
-  => LeftTransformationColumn a -> Vector b -> Vector b
-applyLTC c@(LeftTransformationColumn s a v) w
-  | V.length w < V.length v = error "applyLTC: incompatible sizes"
-  | otherwise = w11 `V.snoc` w12' <> w2'
-      where
-        (w1,w2) = V.splitAt (V.length w - V.length v) w
-        w11 = V.init w1
-        w12 = V.last w1
-        w12' = fromUnit a *. w12
-        w2' = V.zipWith (\bl br -> bl*.w12' + br) v w2
+      {-# INLINE applyLTC #-}
+      applyLTC
+        :: ( Ring a, LinearSemiringLeftAction a b )
+        => LeftTransformationColumn a -> Vector b -> Vector b
+      applyLTC c@(LeftTransformationColumn s a v) w
+        | V.length w < V.length v = error "applyLTC: incompatible sizes"
+        | otherwise = w11 `V.snoc` w12' <> w2'
+            where
+              (w1,w2) = V.splitAt (V.length w - V.length v) w
+              w11 = V.init w1
+              w12 = V.last w1
+              w12' = fromUnit a *. w12
+              w2' = V.zipWith (\bl br -> bl*.w12' + br) v w2
 
 instance ( Ring a, LeftModule a b )
   => MultiplicativeLeftAction (LeftTransformation a) (Column b)
@@ -184,6 +190,7 @@ instance Ring a
        (LeftTransformation a)
        (LeftTransformationColumn a)
   where
+  {-# INLINABLE (*.) #-}
   lt@(LeftTransformation nrs cs) *. ltc@(LeftTransformationColumn s a v) =
     LeftTransformationColumn s a' v'
     where
@@ -216,6 +223,7 @@ instance Ring a
   => MultiplicativeSemigroupLeftAction
        (LeftTransformation a) (Matrix a)
   where
+  {-# INLINABLE (*.) #-}
   lt *. (Matrix nrs ncs rs) =
     Matrix nrs ncs $ M.withRowLength ncs go
       where
