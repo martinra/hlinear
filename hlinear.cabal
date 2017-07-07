@@ -121,7 +121,6 @@ library
     , monad-par
     , mono-traversable
     , mtl
-    , natural-test
     , parallel
     , permutation
     , QuickCheck
@@ -155,7 +154,6 @@ test-suite test-hlinear
     , monad-par
     , mono-traversable
     , mtl
-    , natural-test
     , parallel
     , permutation
     , QuickCheck
@@ -219,7 +217,6 @@ benchmark bench-hlinear
     , monad-par
     , MonadRandom
     , mtl
-    , natural-test
     , options
     , parallel
     , permutation
