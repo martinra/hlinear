@@ -76,6 +76,7 @@ instance    ( Eq a, Ring a, DecidableZero a, DecidableOne a )
 
 instance NFData a => NFData (LeftTransformation a) where
   rnf (LeftTransformation nrs cs) = seq (rnf nrs) $ seq (rnf cs) ()
+  rnf (LeftTransformationMatrix m) = seq (rnf m) ()
 
 --------------------------------------------------------------------------------
 -- rows and columns
