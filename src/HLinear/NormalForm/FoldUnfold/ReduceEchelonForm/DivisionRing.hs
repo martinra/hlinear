@@ -25,9 +25,11 @@ import qualified HLinear.NormalForm.PLE as PLE
 
 type HasRREF a = ( DivisionRing a, DecidableZero a, HasPLE a )
 
+{-# INLINABLE rref #-}
 rref :: HasRREF a => Matrix a -> PLUEHook a
 rref = rrefWithPLE PLE.ple
 
+{-# INLINABLE rrefWithPLE #-}
 rrefWithPLE
   :: ( DivisionRing a, DecidableZero a )
   => ( Matrix a -> PLEHook a )
@@ -38,6 +40,7 @@ rrefWithPLE ple m =
   in  PLUEHook p l r e'
 
 
+{-# INLINABLE reduceEchelonForm #-}
 reduceEchelonForm
   :: ( DivisionRing a, DecidableZero a )
   => EchelonForm a -> RREF a
@@ -52,7 +55,7 @@ reduceEchelonForm ef =
     nrs = nmbRows ef
     ncs = nmbCols ef
 
-
+{-# INLINABLE reduceLastPivot #-}
 reduceLastPivot
   :: ( DivisionRing a, DecidableZero a )
   => (EchelonForm a, PivotStructure)

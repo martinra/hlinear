@@ -27,6 +27,7 @@ ple m@(Matrix nrs ncs _) =
     Nothing -> Hook.one nrs ncs
     Just (h,m') -> V.foldl (*) h $ V.unfoldr splitOffHook m'
 
+{-# INLINABLE splitOffHook #-}
 splitOffHook
   :: HasPLE a
   => Matrix a -> Maybe (PLEHook a, Matrix a)

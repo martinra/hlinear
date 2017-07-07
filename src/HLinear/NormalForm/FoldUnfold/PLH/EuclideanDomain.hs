@@ -23,6 +23,7 @@ type HasPLH a =
   ( EuclideanDomain a, DecidableZero a, MultiplicativeGroup (Unit a)
   , HasPLHNormalization a )
 
+{-# INLINABLE plh #-}
 plh :: HasPLH a => Matrix a -> PLUEHook a
 plh m =
   let PLEHook p l e = plhNonReduced m
@@ -30,6 +31,7 @@ plh m =
   in  PLUEHook p l r e'
 
 
+{-# INLINABLE plhNonReduced #-}
 plhNonReduced
   :: ( EuclideanDomain a, DecidableZero a, MultiplicativeGroup (Unit a)
      , HasPLHNormalization a )
@@ -49,6 +51,7 @@ pivotPermutation (Matrix nrs ncs rs) =
   in  if V.null v then Nothing
       else Just $ RP.fromTransposition nrs (0,V.minIndex v)
 
+{-# INLINABLE splitOffHook #-}
 splitOffHook
   :: ( EuclideanDomain a, DecidableZero a, HasPLHNormalization a )
   => Matrix a -> Maybe (PLEHook a, Matrix a)
