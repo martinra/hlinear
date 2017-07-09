@@ -43,7 +43,10 @@ main =
 
 mainBenchmark :: FilePath -> Matrix FMPQ -> IO ()
 mainBenchmark fileName mat =
-  let cfg = defaultConfig { jsonFile = Just $ fileName FP.<.> "criterion" FP.<.> "json" }
+  let cfg = defaultConfig
+              { timeLimit = 7200
+              , jsonFile = Just $ fileName FP.<.> "criterion" FP.<.> "json"
+              }
       getEchelonForm (PLUEHook _ _ _ e) = e
   in  runMode (Criterion.Run cfg Criterion.Prefix [])
         [ bench "rref classical"     $ nf (getEchelonForm . rrefWithPLE PLEDR.ple) mat
