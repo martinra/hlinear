@@ -14,11 +14,14 @@ import HLinear.Matrix ( Matrix(..) )
 
 
 parserFMPQ :: Parser FMPQ
-parserFMPQ = do
-  n <- signed decimal
-  void $ many1 space
-  d <- decimal 
-  return $ fromRational (n % d)
+parserFMPQ = isFMPQ <|> isFMPZ
+  where
+    isFMPQ = do
+      n <- signed decimal
+      void $ string "//"
+      d <- decimal 
+      return $ fromRational (n % d)
+    isFMPZ = fromInteger <$> signed decimal
   
 parserMatrixFMPQ :: Parser (Matrix FMPQ)
 parserMatrixFMPQ = do
