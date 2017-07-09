@@ -31,17 +31,17 @@ det m@(Matrix nrs ncs rs)
                      det $ minor ix 0 m
 
 recip
-  :: ( Ring a, DecidableUnit a, MultiplicativeGroup (Unit a) )
+  :: ( Ring a, DecidableUnit a )
   => Matrix a -> Matrix a
 recip = fromJust . recipSafe
 
 recipSafe
-  :: ( Ring a, DecidableUnit a, MultiplicativeGroup (Unit a) )
+  :: ( Ring a, DecidableUnit a )
   => Matrix a -> Maybe (Matrix a)
 recipSafe m@(Matrix nrs ncs rs)
   | nrs /= ncs = Nothing
   | otherwise  = do
-      recipDet <- fromUnit <$> MS.recip <$> toUnitSafe (det m)
+      recipDet <- fromUnit . MS.recip <$> toUnitSafe (det m)
       return $ Matrix nrs ncs $
         V.generate nrs $ \ix ->
           V.generate ncs $ \jx ->
