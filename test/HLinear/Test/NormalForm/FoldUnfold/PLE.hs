@@ -22,10 +22,10 @@ properties = pure $
   testGroup "FoldUnfold-PLE properties"
   [ testPropertyQSnC 3
     "recombine over division rings" $
-    \m -> let PLEHook p l e = DR.ple (m :: Matrix (NMod ctx))
-          in  toMatrix l * toMatrix p * m == toMatrix e
+    \m -> let [p,l,e] = toMatrices $ DR.ple (m :: Matrix (NMod ctx))
+          in  m == p * l * e
   , testPropertySnC 2
     "recombine fraction free" $
-    \m -> let PLEHook p l e = FF.ple (m :: Matrix FMPQ)
-          in  toMatrix l * toMatrix p * m == toMatrix e
+    \m -> let [p,l,e] = FF.ple (m :: Matrix FMPQ)
+          in  m == p * l * e
   ]

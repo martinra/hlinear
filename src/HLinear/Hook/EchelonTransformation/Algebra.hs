@@ -54,7 +54,7 @@ instance    ( Ring a, DecidableZero a, DecidableOne a )
          => DecidableOne (EchelonTransformation a) where
   isOne (EchelonTransformation nrs cs) = all ETC.isOne cs
 
-instance    ( Ring a, DecidableZero a )
+instance    Ring a
          => MultiplicativeGroup (EchelonTransformation a) where
   {-# INLINABLE recip #-}
   recip (EchelonTransformation nrs cs)

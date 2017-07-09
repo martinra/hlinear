@@ -17,3 +17,6 @@ data Matrix a =
 
 class IsMatrix a b where
   toMatrix :: a -> Matrix b
+
+class IsMatrixFactorization a b where
+  toMatrices :: a -> [Matrix b]

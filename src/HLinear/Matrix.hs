@@ -1,6 +1,7 @@
 module HLinear.Matrix
   ( Matrix(..)
   , IsMatrix(..)
+  , IsMatrixFactorization(..)
   , MatrixInvertible
 
   , (!)
