@@ -9,10 +9,10 @@ import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as MV
 
 import HLinear.FramedModule.Definition
-import HLinear.Hook.EchelonForm ( EchelonForm(..) )
+import HLinear.Hook ( EchelonForm(..), PLUEHook(..) )
 import HLinear.Matrix.Basic hiding ( one )
 import HLinear.Matrix.Definition
-import HLinear.NormalForm.RREF ( rref, HasRREF, PLUEHook(..) )
+import HLinear.NormalForm.RREF ( rref, HasRREF )
 import qualified HLinear.Hook.EchelonForm as EF
 import qualified HLinear.Hook.EchelonForm.Row as EFR
 

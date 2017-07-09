@@ -21,7 +21,7 @@ import qualified System.FilePath as FP
 import HLinear.Bench.MatrixParser ( parserMatrixFMPQ )
 import HLinear.Hook.PLEHook ( PLUEHook(..) )
 import HLinear.Matrix ( Matrix )
-import HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.DivisionRing ( rrefWithPLE )
+import HLinear.NormalForm.FoldUnfold.RREF.DivisionRing ( rrefWithPLE )
 import qualified HLinear.NormalForm.FoldUnfold.PLE.DivisionRing as PLEDR
 import qualified HLinear.NormalForm.FoldUnfold.PLE.FractionFree as PLEFF
 

@@ -8,12 +8,8 @@ import HLinear.Utility.Prelude
 import Math.Structure.Tasty
 import Test.Tasty
 
-import HLinear.Hook.PLEHook ( PLUEHook(..) )
-import HLinear.Matrix ( Matrix, IsMatrix(..) )
-import HLinear.NormalForm.RREF
-import HLinear.Utility.NmbRowColumn ( nmbRows )
-import qualified HLinear.Hook.EchelonForm as EF
-import qualified HLinear.Matrix as M
+import HLinear.Matrix ( Matrix, toMatrices )
+import HLinear.NormalForm.RREF ( rref )
 
 
 properties
@@ -24,6 +20,6 @@ properties = pure $
   testGroup "Reduced row echelon form properties"
   [ testPropertyQSnC 2
     "recombine over division rings" $
-    \m -> let PLUEHook p l r e = rref (m :: Matrix (NMod ctx))
-          in  toMatrix r * toMatrix l * toMatrix p * m == toMatrix e
+    \m -> let [p,l,u,e] = toMatrices $ rref (m :: Matrix (NMod ctx))
+          in  m == p * l * u * e
   ]

@@ -1,10 +1,13 @@
 module HLinear.NormalForm.RREF
   ( rref, HasRREF
-  , PLUEHook(..)
+  , RREF(..)
   )
 where
 
 import HLinear.Utility.Prelude
 
 import HLinear.Hook.PLEHook ( PLUEHook(..) )
-import HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.DivisionRing ( rref, HasRREF )
+import HLinear.NormalForm.FoldUnfold.RREF.DivisionRing ( rref, HasRREF )
+
+
+type RREF a = PLUEHook a

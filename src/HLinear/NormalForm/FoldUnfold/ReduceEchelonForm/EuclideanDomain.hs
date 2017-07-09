@@ -12,7 +12,7 @@ import qualified Data.Permute as P
 import HLinear.Hook.ERHook ( ERHook(..) )
 import HLinear.Hook.EchelonForm ( EchelonForm(..), PivotStructure(..) )
 import HLinear.Hook.EchelonTransformation ( EchelonTransformation(..) )
-import HLinear.Hook.PLEHook ( RREF(..) )
+import HLinear.Hook.PLEHook ( UEHook(..) )
 import HLinear.Matrix ( headRows, tailRows )
 import HLinear.Matrix.Definition ( Matrix(..) )
 import qualified HLinear.Hook.EchelonForm as EF
@@ -23,14 +23,14 @@ import qualified HLinear.Matrix as M
 
 reduceEchelonForm
   :: ( EuclideanDomain a, DecidableZero a )
-  => EchelonForm a -> RREF a
+  => EchelonForm a -> UEHook a
 reduceEchelonForm ef =
   case reduceLastPivot (ef, EF.pivotStructure ef) of
-    Nothing -> RREF (ET.one nrs) (EF.zero nrs ncs)
+    Nothing -> UEHook (ET.one nrs) (EF.zero nrs ncs)
     Just (er, efp') ->
       let ERHook et' _ ef' = V.foldl (*) er $
                                V.unfoldr reduceLastPivot efp'
-      in  RREF et' ef'
+      in  UEHook et' ef'
   where
     nrs = nmbRows ef
     ncs = nmbCols ef

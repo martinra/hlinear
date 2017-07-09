@@ -22,6 +22,7 @@ library
     HLinear.FramedModule
     HLinear.Matrix
     HLinear.NormalForm
+    HLinear.Hook
     HLinear.Hook.EchelonForm
     HLinear.Hook.EchelonTransformation
     HLinear.Hook.LeftTransformation
@@ -55,6 +56,7 @@ library
     HLinear.NormalForm.FoldUnfold.PLH.Normalization
     HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.DivisionRing
     HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.EuclideanDomain
+    HLinear.NormalForm.FoldUnfold.RREF.DivisionRing
 
     HLinear.FramedModule.Definition
     HLinear.FramedModule.Basic
@@ -197,9 +199,7 @@ benchmark bench-hlinear
     HLinear/Bench.hs
 
   other-modules:
-    HLinear.Bench.Example
     HLinear.Bench.MatrixParser
-    HLinear.Bench.Random
 
   default-extensions:
       ConstraintKinds

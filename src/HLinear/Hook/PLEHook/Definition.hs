@@ -31,8 +31,8 @@ data PLUEHook a =
 
 -- representation af an echelon form e as a pair u e' satisfying
 -- e' = u e  i.e.  e' = (recip u) e
-data RREF a =
-  RREF
+data UEHook a =
+  UEHook
     (EchelonTransformation a)
     (EchelonForm a)
   deriving Show
@@ -49,8 +49,8 @@ instance NFData a => NFData (PLUEHook a) where
   rnf (PLUEHook p l r e) =
     seq (rnf p) $ seq (rnf l) $ seq (rnf r) $ seq (rnf e) ()
 
-instance NFData a => NFData (RREF a) where
-  rnf (RREF t e) =
+instance NFData a => NFData (UEHook a) where
+  rnf (UEHook t e) =
     seq (rnf t) $ seq (rnf e) ()
 
 --------------------------------------------------------------------------------
@@ -91,8 +91,8 @@ instance
     , toMatrix e
     ]
 
-instance Ring a => IsMatrixFactorization (RREF a) a where
-  toMatrices (RREF u e) =
+instance Ring a => IsMatrixFactorization (UEHook a) a where
+  toMatrices (UEHook u e) =
     [ toMatrix (recip u)
     , toMatrix e
     ]

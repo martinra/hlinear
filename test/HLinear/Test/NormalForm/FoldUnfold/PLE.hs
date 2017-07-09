@@ -8,8 +8,7 @@ import HLinear.Utility.Prelude
 import Math.Structure.Tasty
 import Test.Tasty
 
-import HLinear.Hook.PLEHook ( PLEHook(..) )
-import HLinear.Matrix ( Matrix, toMatrix )
+import HLinear.Matrix ( Matrix, toMatrices )
 import qualified HLinear.NormalForm.FoldUnfold.PLE.DivisionRing as DR
 import qualified HLinear.NormalForm.FoldUnfold.PLE.FractionFree as FF
 
@@ -26,6 +25,6 @@ properties = pure $
           in  m == p * l * e
   , testPropertySnC 2
     "recombine fraction free" $
-    \m -> let [p,l,e] = FF.ple (m :: Matrix FMPQ)
+    \m -> let [p,l,e] = toMatrices $ FF.ple (m :: Matrix FMPQ)
           in  m == p * l * e
   ]

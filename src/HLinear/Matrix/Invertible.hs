@@ -9,8 +9,8 @@ import HLinear.Matrix.Algebra ()
 import HLinear.Matrix.Definition
 import HLinear.Hook.PLEHook.Definition ( PLEHook(..), PLUEHook(..) )
 import HLinear.Hook.EchelonForm.PivotStructure ( hasUnitDiagonal, pivotEntryVector )
-import HLinear.NormalForm.PLE
-import HLinear.NormalForm.RREF
+import HLinear.NormalForm.PLE ( HasPLE, ple )
+import HLinear.NormalForm.RREF ( HasRREF, rref )
 
 
 type MatrixInvertible a = Unit (Matrix a)

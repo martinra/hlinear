@@ -12,7 +12,7 @@ import qualified Data.Permute as P
 import HLinear.Hook.ERHook ( ERHook(..) )
 import HLinear.Hook.EchelonForm ( EchelonForm(..), PivotStructure(..) )
 import HLinear.Hook.EchelonTransformation ( EchelonTransformation(..) )
-import HLinear.Hook.PLEHook ( PLEHook(..), PLUEHook(..), RREF(..) )
+import HLinear.Hook.PLEHook ( PLEHook(..), PLUEHook(..), UEHook(..) )
 import HLinear.Matrix.Block ( headRows, tailRows )
 import HLinear.Matrix.Definition ( Matrix(..) )
 import HLinear.NormalForm.PLE ( HasPLE )
@@ -23,34 +23,17 @@ import qualified HLinear.Matrix.Basic as M
 import qualified HLinear.NormalForm.PLE as PLE
 
 
-type HasRREF a = ( DivisionRing a, DecidableZero a, HasPLE a )
-
-{-# INLINABLE rref #-}
-rref :: HasRREF a => Matrix a -> PLUEHook a
-rref = rrefWithPLE PLE.ple
-
-{-# INLINABLE rrefWithPLE #-}
-rrefWithPLE
-  :: ( DivisionRing a, DecidableZero a )
-  => ( Matrix a -> PLEHook a )
-  -> Matrix a -> PLUEHook a
-rrefWithPLE ple m =
-  let h@(PLEHook p l e) = ple m
-      RREF r e' = reduceEchelonForm e
-  in  PLUEHook p l r e'
-
-
 {-# INLINABLE reduceEchelonForm #-}
 reduceEchelonForm
   :: ( DivisionRing a, DecidableZero a )
-  => EchelonForm a -> RREF a
+  => EchelonForm a -> UEHook a
 reduceEchelonForm ef =
   case reduceLastPivot (ef, EF.pivotStructure ef) of
-    Nothing -> RREF (ET.one nrs) (EF.zero nrs ncs)
+    Nothing -> UEHook (ET.one nrs) (EF.zero nrs ncs)
     Just (er, efp') ->
       let ERHook et' _ ef' =
             V.foldl (*) er $ V.unfoldr reduceLastPivot efp'
-      in  RREF (ET.fitSize nrs et') ef'
+      in  UEHook (ET.fitSize nrs et') ef'
   where
     nrs = nmbRows ef
     ncs = nmbCols ef

@@ -5,7 +5,7 @@ import HLinear.Utility.Prelude
 
 import qualified Data.Vector as V
 
-import HLinear.Hook.PLEHook ( PLEHook(..), PLUEHook(..), RREF(..) )
+import HLinear.Hook.PLEHook ( PLEHook(..), PLUEHook(..), UEHook(..) )
 import HLinear.Matrix ( Matrix(..) )
 import HLinear.NormalForm.FoldUnfold.Matrix ( splitOffTopLeft )
 import HLinear.NormalForm.FoldUnfold.PLH.Normalization ( HasPLHNormalization(..) )
@@ -27,7 +27,7 @@ type HasPLH a =
 plh :: HasPLH a => Matrix a -> PLUEHook a
 plh m =
   let PLEHook p l e = plhNonReduced m
-      RREF r e' = reduceEchelonForm e
+      UEHook r e' = reduceEchelonForm e
   in  PLUEHook p l r e'
 
 
