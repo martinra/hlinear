@@ -120,14 +120,11 @@ library
     , deepseq
     , hflint
     , monad-loops
-    , monad-par
     , mono-traversable
     , mtl
-    , parallel
     , permutation
     , QuickCheck
     , reflection
-    , safe
     , smallcheck
     , split
     , template-haskell
@@ -146,23 +143,17 @@ test-suite test-hlinear
       base
     , algebraic-structures
     , binary
-    , binary
     , composition
     , containers
     , deepseq
     , hflint
-    , logict
     , monad-loops
-    , monad-par
     , mono-traversable
     , mtl
-    , parallel
     , permutation
     , QuickCheck
     , reflection
-    , safe
     , smallcheck
-    , split
     , tasty
     , tasty-hunit
     , tasty-quickcheck
@@ -222,38 +213,25 @@ benchmark bench-hlinear
     , algebraic-structures
     , attoparsec
     , bytestring
-    , clock
     , composition
     , containers
     , criterion
     , deepseq
     , filepath
-    , formatting
     , hflint
-    , logict
     , monad-loops
-    , monad-par
-    , MonadRandom
     , mono-traversable
     , mtl
-    , options
     , optparse-applicative
-    , parallel
     , binary
     , permutation
     , QuickCheck
-    , random
-    , random-extras
-    , random-fu
     , reflection
-    , safe
     , smallcheck
     , tasty
     , tasty-smallcheck
     , template-haskell
-    , time
     , transformers
-    , tuple
     , vector
     , vector-test
 
