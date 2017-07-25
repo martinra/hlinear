@@ -19,7 +19,6 @@ data-files:          README.md
 
 library
   exposed-modules:
-    HLinear.FramedModule
     HLinear.Matrix
     HLinear.NormalForm
     HLinear.Hook
@@ -57,9 +56,6 @@ library
     HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.DivisionRing
     HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.EuclideanDomain
     HLinear.NormalForm.FoldUnfold.RREF.DivisionRing
-
-    HLinear.FramedModule.Definition
-    HLinear.FramedModule.Basic
 
     HLinear.Hook.EchelonForm.Algebra
     HLinear.Hook.EchelonForm.Basic
