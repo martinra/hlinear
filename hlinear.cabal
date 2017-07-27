@@ -246,3 +246,61 @@ benchmark bench-hlinear
   hs-source-dirs: bench
   default-language: Haskell2010
   type:           exitcode-stdio-1.0
+
+
+benchmark prof-hlinear
+  main-is:
+    HLinear/Prof.hs
+
+  default-extensions:
+      ConstraintKinds
+    , DataKinds
+    , FlexibleContexts
+    , FlexibleInstances
+    , FunctionalDependencies
+    , GADTs
+    , GeneralizedNewtypeDeriving
+    , KindSignatures
+    , MultiParamTypeClasses
+    , NoImplicitPrelude
+    , Rank2Types
+    , StandaloneDeriving
+    , TypeFamilies
+    , ViewPatterns
+
+  build-depends:
+      base
+    , hlinear
+    , algebraic-structures
+    , attoparsec
+    , bytestring
+    , composition
+    , containers
+    , criterion
+    , deepseq
+    , filepath
+    , hflint
+    , monad-loops
+    , mono-traversable
+    , mtl
+    , optparse-applicative
+    , binary
+    , permutation
+    , QuickCheck
+    , reflection
+    , smallcheck
+    , tasty
+    , tasty-smallcheck
+    , template-haskell
+    , transformers
+    , vector
+    , vector-test
+
+  ghc-options:
+    -O3
+    -threaded
+    -fsimpl-tick-factor=400
+
+  hs-source-dirs: prof, bench
+  default-language: Haskell2010
+  type:           exitcode-stdio-1.0
