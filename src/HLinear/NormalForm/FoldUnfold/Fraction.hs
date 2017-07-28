@@ -15,17 +15,19 @@ import HLinear.Matrix.Definition ( Matrix(..) )
 import qualified HLinear.Matrix.Basic as M
 
 
+data Fraction n d = Fraction n d
+
 class IsFraction a n d | a -> n d where
-  toFraction :: a -> (n, d)
-  fromFraction :: n -> d -> a
+  toFraction :: a -> Fraction n d
+  fromFraction :: Fraction n d -> a
   fromNumerator :: n -> a
   fromDenominator :: d -> a
 
 instance IsFraction FMPQ FMPZ (NonZero FMPZ) where
   {-# INLINABLE toFraction #-}
-  toFraction = toFMPZs
+  toFraction a = let (n,d) = toFMPZs a in Fraction n d
   {-# INLINABLE fromFraction #-}
-  fromFraction n (NonZero d) = fromFMPZs n d
+  fromFraction (Fraction n (NonZero d)) = fromFMPZs n d
   {-# INLINABLE fromNumerator #-}
   fromNumerator n = fromFMPZs n one
   {-# INLINABLE fromDenominator #-}
@@ -39,15 +41,15 @@ instance
   where
   {-# NOINLINE[1] toFraction #-}
   toFraction v 
-    | V.null v  = (mempty, NonZero one)
+    | V.null v  = Fraction mempty one
     | otherwise =
         let den = foldr1 lcm ds
             (ns,ds) = V.unzip $ (`fmap` v) $ \a ->
-                        let (n, NonZero d) = toFraction a
+                        let Fraction n (NonZero d) = toFraction a
                         in  (,d) $ n .* (den `quot` d)
-        in  (ns, NonZero den)
+        in  Fraction ns (NonZero den)
   {-# INLINABLE fromFraction #-}
-  fromFraction v d = fmap (`fromFraction` d) v
+  fromFraction (Fraction v d) = fmap (\a -> fromFraction $ Fraction a d) v
   {-# INLINABLE fromNumerator #-}
   fromNumerator = fmap fromNumerator
   {-# INLINABLE fromDenominator #-}
@@ -60,10 +62,11 @@ instance
   where
   {-# INLINABLE toFraction #-}
   toFraction (Matrix nrs ncs rs) =
-    first (Matrix nrs ncs) $ V.unzip $ fmap toFraction rs
+    let (ns,ds) = V.unzip $ fmap (\r -> let Fraction n d = toFraction r in (n,d)) rs
+    in  Fraction (Matrix nrs ncs ns) ds
   {-# INLINABLE fromFraction #-}
-  fromFraction (Matrix nrs ncs rs) ds =
-    Matrix nrs ncs $ V.zipWith fromFraction rs ds
+  fromFraction (Fraction (Matrix nrs ncs rs) ds) =
+    Matrix nrs ncs $ V.zipWith (\r d -> fromFraction $ Fraction r d) rs ds
   {-# INLINABLE fromNumerator #-}
   fromNumerator = fmap fromNumerator
   {-# INLINABLE fromDenominator #-}
@@ -74,9 +77,9 @@ instance
   "toFraction/Vector FMPQ"  toFraction = toFractionVectorFMPQ
   #-}
 {-# INLINABLE toFractionVectorFMPQ #-}
-toFractionVectorFMPQ :: Vector FMPQ -> (Vector FMPZ, NonZero FMPZ)
+toFractionVectorFMPQ :: Vector FMPQ -> Fraction (Vector FMPZ) (NonZero FMPZ)
 toFractionVectorFMPQ v
-  | V.null v  = (mempty, NonZero one)
+  | V.null v  = Fraction mempty one
   | otherwise =
       let den = foldr1 lcm ds
           (ns,ds) = V.unzip $ fmap (normalize . toFMPZs) v
@@ -87,4 +90,4 @@ toFractionVectorFMPQ v
             withFMPZ_ n   $ \nptr -> do
               fmpz_divexact bptr denptr dptr
               fmpz_mul bptr bptr nptr
-      in  (ns, NonZero den)
+      in  Fraction ns (NonZero den)

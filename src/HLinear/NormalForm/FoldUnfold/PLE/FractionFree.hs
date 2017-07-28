@@ -18,7 +18,7 @@ import HLinear.Hook.LeftTransformation ( LeftTransformation(..) )
 import HLinear.Hook.PLEHook ( PLEHook(..) )
 import HLinear.Matrix.Definition ( Matrix(..) )
 import HLinear.Matrix.Block ( headRows, tailRows )
-import HLinear.NormalForm.FoldUnfold.Fraction ( IsFraction(..) )
+import HLinear.NormalForm.FoldUnfold.Fraction ( IsFraction(..), Fraction(..) )
 import HLinear.NormalForm.FoldUnfold.Pivot ( splitOffPivotNonZero )
 import HLinear.Utility.RPermute ( RPermute(..) )
 import qualified HLinear.Hook.EchelonForm as EF
@@ -35,37 +35,35 @@ data MatrixFraction a n d where
 
 ple :: Matrix FMPQ -> PLEHook FMPQ
 ple m@(Matrix nrs ncs rs) =
-  -- todo: toFraction takes too much time: look into how flint does that
-  let (mnum, ds) = toFraction m
-  in  case splitOffHook (MatrixFraction mnum one) of
-        Nothing -> Hook.one nrs ncs
-        Just (h,m') ->
-          PLEHook one
-            (LT.diagonal $ fmap (Unit . fromDenominator) ds)
-            (EF.zero nrs ncs)
-          *
-          V.foldl (*) h (V.unfoldr splitOffHook m')
+  let Fraction mnum ds = toFraction m
+  in case splitOffHook (Fraction mnum one) of
+       Nothing -> Hook.one nrs ncs
+       Just (h,m') ->
+         PLEHook one
+           (LT.diagonal $ fmap (Unit . fromDenominator) ds)
+           (EF.zero nrs ncs)
+         *
+         V.foldl (*) h (V.unfoldr splitOffHook m')
   
 splitOffHook
-  :: MatrixFraction FMPQ FMPZ (NonZero FMPZ)
-  -> Maybe (PLEHook FMPQ, MatrixFraction FMPQ FMPZ (NonZero FMPZ))
-splitOffHook (MatrixFraction m@(Matrix nrs ncs rs) den)
+  :: Fraction (Matrix FMPZ) (NonZero FMPZ)
+  -> Maybe (PLEHook FMPQ, Fraction (Matrix FMPZ) (NonZero FMPZ))
+splitOffHook (Fraction m@(Matrix nrs ncs rs) den)
   | nrs == 0 || ncs == 0 = Nothing
   | otherwise = Just $ case splitOffPivotNonZero m of
       Nothing ->
         ( Hook.one nrs ncs
-        , MatrixFraction (Matrix nrs (ncs-1) $ fmap V.tail rs) den
+        , Fraction (Matrix nrs (ncs-1) $ fmap V.tail rs) den
         )
       Just (p, ((pivot, pivotBottom), (pivotTail, bottomRight))) ->
         ( PLEHook p lt ef
-        , MatrixFraction (Matrix (nrs-1) (ncs-1) bottomRight') den
+        , Fraction (Matrix (nrs-1) (ncs-1) bottomRight') den
         )
         where
           lt = LT.singleton (Unit $ fromDenominator $ den * pivot) $
-                 fmap (\a -> fromFraction a den) $
-                   fmap negate pivotBottom
+                 fmap (fromFraction . (`Fraction` den) . negate) pivotBottom
           ef = EF.singletonLeadingOne nrs $
-                 fromFraction pivotTail pivot
+                 fromFraction $ Fraction pivotTail pivot
 
           bottomRight' =
             (\f -> V.zipWith f pivotBottom bottomRight) $ \h t ->
