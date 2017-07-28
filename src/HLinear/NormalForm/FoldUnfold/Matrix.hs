@@ -8,6 +8,7 @@ import qualified Data.Vector as V
 import HLinear.Matrix.Definition ( Matrix(..) )
 
 
+{-# INLINABLE splitOffTopLeft #-}
 splitOffTopLeft :: Matrix a -> Maybe ((a, Vector a), (Vector a, Vector (Vector a)))
 splitOffTopLeft (Matrix nrs ncs rs)
   | nrs == 0 || ncs == 0 = Nothing

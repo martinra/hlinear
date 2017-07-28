@@ -7,8 +7,7 @@ import qualified Data.Vector as V
 
 import HLinear.Hook.PLEHook ( PLEHook(..) )
 import HLinear.Matrix.Definition ( Matrix(..) )
-import HLinear.NormalForm.FoldUnfold.Matrix ( splitOffTopLeft )
-import HLinear.NormalForm.FoldUnfold.Pivot ( pivotNonZeroPermutation )
+import HLinear.NormalForm.FoldUnfold.Pivot ( splitOffPivotNonZero )
 import HLinear.Utility.RPermute ( RPermute(..) )
 import qualified HLinear.Hook.PLEHook.Basic as Hook
 import qualified HLinear.Hook.EchelonForm as EF
@@ -33,10 +32,16 @@ splitOffHook
   => Matrix a -> Maybe (PLEHook a, Matrix a)
 splitOffHook m@(Matrix nrs ncs rs)
   | nrs == 0 || ncs == 0 = Nothing
-  | Just p <- pivotNonZeroPermutation m = Just $
-      let Just ((pivot, pivotBottom), (pivotTail, bottomRight)) =
-            splitOffTopLeft (p *. m)
-
+  | otherwise = Just $ case splitOffPivotNonZero m of
+      Nothing ->
+        ( Hook.one nrs ncs
+        , Matrix nrs (ncs-1) $ fmap V.tail rs
+        )
+      Just (p, ((NonZero pivot, pivotBottom), (pivotTail, bottomRight))) ->
+        ( PLEHook p lt ef
+        , Matrix (nrs-1) (ncs-1) bottomRight'
+        )
+        where
           pivotRecip = recip $ Unit pivot
           pivotTail' = fmap (fromUnit pivotRecip *) pivotTail
 
@@ -46,10 +51,3 @@ splitOffHook m@(Matrix nrs ncs rs)
           bottomRight' =
             (\f -> V.zipWith f pivotBottom bottomRight) $ \h t ->
               V.zipWith (\pv te -> te - h * pv) pivotTail' t
-      in  ( PLEHook p lt ef
-          , Matrix (nrs-1) (ncs-1) bottomRight'
-          )
-  | otherwise = Just
-      ( Hook.one nrs ncs
-      , Matrix nrs (ncs-1) $ fmap V.tail rs
-      )
