@@ -113,11 +113,12 @@ one nrs
   | nrs >= 0 = LeftTransformation nrs V.empty
   | nrs < 0 = error "LeftTransformation.one: negative nrs"
 
-diagonal :: Vector (Unit a) -> LeftTransformation a
-diagonal ds = LeftTransformation nrs $ flip V.imap ds $ \ix d ->
-                    LeftTransformationColumn ix d V.empty
-  where
-    nrs = V.length ds 
+diagonal :: AdditiveMonoid a => Vector (Unit a) -> LeftTransformation a
+diagonal ds =
+  let nrs = V.length ds
+  in  LeftTransformation nrs $ (`V.imap` ds) $ \ix d ->
+        LeftTransformationColumn ix d $
+          V.replicate (nrs-ix-1) zero
 
 singleton ::
   Unit a -> Vector a -> LeftTransformation a

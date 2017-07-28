@@ -126,6 +126,22 @@ toVector :: AdditiveMonoid a => EchelonFormRow a -> Vector a
 toVector (EchelonFormRow o r) = V.replicate o MS.zero <> r
 
 --------------------------------------------------------------------------------
+-- normalization
+--------------------------------------------------------------------------------
+
+normalize
+  :: ( DivisionRing a, DecidableZero a )
+  => EchelonFormRow a -> EchelonFormRow a
+normalize (EchelonFormRow o r) = EchelonFormRow o $
+  case V.findIndex (not . isZero) r of
+    Nothing -> r
+    Just ix ->
+      let (r1,r23) = V.splitAt ix r
+          r2 = NonZero $ V.head r23
+          r3 = V.tail r23
+      in  r1 <> one `V.cons` fmap (fromNonZero (recip r2) *) r3
+
+--------------------------------------------------------------------------------
 -- block sums
 --------------------------------------------------------------------------------
 

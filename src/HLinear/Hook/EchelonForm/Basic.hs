@@ -116,6 +116,15 @@ singletonLeadingOne nrs v
   | nrs < 0  = error "EchelonForm.singletonLeadingOne: negative nrs"
 
 --------------------------------------------------------------------------------
+-- normalization
+--------------------------------------------------------------------------------
+
+normalize
+  :: ( DivisionRing a, DecidableZero a )
+  => EchelonForm a -> EchelonForm a
+normalize (EchelonForm nrs ncs rs) = EchelonForm nrs ncs $ fmap EFR.normalize rs
+
+--------------------------------------------------------------------------------
 -- submatrices
 --------------------------------------------------------------------------------
 

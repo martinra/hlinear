@@ -6,26 +6,17 @@ where
 
 import HLinear.Utility.Prelude
 
-import Data.Permute ( Permute )
 import qualified Data.Vector as V
 
 import HFlint.FMPZ.FFI ( fmpz_mul, fmpz_submul, fmpz_divexact )
 import HFlint.Internal ( withFlint, withNewFlint_ )
 
-
 import HLinear.Hook.EchelonForm ( EchelonForm(..) )
-import HLinear.Hook.LeftTransformation ( LeftTransformation(..) )
-import HLinear.Hook.PLEHook ( PLEHook(..) )
-import HLinear.Matrix.Block ( headRows, tailRows )
 import HLinear.Matrix.Definition ( Matrix(..) )
 import HLinear.Matrix.Fraction ()
 import HLinear.NormalForm.FoldUnfold.Pivot ( splitOffPivotNonZero )
 import HLinear.Utility.Fraction ( IsFraction(..), Fraction(..) )
-import HLinear.Utility.RPermute ( RPermute(..) )
 import qualified HLinear.Hook.EchelonForm as EF
-import qualified HLinear.Hook.LeftTransformation as LT
-import qualified HLinear.Hook.PLEHook.Basic as Hook
-import qualified HLinear.Utility.RPermute as RP
 
 
 data MatrixFraction a n d where
@@ -34,35 +25,31 @@ data MatrixFraction a n d where
     => Matrix n -> d -> MatrixFraction a n d
 
 
-ple :: Matrix FMPQ -> PLEHook FMPQ FMPZ
-ple m@(Matrix nrs ncs rs) =
-  let Fraction mnum ds = toFraction m
+ple :: Matrix FMPQ -> EchelonForm FMPZ
+ple m@(Matrix nrs ncs _) =
+  let Fraction mnum _ = toFraction m
   in case splitOffHook (Fraction mnum one) of
-       Nothing -> Hook.one nrs ncs
+       Nothing -> EF.zero nrs ncs
        Just (h,m') ->
-         PLEHook one
-           (LT.diagonal $ fmap (Unit . fromDenominator) ds)
-           (EF.zero nrs ncs)
-         *
-         V.foldl (*) h (V.unfoldr splitOffHook m')
+         EF.zero nrs ncs
+         +
+         V.foldl (+) h (V.unfoldr splitOffHook m')
   
 splitOffHook
   :: Fraction (Matrix FMPZ) (NonZero FMPZ)
-  -> Maybe (PLEHook FMPQ FMPZ, Fraction (Matrix FMPZ) (NonZero FMPZ))
+  -> Maybe (EchelonForm FMPZ, Fraction (Matrix FMPZ) (NonZero FMPZ))
 splitOffHook (Fraction m@(Matrix nrs ncs rs) den)
   | nrs == 0 || ncs == 0 = Nothing
   | otherwise = Just $ case splitOffPivotNonZero m of
       Nothing ->
-        ( Hook.one nrs ncs
+        ( EF.zero nrs ncs
         , Fraction (Matrix nrs (ncs-1) $ fmap V.tail rs) den
         )
-      Just (p, ((pivot, pivotBottom), (pivotTail, bottomRight))) ->
-        ( PLEHook p lt ef
-        , Fraction (Matrix (nrs-1) (ncs-1) bottomRight') den
+      Just (_, ((pivot, pivotBottom), (pivotTail, bottomRight))) ->
+        ( ef
+        , Fraction (Matrix (nrs-1) (ncs-1) bottomRight') pivot
         )
         where
-          lt = LT.singleton (Unit $ fromDenominator $ den * pivot) $
-                 fmap (fromFraction . (`Fraction` den) . negate) pivotBottom
           ef = EF.singleton nrs $ fromNonZero pivot `V.cons` pivotTail
 
           bottomRight' =
