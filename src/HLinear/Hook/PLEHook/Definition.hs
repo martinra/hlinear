@@ -10,7 +10,7 @@ import HLinear.Hook.LeftTransformation as LT
 import HLinear.Utility.RPermute as RP
 
 
--- representation af a matrix m as a triple p l e satisfying
+-- representation of a matrix m as a triple p l e satisfying
 -- e = l p m  i.e.  m = (recip p) (recip l) e
 data PLEHook a =
   PLEHook
@@ -19,7 +19,7 @@ data PLEHook a =
     (EchelonForm a)
   deriving Show
 
--- representation af a matrix m as a triple p l u e satisfying
+-- representation of a matrix m as a triple p l u e satisfying
 -- e = u l p m  i.e.  m = (recip p) (recip l) (recip u) e
 data PLUEHook a =
   PLUEHook
@@ -29,7 +29,7 @@ data PLUEHook a =
     (EchelonForm a)
   deriving Show
 
--- representation af an echelon form e as a pair u e' satisfying
+-- representation of an echelon form e as a pair u e' satisfying
 -- e' = u e  i.e.  e' = (recip u) e
 data UEHook a =
   UEHook
