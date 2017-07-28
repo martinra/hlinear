@@ -19,11 +19,14 @@ import qualified Criterion.Main.Options as Criterion
 import qualified System.FilePath as FP
 
 import HLinear.Bench.MatrixParser ( parserMatrixFMPQ )
+import HLinear.Hook.EchelonForm ( EchelonForm(..) )
 import HLinear.Hook.PLEHook ( PLUEHook(..) )
 import HLinear.Matrix ( Matrix )
-import HLinear.NormalForm.FoldUnfold.RREF.DivisionRing ( rrefWithPLE )
+import HLinear.Utility.Fraction ( Fraction(..) )
 import qualified HLinear.NormalForm.FoldUnfold.PLE.DivisionRing as PLEDR
 import qualified HLinear.NormalForm.FoldUnfold.PLE.FractionFree as PLEFF
+import qualified HLinear.NormalForm.FoldUnfold.RREF.DivisionRing as RREFDR
+import qualified HLinear.NormalForm.FoldUnfold.RREF.FractionFree as RREFFF
 
 
 main :: IO ()
@@ -41,6 +44,9 @@ main =
       Left err -> hPutStrLn stderr $ "Parse error of '" <> inputFileName <> "': " <> err
       Right mat -> mainBenchmark inputFileName mat
 
+instance NFData (NonZero FMPZ) where
+  rnf (NonZero a) = seq (rnf a) ()
+
 mainBenchmark :: FilePath -> Matrix FMPQ -> IO ()
 mainBenchmark fileName mat =
   let cfg = defaultConfig
@@ -49,6 +55,6 @@ mainBenchmark fileName mat =
               }
       getEchelonForm (PLUEHook _ _ _ e) = e
   in  runMode (Criterion.Run cfg Criterion.Prefix [])
-        [ bench "rref classical"     $ nf (getEchelonForm . rrefWithPLE PLEDR.ple) mat
-        , bench "rref fraction free" $ nf (getEchelonForm . rrefWithPLE PLEFF.ple) mat
+        [ bench "rref classical"     $ nf (getEchelonForm . RREFDR.rrefWithPLE PLEDR.ple) mat
+        , bench "rref fraction free" $ nf (RREFFF.rrefWithPLE PLEFF.ple) mat
         ]

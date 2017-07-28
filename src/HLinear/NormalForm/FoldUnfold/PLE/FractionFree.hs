@@ -16,10 +16,11 @@ import HFlint.Internal ( withFlint, withNewFlint_ )
 import HLinear.Hook.EchelonForm ( EchelonForm(..) )
 import HLinear.Hook.LeftTransformation ( LeftTransformation(..) )
 import HLinear.Hook.PLEHook ( PLEHook(..) )
-import HLinear.Matrix.Definition ( Matrix(..) )
 import HLinear.Matrix.Block ( headRows, tailRows )
-import HLinear.NormalForm.FoldUnfold.Fraction ( IsFraction(..), Fraction(..) )
+import HLinear.Matrix.Definition ( Matrix(..) )
+import HLinear.Matrix.Fraction ()
 import HLinear.NormalForm.FoldUnfold.Pivot ( splitOffPivotNonZero )
+import HLinear.Utility.Fraction ( IsFraction(..), Fraction(..) )
 import HLinear.Utility.RPermute ( RPermute(..) )
 import qualified HLinear.Hook.EchelonForm as EF
 import qualified HLinear.Hook.LeftTransformation as LT
@@ -33,7 +34,7 @@ data MatrixFraction a n d where
     => Matrix n -> d -> MatrixFraction a n d
 
 
-ple :: Matrix FMPQ -> PLEHook FMPQ
+ple :: Matrix FMPQ -> PLEHook FMPQ FMPZ
 ple m@(Matrix nrs ncs rs) =
   let Fraction mnum ds = toFraction m
   in case splitOffHook (Fraction mnum one) of
@@ -47,7 +48,7 @@ ple m@(Matrix nrs ncs rs) =
   
 splitOffHook
   :: Fraction (Matrix FMPZ) (NonZero FMPZ)
-  -> Maybe (PLEHook FMPQ, Fraction (Matrix FMPZ) (NonZero FMPZ))
+  -> Maybe (PLEHook FMPQ FMPZ, Fraction (Matrix FMPZ) (NonZero FMPZ))
 splitOffHook (Fraction m@(Matrix nrs ncs rs) den)
   | nrs == 0 || ncs == 0 = Nothing
   | otherwise = Just $ case splitOffPivotNonZero m of
@@ -62,8 +63,7 @@ splitOffHook (Fraction m@(Matrix nrs ncs rs) den)
         where
           lt = LT.singleton (Unit $ fromDenominator $ den * pivot) $
                  fmap (fromFraction . (`Fraction` den) . negate) pivotBottom
-          ef = EF.singletonLeadingOne nrs $
-                 fromFraction $ Fraction pivotTail pivot
+          ef = EF.singleton nrs $ fromNonZero pivot `V.cons` pivotTail
 
           bottomRight' =
             (\f -> V.zipWith f pivotBottom bottomRight) $ \h t ->

@@ -15,14 +15,14 @@ type HasRREF a = ( DivisionRing a, DecidableZero a, HasPLE a )
 
 
 {-# INLINABLE rref #-}
-rref :: HasRREF a => Matrix a -> PLUEHook a
+rref :: HasRREF a => Matrix a -> PLUEHook a a
 rref = rrefWithPLE PLEDR.ple
 
 {-# INLINABLE rrefWithPLE #-}
 rrefWithPLE
   :: ( DivisionRing a, DecidableZero a )
-  => ( Matrix a -> PLEHook a )
-  -> Matrix a -> PLUEHook a
+  => ( Matrix a -> PLEHook a a )
+  -> Matrix a -> PLUEHook a a
 rrefWithPLE ple m =
   let h@(PLEHook p l e) = ple m
       UEHook u e' = reduceEchelonForm e

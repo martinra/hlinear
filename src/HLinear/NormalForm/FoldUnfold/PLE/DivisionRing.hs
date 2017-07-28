@@ -20,7 +20,7 @@ type HasPLE a = ( DivisionRing a, DecidableZero a, DecidableUnit a )
 
 -- to allow the rules for particular a to fire
 {-# NOINLINE[2] ple #-}
-ple :: HasPLE a => Matrix a -> PLEHook a
+ple :: HasPLE a => Matrix a -> PLEHook a a
 ple m@(Matrix nrs ncs _) =
   case splitOffHook m of
     Nothing -> Hook.one nrs ncs
@@ -29,7 +29,7 @@ ple m@(Matrix nrs ncs _) =
 {-# INLINABLE splitOffHook #-}
 splitOffHook
   :: HasPLE a
-  => Matrix a -> Maybe (PLEHook a, Matrix a)
+  => Matrix a -> Maybe (PLEHook a a, Matrix a)
 splitOffHook m@(Matrix nrs ncs rs)
   | nrs == 0 || ncs == 0 = Nothing
   | otherwise = Just $ case splitOffPivotNonZero m of

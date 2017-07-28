@@ -3,7 +3,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module HLinear.NormalForm.FoldUnfold.Fraction
+module HLinear.Utility.Fraction
 where
 
 import HLinear.Utility.Prelude
@@ -16,22 +16,17 @@ import qualified HLinear.Matrix.Basic as M
 
 
 data Fraction n d = Fraction n d
+  deriving Show
+
+instance ( NFData n, NFData d ) => NFData (Fraction n d) where
+  rnf (Fraction n d) = seq (rnf n) $ seq (rnf d) ()
+
 
 class IsFraction a n d | a -> n d where
   toFraction :: a -> Fraction n d
   fromFraction :: Fraction n d -> a
   fromNumerator :: n -> a
   fromDenominator :: d -> a
-
-instance IsFraction FMPQ FMPZ (NonZero FMPZ) where
-  {-# INLINABLE toFraction #-}
-  toFraction a = let (n,d) = toFMPZs a in Fraction n d
-  {-# INLINABLE fromFraction #-}
-  fromFraction (Fraction n (NonZero d)) = fromFMPZs n d
-  {-# INLINABLE fromNumerator #-}
-  fromNumerator n = fromFMPZs n one
-  {-# INLINABLE fromDenominator #-}
-  fromDenominator = fromFMPZs one . fromNonZero
 
 
 instance
@@ -55,22 +50,16 @@ instance
   {-# INLINABLE fromDenominator #-}
   fromDenominator = error "isFraction (Vector a): fromDenominator would require size"
 
-instance
-     ( IsFraction a n (NonZero d)
-     , Ring a, EuclideanDomain d, MultiplicativeSemigroupRightAction d n )
-  => IsFraction (Matrix a) (Matrix n) (Vector (NonZero d))
-  where
+
+instance IsFraction FMPQ FMPZ (NonZero FMPZ) where
   {-# INLINABLE toFraction #-}
-  toFraction (Matrix nrs ncs rs) =
-    let (ns,ds) = V.unzip $ fmap (\r -> let Fraction n d = toFraction r in (n,d)) rs
-    in  Fraction (Matrix nrs ncs ns) ds
+  toFraction a = let (n,d) = toFMPZs a in Fraction n d
   {-# INLINABLE fromFraction #-}
-  fromFraction (Fraction (Matrix nrs ncs rs) ds) =
-    Matrix nrs ncs $ V.zipWith (\r d -> fromFraction $ Fraction r d) rs ds
+  fromFraction (Fraction n (NonZero d)) = fromFMPZs n d
   {-# INLINABLE fromNumerator #-}
-  fromNumerator = fmap fromNumerator
+  fromNumerator n = fromFMPZs n one
   {-# INLINABLE fromDenominator #-}
-  fromDenominator = M.diagonal . fmap fromDenominator
+  fromDenominator = fromFMPZs one . fromNonZero
 
 
 {-# RULES

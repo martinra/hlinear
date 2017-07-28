@@ -3,18 +3,15 @@ where
 
 import HLinear.Utility.Prelude
 
-import System.IO ( IO, putStrLn )
+import System.IO ( IO, print )
 
-import HLinear.Hook.PLEHook ( PLUEHook(..) )
 import HLinear.Matrix ( Matrix, fromLists )
-import HLinear.NormalForm.FoldUnfold.RREF.DivisionRing ( rrefWithPLE )
-import qualified HLinear.NormalForm.FoldUnfold.PLE.DivisionRing as PLEDR
+import HLinear.NormalForm.FoldUnfold.PLE.FractionFree ( ple )
+import HLinear.NormalForm.FoldUnfold.RREF.FractionFree( rrefWithPLE )
 
 
 main :: IO ()
-main = do
-  let getEchelonForm (PLUEHook _ _ _ e) = e
-  putStrLn $ show $ getEchelonForm $ rrefWithPLE PLEDR.ple mat
+main = print $ rrefWithPLE ple mat
 
 {-# NOINLINE mat #-}
 mat :: Matrix FMPQ

@@ -24,7 +24,7 @@ type HasPLH a =
   , HasPLHNormalization a )
 
 {-# INLINABLE plh #-}
-plh :: HasPLH a => Matrix a -> PLUEHook a
+plh :: HasPLH a => Matrix a -> PLUEHook a a
 plh m =
   let PLEHook p l e = plhNonReduced m
       UEHook r e' = reduceEchelonForm e
@@ -33,9 +33,9 @@ plh m =
 
 {-# INLINABLE plhNonReduced #-}
 plhNonReduced
-  :: ( EuclideanDomain a, DecidableZero a, MultiplicativeGroup (Unit a)
+  :: ( EuclideanDomain a, DecidableZero a
      , HasPLHNormalization a )
-  => Matrix a -> PLEHook a
+  => Matrix a -> PLEHook a a
 plhNonReduced m@(Matrix nrs ncs _) =
   case splitOffHook m of
     Nothing -> Hook.one nrs ncs
@@ -54,7 +54,7 @@ pivotPermutation (Matrix nrs ncs rs) =
 {-# INLINABLE splitOffHook #-}
 splitOffHook
   :: ( EuclideanDomain a, DecidableZero a, HasPLHNormalization a )
-  => Matrix a -> Maybe (PLEHook a, Matrix a)
+  => Matrix a -> Maybe (PLEHook a a, Matrix a)
 splitOffHook m@(Matrix nrs ncs rs)
   | nrs == 0 || ncs == 0 = Nothing
   | Just p <- pivotPermutation m = Just $

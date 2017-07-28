@@ -26,7 +26,7 @@ import qualified HLinear.NormalForm.PLE as PLE
 {-# INLINABLE reduceEchelonForm #-}
 reduceEchelonForm
   :: ( DivisionRing a, DecidableZero a )
-  => EchelonForm a -> UEHook a
+  => EchelonForm a -> UEHook a a
 reduceEchelonForm ef =
   case reduceLastPivot (ef, EF.pivotStructure ef) of
     Nothing -> UEHook (ET.one nrs) (EF.zero nrs ncs)

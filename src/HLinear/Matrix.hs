@@ -67,6 +67,7 @@ import HLinear.Matrix.Basic
 import HLinear.Matrix.Block
 import HLinear.Matrix.Column ( Column(..) )
 import HLinear.Matrix.Definition
+import HLinear.Matrix.Fraction
 import HLinear.Matrix.Invertible
 
 import HLinear.Matrix.QuickCheck ()

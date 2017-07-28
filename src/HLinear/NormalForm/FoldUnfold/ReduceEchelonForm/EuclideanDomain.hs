@@ -23,7 +23,7 @@ import qualified HLinear.Matrix as M
 
 reduceEchelonForm
   :: ( EuclideanDomain a, DecidableZero a )
-  => EchelonForm a -> UEHook a
+  => EchelonForm a -> UEHook a a
 reduceEchelonForm ef =
   case reduceLastPivot (ef, EF.pivotStructure ef) of
     Nothing -> UEHook (ET.one nrs) (EF.zero nrs ncs)

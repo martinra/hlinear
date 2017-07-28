@@ -37,6 +37,7 @@ library
     HLinear.Matrix.Block
     HLinear.Matrix.Column
     HLinear.Matrix.Definition
+    HLinear.Matrix.Fraction
     HLinear.Matrix.Invertible
     HLinear.Matrix.Naive
     HLinear.Matrix.QuickCheck
@@ -47,7 +48,6 @@ library
     HLinear.NormalForm.PLE
     HLinear.NormalForm.PLH
     HLinear.NormalForm.RREF
-    HLinear.NormalForm.FoldUnfold.Fraction
     HLinear.NormalForm.FoldUnfold.Matrix
     HLinear.NormalForm.FoldUnfold.Pivot
     HLinear.NormalForm.FoldUnfold.PLE.DivisionRing
@@ -56,7 +56,9 @@ library
     HLinear.NormalForm.FoldUnfold.PLH.Normalization
     HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.DivisionRing
     HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.EuclideanDomain
+    HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.FractionFree
     HLinear.NormalForm.FoldUnfold.RREF.DivisionRing
+    HLinear.NormalForm.FoldUnfold.RREF.FractionFree
 
     HLinear.FramedModule.Definition
     HLinear.FramedModule.Basic
@@ -92,6 +94,7 @@ library
     HLinear.Hook.ERHook.Basic
     HLinear.Hook.ERHook.Definition
 
+    HLinear.Utility.Fraction
     HLinear.Utility.Permute
     HLinear.Utility.Prelude
 
