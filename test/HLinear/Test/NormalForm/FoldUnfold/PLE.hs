@@ -10,7 +10,8 @@ import Test.Tasty
 
 import HLinear.Hook.EchelonForm ( EchelonForm(..), normalize )
 import HLinear.Hook.PLEHook ( PLEHook(..) )
-import HLinear.Matrix ( Matrix, toMatrix, toMatrices )
+import HLinear.Matrix ( Matrix, toMatrices )
+import HLinear.Matrix.Sized ( MatrixSized(..) )
 import qualified HLinear.NormalForm.FoldUnfold.PLE.DivisionRing as DR
 import qualified HLinear.NormalForm.FoldUnfold.PLE.FractionFree as FF
 
@@ -20,14 +21,16 @@ properties
   .  ReifiesNModContext ctx
   => Reader (Proxy ctx) TestTree
 properties = pure $
-  testGroup "FoldUnfold-PLE properties"
-  [ testPropertyQSnC 3
-    "recombine over division rings" $
+  testGroup "FoldUnfold-PLE"
+  [ testPropertyQSnC 2
+    "recombine ple over division rings" $
     \m -> let [p,l,e] = toMatrices $ DR.ple (m :: Matrix (NMod ctx))
           in  m == p * l * e
   , testPropertyQSnC 2
-    "compare fraction free" $
-    \m -> let e = FF.ple (m :: Matrix FMPQ)
-              PLEHook _ _ e' = DR.ple m
-          in  e' == normalize (fmap fromIntegral e :: EchelonForm FMPQ)
+    "compare fraction free ple" $
+    \msz ->
+       let m = fromMatrixSized (msz :: MatrixSized 2 4 FMPQ)
+           e = FF.ple m
+           PLEHook _ _ e' = DR.ple m
+       in  e' == normalize (fmap fromIntegral e :: EchelonForm FMPQ)
   ]
