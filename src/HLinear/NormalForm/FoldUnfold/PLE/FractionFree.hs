@@ -19,16 +19,10 @@ import HLinear.Utility.Fraction ( IsFraction(..), Fraction(..) )
 import qualified HLinear.Hook.EchelonForm as EF
 
 
-data MatrixFraction a n d where
-  MatrixFraction
-    :: IsFraction a n d 
-    => Matrix n -> d -> MatrixFraction a n d
-
-
 ple :: Matrix FMPQ -> EchelonForm FMPZ
 ple m@(Matrix nrs ncs _) =
   let Fraction mnum _ = toFraction m
-  in case splitOffHook (Fraction mnum one) of
+  in case splitOffHook (mnum, one) of
        Nothing -> EF.zero nrs ncs
        Just (h,m') ->
          EF.zero nrs ncs
@@ -36,33 +30,29 @@ ple m@(Matrix nrs ncs _) =
          V.foldl (+) h (V.unfoldr splitOffHook m')
   
 splitOffHook
-  :: Fraction (Matrix FMPZ) (NonZero FMPZ)
-  -> Maybe (EchelonForm FMPZ, Fraction (Matrix FMPZ) (NonZero FMPZ))
-splitOffHook (Fraction m@(Matrix nrs ncs rs) den)
+  :: (Matrix FMPZ, FMPZ)
+  -> Maybe (EchelonForm FMPZ, (Matrix FMPZ, FMPZ))
+splitOffHook (m@(Matrix nrs ncs rs), prevPivot)
   | nrs == 0 || ncs == 0 = Nothing
   | otherwise = Just $ case splitOffPivotNonZero m of
       Nothing ->
         ( EF.zero nrs ncs
-        , Fraction (Matrix nrs (ncs-1) $ fmap V.tail rs) den
+        , (Matrix nrs (ncs-1) (fmap V.tail rs), prevPivot)
         )
-      Just (_, ((pivot, pivotBottom), (pivotTail, bottomRight))) ->
+      Just (_, ((NonZero pivot, pivotBottom), (pivotTail, bottomRight))) ->
         ( ef
-        , Fraction (Matrix (nrs-1) (ncs-1) bottomRight') pivot
+        , (Matrix (nrs-1) (ncs-1) bottomRight', pivot)
         )
         where
-          ef = EF.singleton nrs $ fromNonZero pivot `V.cons` pivotTail
+          ef = EF.singleton nrs $ pivot `V.cons` pivotTail
 
           bottomRight' =
             (\f -> V.zipWith f pivotBottom bottomRight) $ \h t ->
               (\f' -> V.zipWith f' pivotTail t) $ \pv te ->
-                mulSubMulDiv (fromNonZero pivot) te h pv den
+                mulSubMulDiv pivot te h pv prevPivot
 
-          -- todo: to implement this to arbitarary IsFraction a n (NonZero d),
-          -- we have to find a quotient n `quot` d; Possibly this should be part of the
-          -- definition of IsFraction
-          -- ((a*a') - (b*b')) `quot` c
-          mulSubMulDiv :: FMPZ -> FMPZ -> FMPZ -> FMPZ -> NonZero FMPZ -> FMPZ
-          mulSubMulDiv a a' b b' (NonZero c) = unsafePerformIO $
+          mulSubMulDiv :: FMPZ -> FMPZ -> FMPZ -> FMPZ -> FMPZ -> FMPZ
+          mulSubMulDiv a a' b b' c = unsafePerformIO $
             withNewFlint_ $ \dptr  ->
             withFlint a   $ \aptr  ->
             withFlint a'  $ \a'ptr ->
