@@ -81,10 +81,8 @@ instance ( KnownNat nrs, KnownNat ncs, Monad m, Serial m a )
   series = do
     let nrs = fromIntegral $ natVal (Proxy :: Proxy nrs)
     let ncs = fromIntegral $ natVal (Proxy :: Proxy ncs)
-    rs <- V.sequence $ V.iterateN nrs decDepth $
-            V.sequence $ V.iterateN ncs decDepth $
-              decDepth $ decDepth series
-    return $ MatrixSized $ Matrix nrs ncs rs
+    MatrixSized <$> Matrix nrs ncs <$>
+      V.replicateM nrs (V.replicateM ncs series)
 
 --------------------------------------------------------------------------------
 -- additive structure

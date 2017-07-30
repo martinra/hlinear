@@ -16,7 +16,5 @@ instance (Monad m, Serial m a) => Serial m (Matrix a)
     guard $ nrs >= 0
     ncs <- series
     guard $ ncs >= 0
-    return . Matrix nrs ncs =<< (
-      V.sequence $ V.iterateN nrs decDepth $
-      V.sequence $ V.iterateN ncs decDepth $
-      decDepth $ decDepth series )
+    Matrix nrs ncs <$>
+      V.replicateM nrs (V.replicateM ncs series)
