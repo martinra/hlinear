@@ -13,6 +13,9 @@ import qualified HLinear.Hook.EchelonForm as EF
 import qualified HLinear.Hook.EchelonForm.Row as EFR
 
 
+-- todo: We use in the implementation that the echelon form has pivots at
+-- offsets, and no empty rows. This is enforced by the fraction free ple, but
+-- should be ensured in general.
 {-# INLINABLE reduceEchelonForm #-}
 reduceEchelonForm
   :: EchelonForm FMPZ -> Fraction (EchelonForm FMPZ) (NonZero FMPZ)
@@ -27,21 +30,22 @@ reduceEchelonForm ef@(EchelonForm nrs ncs rs)
 
         snocNormalized r rsnorm
           | V.null rsnorm = V.singleton r
-          | otherwise = (`V.cons` rsnorm) $ foldr (normalize $ pivot r) (fmap (*den) r) rsnorm
+          | otherwise     = (`V.cons` rsnorm) $ 
+              let rden = pivot r
+                  (EchelonFormRow o' r', s') = foldr normalize (r,ncs) rsnorm
+                  (r'1,r'2) = V.splitAt (s'-o'-1) (V.tail r')
+              in  EchelonFormRow o' $ den `V.cons`
+                    fmap (* (den `divexactFMPZ` rden)) r'1 <> fmap (`divexactFMPZ` rden) r'2
+              
 
-        normalize rden (EchelonFormRow on rn) (EchelonFormRow o r) =
-          EchelonFormRow o $ r1 <> zero `V.cons` r3'
+        normalize (EchelonFormRow on rn) (EchelonFormRow o r, s) =
+          (EchelonFormRow o $ r1 <> zero `V.cons` r3' <> r4', on)
           where
-            (r1,r23) = V.splitAt (o-on) r
+            (r1,r234) = V.splitAt (on-o) r
+            r34 = V.tail r234
+            (r23,r4) = V.splitAt (s-on) r234
             r2 = V.head r23
             r3 = V.tail r23
-            r3' = (\f -> V.zipWith f r3 (V.tail rn)) $ \a an -> unsafePerformIO $
-              withNewFMPZ_ $ \bptr ->
-              withFMPZ_ a  $ \aptr ->
-              withFMPZ_ an $ \anptr ->
-              withFMPZ_ r2 $ \r2ptr ->
-              withFMPZ_ rden $ \rdenptr ->
-              withFMPZ_ den  $ \denptr -> do
-                fmpz_mul bptr aptr denptr
-                fmpz_submul bptr anptr r2ptr
-                fmpz_divexact bptr anptr rdenptr
+            (rn3,rn4) = V.splitAt (s-on-1) (V.tail rn)
+            r3' = (\f -> V.zipWith f r3 rn3) $ \a an -> a*den - an*r2
+            r4' = (\f -> V.zipWith f r4 rn4) $ \a an -> a - an*r2
