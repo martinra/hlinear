@@ -8,6 +8,7 @@ import HFlint.FMPZ.FFI ( fmpz_mul, fmpz_submul, fmpz_divexact )
 
 import HLinear.Hook.EchelonForm ( EchelonForm(..) )
 import HLinear.Hook.EchelonForm.Row ( EchelonFormRow(..) )
+import HLinear.Utility.FMPZ
 import HLinear.Utility.Fraction ( Fraction(..) )
 import qualified HLinear.Hook.EchelonForm as EF
 import qualified HLinear.Hook.EchelonForm.Row as EFR
@@ -46,5 +47,5 @@ reduceEchelonForm ef@(EchelonForm nrs ncs rs)
             r2 = V.head r23
             r3 = V.tail r23
             (rn3,rn4) = V.splitAt (s-on-1) (V.tail rn)
-            r3' = (\f -> V.zipWith f r3 rn3) $ \a an -> a*den - an*r2
-            r4' = (\f -> V.zipWith f r4 rn4) $ \a an -> a - an*r2
+            r3' = mzipWith (\a an -> mulSubMul a den an r2) r3 rn3
+            r4' = mzipWith (\a an -> subMul a an r2) r4 rn4

@@ -8,13 +8,11 @@ import HLinear.Utility.Prelude
 
 import qualified Data.Vector as V
 
-import HFlint.FMPZ.FFI ( fmpz_mul, fmpz_submul, fmpz_divexact )
-import HFlint.Internal ( withFlint, withNewFlint_ )
-
 import HLinear.Hook.EchelonForm ( EchelonForm(..) )
 import HLinear.Matrix.Definition ( Matrix(..) )
 import HLinear.Matrix.Fraction ()
 import HLinear.NormalForm.FoldUnfold.Pivot ( splitOffPivotNonZero )
+import HLinear.Utility.FMPZ ( mulSubMulDivexact )
 import HLinear.Utility.Fraction ( IsFraction(..), Fraction(..) )
 import qualified HLinear.Hook.EchelonForm as EF
 
@@ -49,16 +47,4 @@ splitOffHook (m@(Matrix nrs ncs rs), prevPivot)
           bottomRight' =
             (\f -> V.zipWith f pivotBottom bottomRight) $ \h t ->
               (\f' -> V.zipWith f' pivotTail t) $ \pv te ->
-                mulSubMulDiv pivot te h pv prevPivot
-
-          mulSubMulDiv :: FMPZ -> FMPZ -> FMPZ -> FMPZ -> FMPZ -> FMPZ
-          mulSubMulDiv a a' b b' c = unsafePerformIO $
-            withNewFlint_ $ \dptr  ->
-            withFlint a   $ \aptr  ->
-            withFlint a'  $ \a'ptr ->
-            withFlint b   $ \bptr  ->
-            withFlint b'  $ \b'ptr ->
-            withFlint c   $ \cptr  -> do
-              fmpz_mul dptr aptr a'ptr
-              fmpz_submul dptr bptr b'ptr
-              fmpz_divexact dptr dptr cptr
+                mulSubMulDivexact pivot te h pv prevPivot

@@ -95,6 +95,7 @@ library
     HLinear.Hook.ERHook.Definition
 
     HLinear.Utility.Fraction
+    HLinear.Utility.FMPZ
     HLinear.Utility.Permute
     HLinear.Utility.Prelude
 
