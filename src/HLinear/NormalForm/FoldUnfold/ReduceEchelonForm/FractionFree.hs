@@ -35,8 +35,7 @@ reduceEchelonForm ef@(EchelonForm nrs ncs rs)
                   (EchelonFormRow o' r', s') = foldr normalize (r,ncs) rsnorm
                   (r'1,r'2) = V.splitAt (s'-o'-1) (V.tail r')
               in  EchelonFormRow o' $ den `V.cons`
-                    fmap (* (den `divexactFMPZ` rden)) r'1 <> fmap (`divexactFMPZ` rden) r'2
-              
+                    fmap (`divexactFMPZ` rden) (fmap (*den) r'1 <> r'2)
 
         normalize (EchelonFormRow on rn) (EchelonFormRow o r, s) =
           (EchelonFormRow o $ r1 <> zero `V.cons` r3' <> r4', on)
