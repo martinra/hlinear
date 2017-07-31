@@ -10,4 +10,4 @@ import HLinear.Hook.PLEHook ( PLUEHook(..) )
 import HLinear.NormalForm.FoldUnfold.RREF.DivisionRing ( rref, HasRREF )
 
 
-type RREF a = PLUEHook a
+type RREF a = PLUEHook a a
