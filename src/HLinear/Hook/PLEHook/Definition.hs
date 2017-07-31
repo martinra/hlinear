@@ -16,7 +16,7 @@ data PLEHook a b =
   PLEHook
     RPermute
     (LeftTransformation a)
-    (EchelonForm b)
+    !(EchelonForm b)
   deriving Show
 
 -- representation of a matrix m as a triple p l u e satisfying
@@ -26,7 +26,7 @@ data PLUEHook a b =
     RPermute
     (LeftTransformation a)
     (EchelonTransformation a)
-    (EchelonForm b)
+    !(EchelonForm b)
   deriving Show
 
 -- representation of an echelon form e as a pair u e' satisfying
@@ -34,7 +34,7 @@ data PLUEHook a b =
 data UEHook a b =
   UEHook
     (EchelonTransformation a)
-    (EchelonForm b)
+    !(EchelonForm b)
   deriving Show
 
 --------------------------------------------------------------------------------

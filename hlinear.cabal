@@ -100,7 +100,8 @@ library
     HLinear.Utility.Prelude
 
   default-extensions:
-      ConstraintKinds
+      BangPatterns
+    , ConstraintKinds
     , DataKinds
     , FlexibleContexts
     , FlexibleInstances
@@ -173,7 +174,8 @@ test-suite test-hlinear
     , vector-test
 
   default-extensions:
-      ConstraintKinds
+      BangPatterns
+    , ConstraintKinds
     , DataKinds
     , FlexibleContexts
     , FlexibleInstances
@@ -201,7 +203,8 @@ benchmark bench-hlinear
     HLinear.Bench.MatrixParser
 
   default-extensions:
-      ConstraintKinds
+      BangPatterns
+    , ConstraintKinds
     , DataKinds
     , FlexibleContexts
     , FlexibleInstances
@@ -258,7 +261,8 @@ benchmark prof-hlinear
     HLinear/Prof.hs
 
   default-extensions:
-      ConstraintKinds
+      BangPatterns
+    , ConstraintKinds
     , DataKinds
     , FlexibleContexts
     , FlexibleInstances

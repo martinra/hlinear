@@ -15,5 +15,5 @@ import HLinear.Hook.EchelonTransformation.Column
 --  which is expressed by their offset parameter.
 data EchelonTransformation a =
   EchelonTransformation
-    Int                                      -- number of rows
-    (Vector (EchelonTransformationColumn a)) -- columns from right to left
+    !Int                                      -- number of rows
+    !(Vector (EchelonTransformationColumn a)) -- columns from right to left

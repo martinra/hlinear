@@ -25,7 +25,7 @@ ple m@(Matrix nrs ncs _) =
        Just (h,m') ->
          EF.zero nrs ncs
          +
-         V.foldl (+) h (V.unfoldr splitOffHook m')
+         V.foldl' (+) h (V.unfoldr splitOffHook m')
   
 splitOffHook
   :: (Matrix FMPZ, FMPZ)

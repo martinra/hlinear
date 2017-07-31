@@ -17,7 +17,7 @@ import HLinear.Hook.LeftTransformation.Column
  --
 data LeftTransformation a =
     LeftTransformation
-      Int                                   -- number of rows
-      (Vector (LeftTransformationColumn a)) -- columns from left to right
+      !Int                                   -- number of rows
+      !(Vector (LeftTransformationColumn a)) -- columns from left to right
   | LeftTransformationMatrix
-      (Matrix a)                            -- invertible matrix
+      !(Matrix a)                            -- invertible matrix

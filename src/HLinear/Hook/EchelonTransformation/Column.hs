@@ -13,8 +13,8 @@ import qualified Math.Structure as MS
 
 data EchelonTransformationColumn a =
   EchelonTransformationColumn
-    { offset :: Int
-    , init :: Vector a
+    { offset :: !Int
+    , init :: !(Vector a)
     }
 
 --------------------------------------------------------------------------------

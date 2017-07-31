@@ -12,5 +12,8 @@ import HLinear.Matrix.Definition ( Matrix )
 -- of a matrix and an echelon form. In particular, we expect that
 -- the second and third argument have the same number of columns.
 data ERHook a =
-  ERHook (EchelonTransformation a) (Matrix a) (EchelonForm a)
+  ERHook
+    (EchelonTransformation a)
+    !(Matrix a)
+    !(EchelonForm a)
   deriving Show

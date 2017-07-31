@@ -21,9 +21,9 @@ import qualified HLinear.Utility.RPermute as RP
 
 data LeftTransformationColumn a =
   LeftTransformationColumn
-    { offset :: Int
-    , headUnit :: Unit a
-    , tail :: Vector a
+    { offset :: !(Int)
+    , headUnit :: !(Unit a)
+    , tail :: !(Vector a)
     }
 
 --------------------------------------------------------------------------------
