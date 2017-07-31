@@ -15,8 +15,8 @@ import HLinear.Matrix.Definition ( Matrix(..) )
 -- | A vector of rows, each set off by a number of zeros
 data EchelonFormRow a =
   EchelonFormRow
-    { offset :: !Int
-    , row :: !(Vector a)
+    { offset :: Int
+    , row :: Vector a
     }
 
 --------------------------------------------------------------------------------
