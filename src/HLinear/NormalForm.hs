@@ -4,5 +4,4 @@ module HLinear.NormalForm
 where
 
 import HLinear.NormalForm.PLE  as Import
-import HLinear.NormalForm.PLH  as Import
 import HLinear.NormalForm.RREF as Import

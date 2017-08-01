@@ -45,16 +45,12 @@ library
     HLinear.Matrix.TH
 
     HLinear.NormalForm.PLE
-    HLinear.NormalForm.PLH
     HLinear.NormalForm.RREF
     HLinear.NormalForm.FoldUnfold.Matrix
     HLinear.NormalForm.FoldUnfold.Pivot
     HLinear.NormalForm.FoldUnfold.PLE.DivisionRing
     HLinear.NormalForm.FoldUnfold.PLE.FractionFree
-    HLinear.NormalForm.FoldUnfold.PLH.EuclideanDomain
-    HLinear.NormalForm.FoldUnfold.PLH.Normalization
     HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.DivisionRing
-    HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.EuclideanDomain
     HLinear.NormalForm.FoldUnfold.ReduceEchelonForm.FractionFree
     HLinear.NormalForm.FoldUnfold.RREF.DivisionRing
     HLinear.NormalForm.FoldUnfold.RREF.FractionFree
