@@ -92,12 +92,12 @@ properties = pure $
         ( Proxy ::  Proxy (M.Column (NMod ctx)) )
     ]
     <>
-    runTestsSnC 2
+    runTestsSnC 1
     [ isMultiplicativeGroup
         ( Proxy :: Proxy (LeftTransformation (NMod ctx)) )
     ]
     <>
-    [ testPropertySnC 2 "toMatrix * toInverseMatrix" $
+    [ testPropertySnC 1 "toMatrix * toInverseMatrix" $
         \lt -> let m = M.toMatrix (lt :: LeftTransformation (NMod ctx)) :: Matrix (NMod ctx)
                    mi = M.toMatrix $ recip lt
                    nrs = nmbRows lt
