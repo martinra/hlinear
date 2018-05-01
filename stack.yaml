@@ -1,0 +1,20 @@
+resolver: lts-9.21
+
+packages:
+- '.'
+- location:
+        git: https://github.com/martinra/natural-test.git
+        commit: 52a456f4e7ff909a13aa584ca63af00b4a0b1468
+- location:
+        git: https://github.com/martinra/vector-test.git
+        commit: 65b61a2c61822d1e221a601d88aad771d17aea6f
+- location:
+        git: https://github.com/martinra/algebraic-structures.git
+        commit: 138d319fbd34683a5414081ea0325978cc82fbd4
+- location:
+        git: https://github.com/martinra/hflint.git
+        commit: 5c96ece2b72170b60f01632103f03f4654a0fb4e
+
+extra-deps:
+  [ permutation-0.5.0.5
+  ]
