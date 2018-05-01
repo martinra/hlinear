@@ -19,6 +19,9 @@ unitTests = testGroup "Quick- and SmallCheck unit tests"
     ( [ fromLists' 0 0 []
       , fromLists' 0 1 []
       , fromLists' 1 0 [[]]
+      , fromLists' 1 1 [[0]]
+      , fromLists' 1 1 [[1]]
+      , fromLists' 1 1 [[-1]]
       ]
     )
 
